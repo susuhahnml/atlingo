@@ -1,12 +1,4 @@
-% %-------------------- Defines predicates that hold ------------------------
-holds(ID,T):-theory_string(ID_H,"holds"),
-theory_function(_,ID_H,ID_T),
-theory_tuple(ID_T,0,ID),
-theory_tuple(ID_T,1,ID_N),
-theory_number(ID_N,T).
-
-
-
+horizon(T):- #max{T':holds(_,T')}=T.
 % %-------------------- Nodes in run ------------------------
 % %
 % %       node_run(S,T,P): The run has a node representing state S
@@ -15,18 +7,15 @@ theory_number(ID_N,T).
 % %                     true - branch reached true => valid run
 % %                     false - branch reached fals => invalid run
 
-node_run(id(ID),0,root):-initial_state(ID).%Strat in root state
+%Strat in root state
+node_run(id(ID),0,root):-initial_state(ID).
 
-
-#show holds/2.
-#show node_run/3.
-#show node_run_unfold/3.
 % % %-------------------- Nodes in run auxiliary ------------------------
 
 % If state S is in the run and it has a detla BD then BD follows in children
 node_run_unfold(BD,T+1,node_run(id(ID),T,P)):- 
 node_run(id(ID),T,P), 
-delta(ID, BD).
+delta(ID, BD),horizon(TMAX),T<=TMAX.
 
 % If boolean formulas directly to one node
 node_run(id(ID),T,P):-node_run_unfold(pbf_id(ID),T,P).
@@ -40,24 +29,24 @@ node_run_unfold(B2,T,P):-node_run_unfold(pbf_and(B1,B2),T,P).
 % If boolean formulas is OR al least on node is in run
 1{node_run_unfold(B1,T,P); node_run_unfold(B2,T,P)}1:-node_run_unfold(pbf_or(B1,B2),T,P).
 
-% % % If boolean formulas is DECIDE only holds runs will open
-% node_run_unfold(B1,T,P):-node_run_unfold(pbf_decide(V,B1,B2),T,P), holds(V,T-1).
-% node_run_unfold(B2,T,P):-node_run_unfold(pbf_decide(V,B1,B2),T,P), not holds(V,T-1).
+% % If boolean formulas is DECIDE only holds runs will open
+node_run_unfold(B1,T,P):-node_run_unfold(pbf_decide(V,B1,B2),T,P), holds(V,T-1).
+node_run_unfold(B2,T,P):-node_run_unfold(pbf_decide(V,B1,B2),T,P), not holds(V,T-1).
 
 
-% % %-------------------- Accepting runs ------------------------
+% %-------------------- Accepting runs ------------------------
 
-% arity(node_run(B,T,P),A):- #count{1,B',T':node_run(B',T',node_run(B,T,P))}=A, node_run(B,T,P).
+arity(node_run(B,T,P),A):- #count{1,B',T':node_run(B',T',node_run(B,T,P))}=A, node_run(B,T,P).
 
-% %Every node with arity A is accepted if all its children are accepted
-% accepting(node_run(id(ID),T,P)):- #count{1,B,T':accepting(node_run(B,T',node_run(id(ID),T,P)))}=A,
-%                                   A>=1,
-%                                   A==A',
-%                                   arity(node_run(id(ID),T,P),A'),
-%                                   node_run(id(ID),T,P).
+%Every node with arity A is accepted if all its children are accepted
+accepting(node_run(id(ID),T,P)):- #count{1,B,T':accepting(node_run(B,T',node_run(id(ID),T,P)))}=A,
+                                  A>=1,
+                                  A==A',
+                                  arity(node_run(id(ID),T,P),A'),
+                                  node_run(id(ID),T,P).
 
-% accepting(node_run(true,T,P)):-node_run(true,T,P).
+accepting(node_run(true,T,P)):-node_run(true,T,P).
 
-% %The the root as the node must be accepting
-% :- not accepting(node_run(_,0,root)).
-% :- node_run(false,N,P).
+%The the root node must be accepting
+:- not accepting(node_run(_,0,root)).
+:- node_run(false,N,P).

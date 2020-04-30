@@ -33,10 +33,6 @@ theory_string(ID_O,P), not operator(P).
 % theory_tuple(-ID_T,0,ID), 
 % theory_string(IDNOTO,"~").
 
-%Create function for last prop in case not in holds
-% {theory_string(last_const,"last")}.
-% :-theory_string(ID1,S),theory_string(ID2,S), ID1<ID2.
-% :- not theory_string(_,"last").
 last_id(ID):-
 theory_function(ID,ID_O,ID_T),
 theory_string(ID_O,"last").
