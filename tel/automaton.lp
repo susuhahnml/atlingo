@@ -25,13 +25,6 @@ prop_id(ID):-
 theory_function(ID,ID_O,ID_T),
 theory_string(ID_O,P), not operator(P).
 
-%Create a Not for each prop with a negative ID
-% theory_tuple(-ID,0,ID) :- prop_id(ID).
-
-% theory_function(-ID,IDNOTO,ID_T):-
-% prop_id(ID),
-% theory_tuple(-ID_T,0,ID), 
-% theory_string(IDNOTO,"~").
 
 last_id(ID):-
 theory_function(ID,ID_O,ID_T),

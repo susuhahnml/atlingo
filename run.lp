@@ -50,4 +50,6 @@ accepting(node_run(true,T,P)):-node_run(true,T,P).
 %The the root node must be accepting
 :- not accepting(node_run(_,0,root)).
 :- node_run(false,N,P).
-% #show delta/2.
+
+
+#show run_node_at(N,T):node_run(N,T,_).

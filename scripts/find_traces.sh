@@ -8,3 +8,7 @@ echo "Removing.."
 sed -i "" '1,3d' ./outputs/$1/found_traces.lp
 echo "Replacing.."
 sed -i "" $'s/) /).\\\n/g' ./outputs/$1/found_traces.lp
+
+
+
+gringo del/theory.lp del/instance_formula.lp --output=reify > ./outputs/del/instance_reified.lp | clingo ./outputs/del/instance_reified.lp del/automaton.lp trace_finder.lp run.lp -n 0 
