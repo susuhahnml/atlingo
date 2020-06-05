@@ -1,6 +1,6 @@
 #const horizon = 4.
 #const new_last_id = 99999.
-time(0..horizon).
+time(1..horizon). %Start in 1 like in asprilo
 
 % Define theory_string for last
 theory_string(new_last_id+1,"last").

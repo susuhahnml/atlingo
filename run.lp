@@ -8,7 +8,7 @@ horizon(T):- #max{T':holds(_,T')}=T.
 % %                     false - branch reached fals => invalid run
 
 %Strat in root state
-node_run(id(ID),0,root):-initial_state(ID).
+node_run(id(ID),1,root):-initial_state(ID).
 
 % % %-------------------- Nodes in run auxiliary ------------------------
 
@@ -48,7 +48,7 @@ accepting(node_run(id(ID),T,P)):- #count{1,B,T':accepting(node_run(B,T',node_run
 accepting(node_run(true,T,P)):-node_run(true,T,P).
 
 %The the root node must be accepting
-:- not accepting(node_run(_,0,root)).
+:- not accepting(node_run(_,1,root)).
 :- node_run(false,N,P).
 
 

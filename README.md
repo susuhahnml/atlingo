@@ -42,7 +42,7 @@ $ gringo temporal_constraints/del_simple_robot_move.lp del/theory.lp --output=re
 2. Use the reified output (generated in step 1) and the automaton transformation to generate valid traces the trace. One stable model per accepted run for every possible trace will be generated.
 
 ```shell
-$ clingo reified_outputs/del/instance_generation.lp del/automaton.lp run.lp traces_transformations/{trace_generator.lp,trace_last_generator.lp}
+$ clingo reified_outputs/del/instance_generation.lp del/automaton.lp run.lp traces_transformations/trace_generator.lp
 ```
 
 
@@ -57,11 +57,11 @@ Using theory atoms we define a trace and check if it is accepted by the automato
 
 Example:
 ```shell
-$ gringo temporal_constraints/del_simple_robot_move.lp del/theory.lp traces_transformations/theory_traces/{trace_instances/trace_asprilo.lp,trace_theory.lp} --output=reify > reified_outputs/del/instance_theory_trace.lp
+$ gringo temporal_constraints/del_simple_robot_move.lp del/theory.lp traces_transformations/theory_traces/{trace_instances/trace_movements.lp,trace_theory.lp} --output=reify > reified_outputs/del/instance_theory_trace.lp
 ```
 
 2. Use the reified output (generated in step 1) and the automaton transformation to validate the trace. One stable model per accepted run will be generated
-
+ 
 Example:
 ```shell
 $ clingo reified_outputs/del/instance_theory_trace.lp del/automaton.lp run.lp traces_transformations/theory_traces/trace_validator.lp
@@ -85,7 +85,7 @@ $ gringo temporal_constraints/del_simple_robot_move_asprilo.lp del/theory.lp env
 
 Example:
 ```shell
-$ clingo reified_outputs/del/instance_asprilo.lp del/automaton.lp run.lp traces_transformations/{asprilo_traces.lp,trace_last_generator.lp} env/asprilo-encodings/abc/{output-MPPD.lp,action-MPP.lp,goal-D-c.lp} env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
+$ clingo reified_outputs/del/instance_asprilo.lp del/automaton.lp run.lp traces_transformations/asprilo_traces.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
 ```
 
 <!-- 

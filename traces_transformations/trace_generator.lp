@@ -1,3 +1,4 @@
+#include "trace_last_generator.lp".
 % Any proposition can hold at any instant
 {holds(ID,T)}:-prop_id(ID),time(T).
 
