@@ -11,10 +11,8 @@ theory_element(ID_E,ID_T,_),
 theory_tuple(ID_T,0,ID).
 
 
-additional_function("holds").
-additional_function("trace").
-additional_function("last").
-
 state(ID):-
 theory_function(ID,ID_O,ID_T),
-theory_string(ID_O,P), not additional_function(P).
+theory_string(ID_O,P), operator(P).
+
+state(ID):- prop_id(ID).

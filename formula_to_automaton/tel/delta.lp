@@ -1,3 +1,8 @@
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Delta:
+% %     Defines the translation function
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %-------------------- Initial formula --------------------------
 initial_state(ID):-
 theory_atom(ID_A,ID_O,ID_E),
@@ -6,30 +11,6 @@ theory_element(ID_E,ID_T,_),
 theory_tuple(ID_T,0,ID).
 
 %-------------------- Initial operators --------------------------
-
-unary_o("~").
-unary_o(">").
-unary_o(">:").
-unary_o(">?").
-unary_o(">*").
-binary_o("&").
-binary_o("|").
-binary_o(">?").
-operator(O):-binary_o(O).
-operator(O):-unary_o(O).
-operator("holds").
-operator("trace").
-operator("last").
-
-prop_id(ID):-
-theory_function(ID,ID_O,ID_T),
-theory_string(ID_O,P), not operator(P).
-
-
-last_id(ID):-
-theory_function(ID,ID_O,ID_T),
-theory_string(ID_O,"last").
-
 
 % %-------------------- Positive boolean formulas shape ------------
 % %

@@ -1,11 +1,14 @@
 initial_state(11).
-prop_id(6).
+pos_prop_id(6).
+pos_prop_id(9).
+pos_prop_id(0).
+pos_prop_id(4).
+pos_prop_id(3).
 prop_id(9).
-state(6).
 state(9).
 state(10).
 state(11).
-delta(6,pbf_decide(6,pbf_true,pbf_false)).
+state(99999).
 delta(9,pbf_decide(9,pbf_true,pbf_false)).
 delta(10,pbf_decide(99999,pbf_false,pbf_id(9))).
 delta(11,pbf_and(pbf_decide(99999,pbf_false,pbf_id(9)),pbf_decide(9,pbf_true,pbf_false))).

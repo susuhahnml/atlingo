@@ -85,12 +85,31 @@ Example parallel to asprilo encoding:
 $ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8
 ```
 
-When using the asprilo encoding the result can be used in the visualization using:
-```shell
-$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
-```
 
 
 *Note: This process obtains one stable model per accepted run. When multiple traces are given, each will generate the corresponding runs.* 
 
 *Note: The last time step is generated with a choice rule before the given horizon. Therefore many traces might be considered.*
+
+
+## Further integration with asprilo
+
+Use other predicates as part of constraint by including them in the reification.
+
+Example:
+```shell
+$ gringo examples/temporal_constraints/del_robot_move_asprilo.lp formula_to_automaton/del/theory.lp env/asprilo-encodings/{examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp,input.lp} --output=reify > output_reified_formulas/del/formula_2.lp
+```
+
+Perform step 1.2 normally.
+
+Example:
+```shell
+$ clingo output_reified_formulas/del/formula_2.lp formula_to_automaton/automata.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_2.lp
+```
+
+Use a pipeline with the visualization with the same example.
+
+```shell
+$ clingo output_automata_facts/del/automata_2.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
+```

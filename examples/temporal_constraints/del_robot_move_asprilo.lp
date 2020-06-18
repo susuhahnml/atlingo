@@ -1,6 +1,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Example using asprilo robot
+% % Example where the last tree moves of all robost
+% % are moving right
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- not &del{(?move(robot(X),(0,1)) ;; &true ;; ?move(robot(X),(0,1)) ;; &true) .>? &true},robot(X).
+:- not &del{(* &true) .>? (?move(robot(X),(1,0)) ;; &true ;; ?move(robot(X),(1,0)) ;; &true ;; ?move(robot(X),(1,0))).>? (&true.>* &false)}, robot(X).
