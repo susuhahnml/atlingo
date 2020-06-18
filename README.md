@@ -1,117 +1,96 @@
 # ASP encodings to translate temporal logics into Alternating Automatons 
 
-This project contains the encodings to transform temporal logic formulas into alternating automatons. 
+This project contains the encodings to transform temporal logic formulas into alternating automatons which allow validation and generation of traces.
 We work with two different types of formulas:
-- **TEL** (Linear Temporal Logic over finite traces) LTLf [tel](./tel) 
--  **DEL** (Linear Dynamic Logic over finite traces) LDLf [del](./del) 
+- **TEL** (Linear Temporal Logic over finite traces) LTLf
+-  **DEL** (Linear Dynamic Logic over finite traces) LDLf
 
- We will use in this document `del` as an example but it can be substituted by `tel`.
+We will use in this document `del` as an example but it can be substituted by `tel`.
 
+We think of this approach in two steps:
+1.  Generation of a declarative representation of an automaton from a theory atom representing a temporal formula, with files in [formula_to_automaton](./formula_to_automaton).
+2.  Using a declarative representation of an automaton to check if a trace is accepted by generating all valid runs  with files in [automata_run](./automata_run). This process has two options.
+    1. The trace is explicitly provided via facts, or an external encoding (such as asprilo). 
+    2. Traces are generated using a choice rule, thus computing all valid traces for a given horizon.
 
-- **Theory** defining the syntax for the formulas [del/theory.lp](./del/theory.lp) 
-- **Translation** into an Alternating Automaton [del/automaton.lp](./del/automaton.lp)
-- **Instance Encodings** using temporal formulas in an integrity constraint [temporal_constraints](./temporal_constraints) . Can only be used with the form:
+We now explain the encodings used and provide examples.
+
+## 1. Formula to automaton
+
+### Step 1.1: Reification of theory atom
+
+#### Requires:
+
+- **Temporal formula in an integrity constraint** such as [del_robot_move](./examples/temporal_constraints/del_robot_move.lp) with format:
 ```
 :- not &del{<formula here>}, <additional atoms>.
 ```
 
-Temporal constraints are passed tru `gringo` along with the theory definition to unfold their structure. They are saved in its reified format to be handeled by the automaton construction.
+- **Theory definition** defining the syntax for the formulas [del/theory.lp](./formula_to_automaton/del/theory.lp).
 
-
-- **Runs** of the automaton are generated and checked using the encoding in [run.lp](./run.lp).
-
-## Usage
-
-We give some options to handle, generate and validate traces. The files for each of these options are found in [./traces_transformations/](./traces_transformations/).
-
-### Generation of traces
-
-[./traces_transformations/trace_generator.lp](./traces_transformations/trace_generator.lp)
-
-This encoding will generate possible traces making each atom possibily true at any instant. 
-It requires also the use of the encoding [trace_last_generator](./traces_transformations/trace_last_generator.lp) to enforce a last timestep.
-
-
-1. Construct the reified format.
+Temporal constraints are passed tru `gringo` along with the theory definition to unfold their structure. They are saved in its reified format to represent the syntax tree that will by the automaton construction.
 
 Example:
 ```shell
-$ gringo temporal_constraints/del_simple_robot_move.lp del/theory.lp --output=reify > reified_outputs/del/instance_generation.lp
+$ gringo examples/temporal_constraints/del_robot_move.lp formula_to_automaton/del/theory.lp --output=reify > output_reified_formulas/del/formula_1.lp
 ```
 
-2. Use the reified output (generated in step 1) and the automaton transformation to generate valid traces the trace. One stable model per accepted run for every possible trace will be generated.
+### Step 1.2: Translation of reified formula to automaton representation
 
-```shell
-$ clingo reified_outputs/del/instance_generation.lp del/automaton.lp run.lp traces_transformations/trace_generator.lp
-```
+We transform the formula to an automaton with the file [automata.lp](./formula_to_automaton/automata.lp).
 
+#### Requires:
 
+- **Last propostion** We define the proposition for the last step using [last_prop.lp](./formula_to_automaton/last_prop.lp)
+- **Atomic propositions** Gather all atomic propositions used in the formula from the reified output with [propositional_atoms.lp](./formula_to_automaton/propositional_atoms.lp)
+- **States** Compute the states of the automaton. This process depends on the type of logic we use. [del/states.lp](./formula_to_automaton/del/states.lp).
+- **Delta** Compute the transition function. This process depends on the type of logic we use. [del/delta.lp](./formula_to_automaton/del/delta.lp).
+- **Map** Create a mapping from ids used in the reification with [id_map.lp](./formula_to_automaton/id_map.lp). This is used in the traces and for visualization.
 
-### Validation of traces using theory atoms
-
-[./traces_transformations/trace_generator.lp](./traces_transformations/trace_generator.lp)
-
-Using theory atoms we define a trace and check if it is accepted by the automaton. The trace needs to be included in the reification of the formula to share ids.  The trace must also have the last time step explicitly. 
-
-1. Construct the reified format including the trace as theory atoms and the theory to define them.
+The representation is the saved inside [output_automata_facts](./output_automata_facts)
 
 Example:
 ```shell
-$ gringo temporal_constraints/del_simple_robot_move.lp del/theory.lp traces_transformations/theory_traces/{trace_instances/trace_movements.lp,trace_theory.lp} --output=reify > reified_outputs/del/instance_theory_trace.lp
+$ clingo output_reified_formulas/del/formula_1.lp formula_to_automaton/automata.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_1.lp
 ```
 
-2. Use the reified output (generated in step 1) and the automaton transformation to validate the trace. One stable model per accepted run will be generated
- 
-Example:
+## 2. Runs of the automaton
+
+To compute the runs for an automaton we require a trace defining which atomic propositions hold in what instant. Given the trace, all accepted runs for the automaton are computed using [run.lp](./automata_run/run.lp). 
+
+The trace can be obtain in two ways:
+
+1.  It is generated using a choice rule [trace_generator.lp](./automata_run/trace_generator.lp)
+
+Example generating traces of maximum length 3:
 ```shell
-$ clingo reified_outputs/del/instance_theory_trace.lp del/automaton.lp run.lp traces_transformations/theory_traces/trace_validator.lp
+$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp automata_run/trace_generator.lp -c horizon=3
 ```
 
-### Asprilo Traces
 
-[./traces_transformations/asprilo_traces.lp](./traces_transformations/asprilo_traces.lp)
+1.  It is explicitly defined, this option requires a definition of the mapping, see example [example](./examples/traces/asprilo_trace_mapping.lp), and either an explicit trace like [trace](./examples/traces/asprilo_trace_explicit_valid_1.lp) or an encoding passed generating the traces.
 
-Transforms the atoms `move` and `pickup` of asprilo into `holds` relationship used by automaton. This allows the automaton to check plans during the computation.
-
-
-1. Construct the reified format including the asprilo example and the asprilo `.init.lp` encoding for the grounding.
-
-Example:
+Example explicit valid trace:
 ```shell
-$ gringo temporal_constraints/del_simple_robot_move_asprilo.lp del/theory.lp env/asprilo-encodings/{examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp,input.lp} --output=reify > reified_outputs/del/instance_asprilo.lp
+$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp examples/traces/asprilo_trace_explicit_valid_1.lp -c horizon=6
 ```
 
-2. Use the reified output (generated in step 1), the automaton transformation, the asprilo dynamics and the example same example to generate plans following the temporal constraints.
-
-Example:
+Example explicit invalid trace:
 ```shell
-$ clingo reified_outputs/del/instance_asprilo.lp del/automaton.lp run.lp traces_transformations/asprilo_traces.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
+$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp examples/traces/asprilo_trace_explicit_invalid.lp -c horizon=6
 ```
 
-<!-- 
-
-
-## Scripts
-
-Replace `<tel>` by `<del>` in the commands to use dynamic formulas.
-
-#### Check Trace
-
-Checks if a given trace is accepted by a temporal formula.
-
-```
-$ scripts/check_trace.sh tel <path/to/formula> <path/to/trace>
+Example parallel to asprilo encoding:
+```shell
+$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8
 ```
 
-The trace must be specified using the syntax `&trace{holds(p(),T)}.` Indicating that predicate p holds at time step T. All predicates must have parenthesis. See an example in [trace.lp](./trace.lp).
-
-![Diag](/img/diag-validate.png)
-
-#### Find Traces
-
-Generates all the possible traces for a given formula
-
+When using the asprilo encoding the result can be used in the visualization using:
+```shell
+$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
 ```
-$ scripts/find_traces.sh tel <path/to/formula>
-```
-![Diag](/img/diag-generate.png) -->
+
+
+*Note: This process obtains one stable model per accepted run. When multiple traces are given, each will generate the corresponding runs.* 
+
+*Note: The last time step is generated with a choice rule before the given horizon. Therefore many traces might be considered.*

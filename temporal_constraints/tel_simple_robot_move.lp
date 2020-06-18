@@ -1,1 +1,0 @@
-:- not &tel{>move(robot(X),(0,1)) & move(robot(X),(0,1))},robot(X).

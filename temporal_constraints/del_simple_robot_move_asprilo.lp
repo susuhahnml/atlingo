@@ -1,1 +1,0 @@
-:- not &del{(?move(robot(X),(0,1)) ;; &true ;; ?move(robot(X),(0,1)) ;; &true) .>? &true},robot(X).
