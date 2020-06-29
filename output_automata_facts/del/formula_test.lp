@@ -1,0 +1,17 @@
+initial_state(box(top,bottom)).
+state(top).
+state(bottom).
+state(box(top,bottom)).
+delta(top,pbf_true).
+delta(bottom,pbf_false).
+delta(box(top,bottom),pbf_decide(99999,pbf_true,pbf_id(bottom))).
+id_map(99999,"last").
+id_map(0,"del").
+id_map(3,"true").
+id_map(2,"&").
+id_map(5,"false").
+id_map(1,".>*").
+id_map(100000,"last").
+id_map(6,("&","false")).
+id_map(4,("&","true")).
+id_map(7,(".>*",("&","true"),("&","false"))).

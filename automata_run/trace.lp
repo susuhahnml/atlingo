@@ -19,5 +19,5 @@ time(1..horizon). %Start in 1 (like in asprilo)
 % Nothing can hold after last
 :-holds(new_last_id,T),holds(P,T'),T'>T.
 
-#show holds_map(MAP,T): holds(ID,T), id_map(ID,MAP).
+#show holds_map(T,MAP): holds(ID,T), id_map(ID,MAP).
 

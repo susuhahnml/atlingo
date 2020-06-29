@@ -101,6 +101,8 @@ Example:
 $ gringo examples/temporal_constraints/del_robot_move_asprilo.lp formula_to_automaton/del/theory.lp env/asprilo-encodings/{examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp,input.lp} --output=reify > output_reified_formulas/del/formula_2.lp
 ```
 
+<!-- gringo examples/temporal_constraints/del_robot_move_asprilo_simple.lp formula_to_automaton/del/theory.lp env/asprilo-encodings/{generatedInstances/x5_y1_n5_r1_s1_ps1_pr1_u1_o1_l1_N001.lp,input.lp} --output=reify > output_reified_formulas/del/formula_2.lp -->
+
 Perform step 1.2 normally.
 
 Example:
@@ -113,3 +115,5 @@ Use a pipeline with the visualization with the same example.
 ```shell
 $ clingo output_automata_facts/del/automata_2.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
 ```
+<!-- 
+gringo examples/temporal_constraints/del_robot_move_asprilo_simple.lp formula_to_automaton/del/theory.lp env/asprilo-encodings/{generatedInstances/x5_y1_n5_r1_s1_ps1_pr1_u1_o1_l1_N001.lp,input.lp} --output=reify > output_reified_formulas/del/formula_2.lp && clingo output_reified_formulas/del/formula_2.lp formula_to_automaton/automata.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_2.lp && clingo output_automata_facts/del/automata_2.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/generatedInstances/x5_y1_n5_r1_s1_ps1_pr1_u1_o1_l1_N001.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz -->

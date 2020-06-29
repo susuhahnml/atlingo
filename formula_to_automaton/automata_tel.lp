@@ -3,8 +3,6 @@
 % %     Generates the translation of the automata
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#const logic_type="del".
-logic(logic_type).
 % %-------------------- Define last --------------------------
 % %
 % %       last_id(ID): Where ID is the id of proposition last
@@ -20,16 +18,13 @@ logic(logic_type).
 % %       initial_state(S): The initial state
 % %       state(S): All states
 
-% #include "tel/states.lp".
-#include "del/states.lp".
-% #include "del/states.lp":-logic("del"). ????????????????????????????
+#include "tel/states.lp".
 
 % %------------------ Delta function ------------------------
 % %
 % %       delta(S,B): The delta transition from state S is the
 % %                    positive boolean formula B
-% #include "tel/delta.lp".
-#include "del/delta.lp".
+#include "tel/delta.lp".
 
 % %------------------ Include mapping to visualize ids and use in trace  map ----------------
 
@@ -40,4 +35,5 @@ logic(logic_type).
 #show delta/2.
 #show initial_state/1.
 #show prop_id/1.
+
 

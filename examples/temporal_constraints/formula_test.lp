@@ -1,0 +1,1 @@
+:- not &del{ &true .>* &false}.
