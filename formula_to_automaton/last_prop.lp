@@ -3,11 +3,14 @@
 % %     Crates proposition for last time_step
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+used_id(ID):-theory_string(ID,S),S!="last".
+used_id(ID):-theory_function(ID,IDS,_),theory_string(IDS,S),S!="last".
 
-#const new_last_id = 99999.
+last_id(MID+1):- #max{ID:used_id(ID)}=MID.
 
 % Define theory_string for last
-theory_string(new_last_id+1,"last").
-theory_function(new_last_id,new_last_id+1,-1).
+theory_string(ID,"last"):-last_id(ID).
 
-last_id(ID):- theory_function(ID,ID_O,ID_T), theory_string(ID_O,"last").
+#show last_id/1. %DONT REMOVE
+
+

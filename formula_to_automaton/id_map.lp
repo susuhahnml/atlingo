@@ -4,14 +4,14 @@
 % %     into predicates
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-id_map(ID,("last")):-
-last_id(ID).
-
 id_map(ID,(P)):-
 theory_string(ID,P).
 
 id_map(ID,(P)):-
 theory_number(ID,P).
+
+% Find max arity of a tuple
+tuple_pos(0..MAX):-#max{D:theory_tuple(_,D,_)}=MAX.
 
 % ------- Sequence
 
@@ -19,7 +19,7 @@ theory_number(ID,P).
 id_map(ID,(MAP_0)):-
 theory_sequence(ID,tuple,ID_T),
 theory_tuple(ID_T,0,ID_0),
-not theory_tuple(ID_T,1,_),
+not theory_tuple(ID_T,1,_), 
 id_map(ID_0,MAP_0).
 
 % Arity 2
@@ -65,4 +65,5 @@ id_map(ID_1,MAP_1),
 id_map(ID_2,MAP_2).
 
 
-#show id_map/2.
+#show id_map/2. %DONT REMOVE
+#show tuple_pos/1.

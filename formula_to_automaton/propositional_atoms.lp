@@ -36,6 +36,11 @@ theory_string(ID_O,P), not operator(P), not other_string(P).
 pos_prop_id(ID):-
 theory_string(ID,P), not operator(P), not other_string(P).
 
+% Find max arity of a tuple
+tuple_max(MAX):-#max{D:theory_tuple(_,D,_)}=MAX.
+
+% Remove arguments of atoms from the prop: 
+% Example: Remove robot(1) when only appearing in move(robot(1)).
 prop_id(ID):-
 pos_prop_id(ID), 
-#count{1,ID_PARENT:theory_function(ID_PARENT, _, ID_T),theory_tuple(ID_T,0..4,ID),not pos_prop_id(ID_PARENT)}>0.
+#count{1,ID_PARENT:theory_function(ID_PARENT, _, ID_T),theory_tuple(ID_T,0..MAX,ID),not pos_prop_id(ID_PARENT)}>0, tuple_max(MAX).

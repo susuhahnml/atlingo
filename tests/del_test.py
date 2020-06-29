@@ -118,6 +118,10 @@ class TestMain(TestCase):
         result = run_check(":-not &del{ ?q .>* p}.",trace="")
         self.assert_all([[(1,'"last"')],[(2,'"last"')],[(3,'"last"')]],result)     
 
+    def test_z(self):
+        result = run_check(":-not &del{ ?q(1,2,3,4,5,6) .>* p}.",trace="")
+        self.assert_all([[(1,'"last"')],[(2,'"last"')],[(3,'"last"')]],result)   
+
         # result = run_check(":-not &del{ &true .>* p}."), [[]])
         # result = run_check(":-not &del{ &true .>* p}.q'."), [])
         # result = run_check(":-not &del{ &true .>* p}.p'."), [['p(1)']])

@@ -8,16 +8,17 @@
 % %-------------------- Creates the last timestep ------------------------
 
 #const horizon = 8.
-#const new_last_id = 99999. %Also used when computing automaton
+
+%last_id Should come as part of the facts
 
 time(1..horizon). %Start in 1 (like in asprilo)
 
 % Last can hold at any instant
-{holds(new_last_id,T)}:-time(T).
+{holds(ID,T)}:-time(T),last_id(ID).
 % Only one last step
-:- #count{1,T:holds(new_last_id,T),time(T)}!=1.
+:- #count{1,T:holds(ID,T),time(T)}!=1,last_id(ID).
 % Nothing can hold after last
-:-holds(new_last_id,T),holds(P,T'),T'>T.
+:-holds(ID,T),holds(P,T'),T'>T,last_id(ID).
 
 #show holds_map(T,MAP): holds(ID,T), id_map(ID,MAP).
 
