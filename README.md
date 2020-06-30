@@ -37,7 +37,7 @@ $ gringo examples/temporal_constraints/del_robot_move.lp formula_to_automaton/de
 
 ### Step 1.2: Translation of reified formula to automaton representation
 
-We transform the formula to an automaton with the file [automata.lp](./formula_to_automaton/automata.lp).
+We transform the formula to an automaton with the file [automata.lp](./formula_to__del_del.lp).
 
 #### Requires:
 
@@ -51,8 +51,17 @@ The representation is the saved inside [output_automata_facts](./output_automata
 
 Example:
 ```shell
-$ clingo output_reified_formulas/del/formula_1.lp formula_to_automaton/automata.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_1.lp
+$ clingo output_reified_formulas/del/formula_1.lp formula_to_automaton/automata_del.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_1.lp
 ```
+
+### Script
+The full translation process can be run from a script using only the command:
+
+```shell
+$ scripts/translate.sh del <constraint_file.lp>
+```
+Where constraint_file.lp is inside 'examples/temporal_constraints/'. The automaton representation is saved using the same name inside 'output_automata_facts/del/'.
+
 
 ## 2. Runs of the automaton
 
@@ -68,7 +77,7 @@ $ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp automata_ru
 ```
 
 
-1.  It is explicitly defined, this option requires a definition of the mapping, see example [example](./examples/traces/asprilo_trace_mapping.lp), and either an explicit trace like [trace](./examples/traces/asprilo_trace_explicit_valid_1.lp) or an encoding passed generating the traces.
+2.  It is explicitly defined, this option requires a definition of the mapping, see example [example](./examples/traces/asprilo_trace_mapping.lp), and either an explicit trace like [trace](./examples/traces/asprilo_trace_explicit_valid_1.lp) or an encoding passed generating the traces.
 
 Example explicit valid trace:
 ```shell
@@ -107,7 +116,7 @@ Perform step 1.2 normally.
 
 Example:
 ```shell
-$ clingo output_reified_formulas/del/formula_2.lp formula_to_automaton/automata.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_2.lp
+$ clingo output_reified_formulas/del/formula_2.lp formula_to_automaton/automata_del.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_2.lp
 ```
 
 Use a pipeline with the visualization with the same example.
@@ -115,5 +124,26 @@ Use a pipeline with the visualization with the same example.
 ```shell
 $ clingo output_automata_facts/del/automata_2.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
 ```
-<!-- 
-gringo examples/temporal_constraints/del_robot_move_asprilo_simple.lp formula_to_automaton/del/theory.lp env/asprilo-encodings/{generatedInstances/x5_y1_n5_r1_s1_ps1_pr1_u1_o1_l1_N001.lp,input.lp} --output=reify > output_reified_formulas/del/formula_2.lp && clingo output_reified_formulas/del/formula_2.lp formula_to_automaton/automata.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_2.lp && clingo output_automata_facts/del/automata_2.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/generatedInstances/x5_y1_n5_r1_s1_ps1_pr1_u1_o1_l1_N001.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz -->
+
+## Visalization of Automata
+
+The representation of the automata can be visualized on an image by running :
+
+```shell
+$ python scripts/viz.py del <automata_name>
+```
+
+Where automata_name is the name of the file with the facts inside 'output_automata_facts/del', an image with the same name will be saved in 'output_viz/del'.
+
+Example:
+
+![](output_viz/del/formula_test.png)
+
+
+## Tests
+
+The tests are ran using the command:
+
+```shell
+$ python -m unittest tests.del_test
+```
