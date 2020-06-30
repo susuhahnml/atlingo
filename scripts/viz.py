@@ -2,8 +2,7 @@
 
 import sys
 import networkx as nx
-import pygraphviz as pgv
-        
+import pygraphviz as pgv        
 import clingo
 class Context:
     def id(self, x):
@@ -11,23 +10,65 @@ class Context:
     def seq(self, x, y):
         return [x, y]
 
+
+
+type_formula = sys.argv[1]
+in_file = sys.argv[2]
+
+print("Computing visualization for {} automaton in {}...".format(type_formula,in_file))
+
+
+
+
+
 def construct_str_map(symbol):
     elems = []
     if str(symbol.type) == "Number":
         return str(symbol.number)
     if str(symbol.type) == "String":
         return str(symbol.string)
+    args = symbol.arguments
     name=str(symbol.arguments[0]).replace('"','')
     start = 1
     if name == "":
         start = 0
         name = ""
+    args_str = []
     for e in symbol.arguments[start:]:
-        elems.append(construct_str_map(e))
+        args_str.append(construct_str_map(e))
 
-    return name+"("+','.join(elems)+')'
+    if name == "&" and len(args)==2:
+        s = args_str[0]
+    elif name == "~":
+        s = "~"+args_str[0]
+    elif name == ">":
+        s = "○"+args_str[0]
+    elif name == ">:":
+        s = "⍥"+args_str[0]
+    elif name == ">?" and len(args)==2:
+        s = "⬦ {} ".format(args_str[0])
+    elif name == ">*":
+        s = " ⃞ {} ".format(args_str[0])
+    elif name == "&" and len(args)==3:
+        s = " {} & {} ".format(args_str[0],args_str[1])
+    elif name == "|" and len(args)==3:
+        s = " {} | {} ".format(args_str[0],args_str[1])
+    elif name == ">?" and len(args)==3:
+        s = " {} ⋃ {} ".format(args_str[0],args_str[1])
+    else:
+        s = name+"("+','.join(args_str)+')'
+    
+    return s
 
 def str_formula(symbol,maps):
+    #--------- TEL
+    if type_formula == 'tel':
+        return maps[str(symbol.number)]
+
+
+
+
+    #--------- DEl
     if str(symbol.type) == "Number":
         return str(symbol.number)
     if str(symbol.type) == "String":
@@ -55,12 +96,6 @@ def str_formula(symbol,maps):
     elif name == "sequence":
         s = " {} ; {} ".format(str_formula(args[0],maps),str_formula(args[1],maps))
     return s
-
-
-type_formula = sys.argv[1]
-in_file = sys.argv[2]
-
-print("Computing visualization for {} automaton in {}...".format(type_formula,in_file))
 
 
 ctl = clingo.Control("0")

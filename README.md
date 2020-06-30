@@ -127,7 +127,7 @@ $ clingo output_automata_facts/del/automata_2.lp automata_run/run.lp examples/tr
 
 ## Visalization of Automata
 
-The representation of the automata can be visualized on an image by running :
+The representation of the automata, corresponding to the transition diagram, can be visualized on an image by running:
 
 ```shell
 $ python scripts/viz.py del <automata_name>
