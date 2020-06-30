@@ -6,7 +6,6 @@ import subprocess
 import itertools
 
 
-
 class Context:
     def id(self, x):
         return x
@@ -134,7 +133,7 @@ class TestMain(TestCase):
         self.assert_unsat(result)   
 
 
-        
+
         # result = run_check(":-not &del{ &true .>* p}."), [[]])
         # result = run_check(":-not &del{ &true .>* p}.q'."), [])
         # result = run_check(":-not &del{ &true .>* p}.p'."), [['p(1)']])

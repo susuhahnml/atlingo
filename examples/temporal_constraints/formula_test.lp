@@ -1,1 +1,1 @@
-:-not &del{ &true .>? p}.
+:- not &tel{ &true >? p}.

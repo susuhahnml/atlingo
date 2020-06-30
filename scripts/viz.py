@@ -22,7 +22,6 @@ print("Computing visualization for {} automaton in {}...".format(type_formula,in
 
 
 def construct_str_map(symbol):
-    elems = []
     if str(symbol.type) == "Number":
         return str(symbol.number)
     if str(symbol.type) == "String":
@@ -64,10 +63,6 @@ def str_formula(symbol,maps):
     #--------- TEL
     if type_formula == 'tel':
         return maps[str(symbol.number)]
-
-
-
-
     #--------- DEl
     if str(symbol.type) == "Number":
         return str(symbol.number)
@@ -98,6 +93,8 @@ def str_formula(symbol,maps):
     return s
 
 
+# Load automaton facts
+
 ctl = clingo.Control("0")
 ctl.add("base",[],"")
 ctl.load("./output_automata_facts/{}/{}.lp".format(type_formula,in_file))
@@ -105,15 +102,14 @@ ctl.ground([("base", [])], context=Context())
 with ctl.solve(yield_=True) as handle:
     for model in handle:
         atoms = model.symbols(terms=True,shown=True)
-        # states = [a for a in atoms if a.name=='state']
-        # states  = {str(s.arguments[0]):State(str(s.arguments[0]),Empty()) for s in states}
         maps = {str(a.arguments[0].number):construct_str_map(a.arguments[1]) for a in atoms if a.name=='id_map'}
         delta = {str_formula(a.arguments[0],maps):a.arguments[1] for a in atoms if a.name=='delta'}
         initial = [str_formula(a.arguments[0],maps) for a in atoms if a.name=='initial_state'][0]
 
 
-G=pgv.AGraph(ranksep='0.5',directed=True)
+# Create automaton
 
+G=pgv.AGraph(ranksep='0.5',directed=True)
 pending_nodes = [{'type':'state','val':initial,'next':[("",delta[initial])],'id':0}]
 next_id = 0
 idx = 0
@@ -166,6 +162,6 @@ while idx< len(pending_nodes):
         if not existent: pending_nodes.append(next_node)
     idx+=1            
 
+# Print automaton
 
-
-G.draw('./output_viz/{}/{}.png'.format(type_formula,in_file),prog='dot')  # write previously positioned graph to PNG file
+G.draw('./output_viz/{}/{}.png'.format(type_formula,in_file),prog='dot')  

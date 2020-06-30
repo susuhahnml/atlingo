@@ -1,0 +1,17 @@
+initial_state(6).
+prop_id(5).
+state(5).
+state(4).
+state(6).
+delta(5,pbf_decide(5,pbf_true,pbf_false)).
+delta(4,pbf_true).
+id_map(0,"tel").
+id_map(3,"true").
+id_map(2,"&").
+id_map(5,"p").
+id_map(1,">?").
+id_map(4,("&","true")).
+id_map(6,(">?",("&","true"),"p")).
+last_id(7).
+id_map(7,"last").
+delta(6,pbf_or(pbf_decide(5,pbf_true,pbf_false),pbf_and(pbf_true,pbf_decide(7,pbf_false,pbf_id(6))))).
