@@ -46,7 +46,7 @@ def construct_str_map(symbol):
         s = "⍥"+args_str[0]
     elif name == ">?" and len(args)==2:
         s = "⬦ {} ".format(args_str[0])
-    elif name == ">*":
+    elif name == ">*" and len(args)==2:
         s = " ⃞ {} ".format(args_str[0])
     elif name == "&" and len(args)==3:
         s = " {} & {} ".format(args_str[0],args_str[1])
@@ -54,6 +54,8 @@ def construct_str_map(symbol):
         s = " {} | {} ".format(args_str[0],args_str[1])
     elif name == ">?" and len(args)==3:
         s = " {} ⋃ {} ".format(args_str[0],args_str[1])
+    elif name == ">*" and len(args)==3:
+        s = " {} R {} ".format(args_str[0],args_str[1])
     else:
         s = name+"("+','.join(args_str)+')'
     

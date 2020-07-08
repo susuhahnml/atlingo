@@ -44,3 +44,9 @@ tuple_max(MAX):-#max{D:theory_tuple(_,D,_)}=MAX.
 prop_id(ID):-
 pos_prop_id(ID), 
 #count{1,ID_PARENT:theory_function(ID_PARENT, _, ID_T),theory_tuple(ID_T,0..MAX,ID),not pos_prop_id(ID_PARENT)}>0, tuple_max(MAX).
+
+prop_id(ID):-
+pos_prop_id(ID),
+theory_atom(ID_A,ID_O,ID_E),
+theory_element(ID_E,ID_T,_),
+theory_tuple(ID_T,0,ID).

@@ -17,6 +17,7 @@ def sort_trace(trace):
 
 def parse_model(m):
     ret = []
+    # print(m)
     for sym in m.symbols(shown=True):
         if sym.name=="holds_map":
             ret.append((sym.arguments[0].number, str(sym.arguments[1]) ))
@@ -46,8 +47,12 @@ def run_generate(constraint,file="formula_test.lp",horizon=3):
     translate(constraint,file)
     return solve(["-c horizon={}".format(horizon)],["./output_automata_facts/del/formula_test.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"])
 
-def run_check(constraint,trace="",mapping="./examples/traces/test_trace_mapping.lp",encoding="",file="formula_test.lp",horizon=3):
+def run_check(constraint,trace="",mapping="./examples/traces/test_trace_mapping.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False):
     translate(constraint,file)
+    if visualize:
+        command = "python scripts/viz.py del {}".format(file[:-3]) 
+        subprocess.check_output(command.split())
+
     return solve(["-c horizon={}".format(horizon)],["./output_automata_facts/del/formula_test.lp","./automata_run/run.lp",mapping],[trace,encoding])
 
 
@@ -64,10 +69,10 @@ class TestCase(unittest.TestCase):
         self.assertCountEqual(expected_models,res)
     
     def assert_sat(self,result):
-        self.assertGreater(len(result),0)
+        self.assertGreater(len(result),0, "Is UNSAT")
 
     def assert_unsat(self,result):
-        self.assertEqual(len(result),0)
+        self.assertEqual(len(result),0, "Is NOT UNSAT. Found model: {}".format(result))
 
 class TestMain(TestCase):
 
@@ -75,33 +80,48 @@ class TestMain(TestCase):
     def test_generation(self):
         self.maxDiff=None
         
-        result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=2)
-        base_model = [(1,'("q",1)'),(1,'"p"'),(2,'"p"'),(2,'"last"')]
-        expected_models = [base_model, base_model+[(2,'("q",1)')]]
+        result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=1)
+        base_model = [(0,'("q",1)'),(0,'"p"'),(1,'"p"'),(1,'"last"')]
+        expected_models = [base_model, base_model+[(1,'("q",1)')]]
         self.assert_all(expected_models,result)
         self.assert_base(base_model,result)
 
-        result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=4)
-        base_model = [(1,'("q",1)'),(1,'"p"'),(2,'"p"')]
+
+        result = run_generate(":- not &del{ ?p ;; &true .>? ~ p}.",horizon=1)
+        expected_models = [[(0,'"p"'),(1,'"last"')]]
+        self.assert_all(expected_models,result)
+
+
+        result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=3)
+        base_model = [(0,'("q",1)'),(0,'"p"'),(1,'"p"'),(3,'"last"')]
         self.assert_base(base_model,result)
 
-        result = run_generate(":- not &del{ * ( ?p ;; &true ) .>? ?q .>? ~ p}.",horizon=2)
-        expected_models = [[(1,'"last"'),(1,'"q"')],
-                          [(2,'"last"'),(1,'"q"')],
-                          [(2,'"last"'),(1,'"q"'),(2,'"q"')],
-                          [(2,'"last"'),(1,'"q"'),(2,'"p"')],
-                          [(2,'"last"'),(2,'"q"'),(1,'"p"')],
-                          [(2,'"last"'),(2,'"q"'),(1,'"q"'),(2,'"p"')],
-                          [(2,'"last"'),(2,'"q"'),(1,'"p"'),(1,'"q"')]]
+        result = run_generate(":- not &del{ * ( ?p ;; &true ) .>? ?q .>? ~ p}.",horizon=1)
+        expected_models = [[(1,'"last"'),(0,'"q"')],
+                          [(1,'"last"'),(0,'"q"'),(1,'"q"')],
+                          [(1,'"last"'),(0,'"q"'),(1,'"q"'),(1,'"p"')],
+                          [(1,'"last"'),(0,'"q"'),(1,'"p"')],
+                          [(1,'"last"'),(0,'"p"'),(0,'"q"'),(1,'"q"')],
+                          [(1,'"last"'),(0,'"p"'),(1,'"q"')]]
         self.assert_all(expected_models,result)                   
 
+        # UNSAT because horizon has to be in in time point 0
         result = run_generate(":- not &del{ &true .>* &false}.",horizon=3)
-        expected_models = [[(1,'"last"')]]
+        self.assert_unsat(result)
+
+        # UNSAT because horizon has to be in in time point 0
+        result = run_generate(":- not &del{ &true .>* &false}.",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_generate(":- not &del{ &true .>* &false}.",horizon=0)
+        expected_models = [[(0,'"last"')]]
         self.assert_all(expected_models,result)
         
 
     def test_check(self):
         self.maxDiff=None
+
+        ######### Examples using asprilo env starting actions in timepoint 1.
         
         result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="./examples/traces/asprilo_trace_mapping.lp")
         self.assert_sat(result)
@@ -109,70 +129,207 @@ class TestMain(TestCase):
         result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="./examples/traces/asprilo_trace_mapping.lp")
         self.assert_unsat(result)
 
+        ######### Examples using simple env starting actions in timepoint 0.
 
-        result = run_check(":- not &del{ &true .>? p}.",trace="p(2).",horizon=2)
+        # Boolean constats
+
+        result = run_check(":- not &del{ &true }.",trace="p(1).",horizon=2)
         self.assert_sat(result)
 
+        result = run_check(":- not &del{ &true }.",trace="",horizon=2)
+        self.assert_sat(result)
 
-        result = run_check(":-not &del{ ?q .>* p}.",trace="")
-        self.assert_all([[(1,'"last"')],[(2,'"last"')],[(3,'"last"')]],result)     
+        result = run_check(":- not &del{ &true }.",trace="",horizon=0)
+        self.assert_sat(result)
 
-        result = run_check(":-not &del{ ?q .>* p}.",trace="")
-        self.assert_all([[(1,'"last"')],[(2,'"last"')],[(3,'"last"')]],result)   
+        result = run_check(":- not &del{ &false }.",trace="p(1).",horizon=2)
+        self.assert_unsat(result)
 
-        result = run_check(":-not &del{ &true .>* p}.",trace="",horizon=2)
-        self.assert_all([[(1,'"last"')]],result)   
+        result = run_check(":- not &del{ &false }.",trace="",horizon=2)
+        self.assert_unsat(result)
 
-        result = run_check(":-not &del{ &true .>* p}.",trace="q(2).",horizon=2)
-        self.assert_unsat(result)  
+        result = run_check(":- not &del{ &false }.",trace="",horizon=0)
+        self.assert_unsat(result)
 
-        result = run_check(":-not &del{ &true .>* p}.",trace="p(2).",horizon=2)
-        self.assert_all([[(2,'"last"'),(2,'"p"')]],result)   
 
+        # Atoms
+
+        result = run_check(":- not &del{ p }.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &del{ p }.",trace="p(1).",horizon=2)
+        self.assert_unsat(result)
+
+        # Step (Diamond)
+        result = run_check(":- not &del{ &true .>? p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+        
         result = run_check(":-not &del{ &true .>? p}.",trace="",horizon=2)
         self.assert_unsat(result)   
+        
+        result = run_check(":-not &del{ &true .>? p}.",trace="",horizon=0)
+        self.assert_unsat(result)   
 
+        result = run_check(":-not &del{ &true .>? p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+        
+        # Step (Box)
+        result = run_check(":-not &del{ &true .>* p}.",trace="",horizon=2)
+        self.assert_unsat(result)   
+        
+        result = run_check(":-not &del{ &true .>* p}.",trace="p(1).",horizon=2)
+        self.assert_all([[(2,'"last"'),(1,'"p"')]],result)   
+        
+        result = run_check(":-not &del{ &true .>* p}.",trace="q(2).",horizon=2)
+        self.assert_unsat(result)   
 
-
-        # result = run_check(":-not &del{ &true .>* p}."), [[]])
-        # result = run_check(":-not &del{ &true .>* p}.q'."), [])
-        # result = run_check(":-not &del{ &true .>* p}.p'."), [['p(1)']])
-        # result = run_check(":-not &del{ &true .>? p}."), [])
-        # result = run_check(":-not &del{ &true .>? p}.p'."), [['p(1)']])
-
-
-        # result = run_check(":-not &del{ ?p;; ?q .>* s}.p.q."), [])
-        # result = run_check(":-not &del{ ?p;; ?q .>* s}.p."), [['p(0)']])
-        # result = run_check(":-not &del{ ?p;; ?q .>* s}.p.q.s."), [['p(0)','q(0)','s(0)']])
-        # result = run_check(":-not &del{ ?p;; ?q .>? s}."), [])
-        # result = run_check(":-not &del{ ?p;; ?q .>? s}.p.q.s."), [['p(0)','q(0)','s(0)']])
-        # result = run_check(":-not &del{ &true;; ?q .>? s}.q'.s'."), [['q(1)','s(1)']])
-        # result = run_check(":-not &del{ &true + ?q .>* s}.q.s.s'."), [['q(0)','s(0)','s(1)']])
-        # result = run_check(":-not &del{ ?p+ ?q .>? s}."), [])
-        # result = run_check(":-not &del{ ?p+ ?q .>? s}.p.s."), [['p(0)','s(0)']])
-        # result = run_check(":-not &del{ ?p+ &true .>? s}.s'."), [['s(1)']])
-
-        # result = run_check(":-not &del{ * &true .>? s}.s'."), [['s(1)']])
-        # result = run_check(":-not &del{ * &true .>* s}.s''."), [])
-        # result = run_check(":-not &del{ * &true .>* s}.s'.a''."), [])
-
-        # result = run_check(":-not &del{ * (?p) .>? s}.s."), [["s(0)"]])
-        # result = run_check(":-not &del{ * (?p) .>* s}.s."), [["s(0)"]])
+        result = run_check(":-not &del{ &true .>* p}.",trace="",horizon=0)
+        self.assert_all([[(0,'"last"')]],result)
+        self.assert_sat(result)   
         
 
-        # result = run_check(":-not &del{ * (p) .>* s}."), [])
-        # result = run_check(":-not &del{ * (p) .>* s}.s."), [["s(0)"]])
-
-        # result = run_check(":-not &del{ * (?p ;; &true) .>* s}."), [])
-        # result = run_check(":-not &del{ * (?p ;; &true) .>* s}.s."), [["s(0)"]])
-        # result = run_check(":-not &del{ * (?p ;; &true) .>* s}.s.p.a'."), [])
-        # result = run_check(":-not &del{ * (?p ;; &true) .>* s}.s.p.s'."), [['p(0)','s(0)','s(1)']])
-        # result = run_check(":-not &del{ ?p + * &true .>* s}.s.p.s'."), [['p(0)','s(0)','s(1)']])
-        # result = run_check(":-not &del{ ?p + * &true .>* s}.p.s'."), [])
-
-        # result = run_check(":-not &del{ ?p .>? &true .>* &false }.p.s'."), [])
-        # result = run_check(":-not &del{ ?p .>? &true .>* &false }.p."), [['p(0)']])
-        # result = run_check(":-not &del{ ?p .>? ?q .>? &true }.p."), [])
+        # Test construct (Diamond)
         
+        result = run_check(":-not &del{ ?q .>? p}.",trace="q(0). p(0).",horizon=2)
+        self.assert_all([[(2,'"last"'),(0,'"q"'),(0,'"p"')]],result)
+
+        result = run_check(":-not &del{ ?q .>? p}.",trace="",horizon=2)
+        self.assert_unsat(result)
+
+        #TODO add tests for test on negation
         
-        # result = run_check(":-not &del{ ?p .>? ?q .>? &true }.p.q."), [['p(0)','q(0)']])
+        # Test construct (Box)
+
+        result = run_check(":-not &del{ ?q .>* p}.",trace="",horizon=2)
+        self.assert_all([[(2,'"last"')]],result)     
+
+        result = run_check(":-not &del{ ?q .>* p}.",trace="q(2).",horizon=2)
+        self.assert_all([[(2,'"last"'),(2,'"q"')]],result)     
+
+
+        # Sequence (Diamond)
+
+        result = run_check(":-not &del{ ?q ;; &true .>? p}.",trace="q(0). p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; ?p .>? &true}.",trace="q(0). p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; ?p .>? &true}.",trace="q(0).",horizon=2)
+        self.assert_unsat(result)
+
+        # Sequence (Box)
+
+        result = run_check(":-not &del{ ?q ;; &true .>* p}.",trace="q(0). p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; &true .>* p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; &true .>* p}.",trace="",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0). p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0).",horizon=2)
+        self.assert_sat(result)
+
+        # Choice (Diamond)
+
+        result = run_check(":-not &del{ ?q + &true .>? p}.",trace="q(0). p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + &true .>? p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="p(0).q(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="",horizon=2)
+        self.assert_unsat(result)
+
+
+        # Choice (Box)
+
+        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="q(0). p(0).",horizon=0,visualize=True)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="",horizon=0)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).q(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="",horizon=2)
+        self.assert_sat(result)
+
+        # Star (Diamond)
+        
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="p(0).",horizon=0)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="",horizon=0)
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="p(1).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="q(0).p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="q(0).q(1).p(2).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="q(0).q(1).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q) .>? p}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        # Star (Box)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="p(0).",horizon=0)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="",horizon=0)
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="p(1).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).p(1).p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).q(1).p(2).p(0).p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).q(1).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).q(1).p(1).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q) .>* p}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)

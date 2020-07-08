@@ -46,8 +46,11 @@ def run_generate(constraint,file="formula_test.lp",horizon=3):
     translate(constraint,file)
     return solve(["-c horizon={}".format(horizon)],["./output_automata_facts/tel/formula_test.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"])
 
-def run_check(constraint,trace="",mapping="./examples/traces/test_trace_mapping.lp",encoding="",file="formula_test.lp",horizon=3):
+def run_check(constraint,trace="",mapping="./examples/traces/test_trace_mapping.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False):
     translate(constraint,file)
+    if visualize:
+        command = "python scripts/viz.py tel {}".format(file[:-3]) 
+        subprocess.check_output(command.split())
     return solve(["-c horizon={}".format(horizon)],["./output_automata_facts/tel/formula_test.lp","./automata_run/run.lp",mapping],[trace,encoding])
 
 
@@ -64,10 +67,10 @@ class TestCase(unittest.TestCase):
         self.assertCountEqual(expected_models,res)
     
     def assert_sat(self,result):
-        self.assertGreater(len(result),0)
+        self.assertGreater(len(result),0, "Is UNSAT")
 
     def assert_unsat(self,result):
-        self.assertEqual(len(result),0)
+        self.assertEqual(len(result),0, "Is NOT UNSAT. Found model: {}".format(result))
 
 class TestMain(TestCase):
 
@@ -76,10 +79,13 @@ class TestMain(TestCase):
         self.maxDiff=None
         
         result = run_generate(":- not &tel{ &true >? p}.",horizon=2)
-        expected_models = [[(1,'"last"'),(1,'"p"')],
+        expected_models = [[(2,'"last"'),(0,'"p"')],
                           [(2,'"last"'),(1,'"p"')],
                           [(2,'"last"'),(2,'"p"')],
-                          [(2,'"last"'),(1,'"p"'),(2,'"p"')]]
+                          [(2,'"last"'),(2,'"p"'),(0,'"p"')],
+                          [(2,'"last"'),(2,'"p"'),(1,'"p"')],
+                          [(2,'"last"'),(0,'"p"'),(1,'"p"')],
+                          [(2,'"last"'),(0,'"p"'),(1,'"p"'),(2,'"p"')]]
 
         self.assert_all(expected_models,result)                   
 
@@ -87,8 +93,200 @@ class TestMain(TestCase):
     def test_check(self):
         self.maxDiff=None
         
+        ######### Examples using asprilo env starting actions in timepoint 1.
+
         result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).move(robot(1),(1,0),1).",horizon=2,mapping="./examples/traces/asprilo_trace_mapping.lp")
         self.assert_sat(result)
 
         result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="./examples/traces/asprilo_trace_mapping.lp")
         self.assert_unsat(result)
+
+        ######### Examples using simple env starting actions in timepoint 0.
+
+        # Boolean constats
+
+        result = run_check(":- not &tel{ &true }.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ &true }.",trace="",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ &true }.",trace="",horizon=0)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ &false }.",trace="p(1).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ &false }.",trace="",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ &false }.",trace="",horizon=0)
+        self.assert_unsat(result)
+
+
+        # Atoms
+
+        result = run_check(":- not &tel{ p }.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ p }.",trace="p(1).",horizon=2)
+        self.assert_unsat(result)
+
+
+        # Negated Atoms
+
+        result = run_check(":- not &tel{ ~ p }.",trace="p(0).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ ~ p }.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+
+        # And
+
+        result = run_check(":- not &tel{ q & ~ p }.",trace="p(0).",horizon=2)
+        self.assert_unsat(result)
+        
+        result = run_check(":- not &tel{ q & ~ p }.",trace="",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ q & ~ p }.",trace="q(0).",horizon=2)
+        self.assert_sat(result)
+
+        # Or
+
+        result = run_check(":- not &tel{ q | ~ p }.",trace="p(0).",horizon=2)
+        self.assert_unsat(result)
+        
+        result = run_check(":- not &tel{ q | ~ p }.",trace="",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ q | ~ p }.",trace="q(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ q | ~ p }.",trace="q(0).p(0).",horizon=2)
+        self.assert_sat(result)
+
+        
+        # Next 
+        result = run_check(":- not &tel{ > p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+        
+        result = run_check(":-not &tel{ > p}.",trace="",horizon=2)
+        self.assert_unsat(result)   
+        
+        result = run_check(":-not &tel{ > p}.",trace="",horizon=0)
+        self.assert_unsat(result)   
+
+        result = run_check(":-not &tel{ > p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+
+
+
+        # Weak Next 
+        result = run_check(":- not &tel{ >: p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+        
+        result = run_check(":-not &tel{ >: p}.",trace="",horizon=2)
+        self.assert_unsat(result)   
+
+        result = run_check(":-not &tel{ >: p}.",trace="",horizon=0)
+        self.assert_sat(result) 
+        
+
+        # Eventually
+        result = run_check(":- not &tel{ >? p}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ >? p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ >? p}.",trace="p(2).",horizon=2)
+        self.assert_sat(result)
+        
+        result = run_check(":-not &tel{ >? p}.",trace="",horizon=2)
+        self.assert_unsat(result)   
+
+        result = run_check(":-not &tel{ >? p}.",trace="",horizon=0)
+        self.assert_unsat(result) 
+
+
+        # Always
+        result = run_check(":- not &tel{ >* p}.",trace="p(0).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ >* p}.",trace="p(1).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ >* p}.",trace="p(2).",horizon=2)
+        self.assert_unsat(result)
+        
+        result = run_check(":- not &tel{ >* p}.",trace="p(0).p(1).p(2).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &tel{ >* p}.",trace="p(0).",horizon=0)
+        self.assert_sat(result) 
+
+
+        # Until
+        result = run_check(":- not &tel{ &true >? p}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ &true >? p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ &true >? p}.",trace="p(2).",horizon=2)
+        self.assert_sat(result)
+        
+        result = run_check(":-not &tel{ &true >? p}.",trace="",horizon=2)
+        self.assert_unsat(result)   
+
+        result = run_check(":-not &tel{ &true >? p}.",trace="",horizon=0)
+        self.assert_unsat(result) 
+
+
+        result = run_check(":- not &tel{ q >? p}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ q >? p}.",trace="q(0).p(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ q >? p}.",trace="q(0).q(1).p(2).",horizon=2)
+        self.assert_sat(result)
+        
+        result = run_check(":-not &tel{ q >? p}.",trace="",horizon=2)
+        self.assert_unsat(result)   
+
+        result = run_check(":-not &tel{ q >? p}.",trace="p(2).",horizon=2)
+        self.assert_unsat(result)   
+
+        result = run_check(":-not &tel{ q >? p}.",trace="q(0).p(2).",horizon=2)
+        self.assert_unsat(result)   
+
+        result = run_check(":-not &tel{ q >? p}.",trace="",horizon=0)
+        self.assert_unsat(result) 
+
+
+        # Release
+        result = run_check(":- not &tel{ &false >* p}.",trace="p(0).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ &false >* p}.",trace="p(1).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ &false >* p}.",trace="p(2).",horizon=2,visualize=True)
+        self.assert_unsat(result)
+        
+        result = run_check(":- not &tel{ &false >* p}.",trace="p(0).p(1).p(2).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &tel{ &false >* p}.",trace="p(0).",horizon=0)
+        self.assert_sat(result) 
+
+        result = run_check(":- not &tel{ q >* p}.",trace="p(0).",horizon=2)
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ q >* p}.",trace="p(0).p(1).q(1).",horizon=2)
+        self.assert_sat(result)
+
+        result = run_check(":-not &tel{ q >* p}.",trace="p(0).q(0).",horizon=0)
+        self.assert_sat(result) 

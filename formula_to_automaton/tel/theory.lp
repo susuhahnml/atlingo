@@ -13,7 +13,8 @@
         >*  : 5, unary;         % always+
         &   : 3, binary, left;  % and
         |   : 2, binary, left;  % or
-        >?  : 4, binary, left   % until
+        >?  : 4, binary, left;  % until
+        >*  : 4, binary, left   % release
     };
     show_term {/ : 1, binary, left};
     &tel/0 : formula_body, body;

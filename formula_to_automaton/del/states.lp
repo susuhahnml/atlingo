@@ -96,3 +96,7 @@ closure(F,Z):-closure(F,box(_,Z)).
 
 %State predicate
 state(F):-closure(_,F).
+
+#show id_pred_map/2.
+#show prop_id/1.
+#show pos_prop_id/1.
