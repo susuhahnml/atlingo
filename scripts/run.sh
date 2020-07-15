@@ -13,6 +13,7 @@ do
             LOGIC)              LOGIC=${VALUE} ;;
             ENV)    ENV=${VALUE} ;;     
             CONSTRAINT)    CONSTRAINT=${VALUE} ;;     
+            HORIZON)    HORIZON=${VALUE} ;;     
             *) ADDITIONAL_FILES+="${KEY} "
     esac    
 done
@@ -24,6 +25,7 @@ echo "--- Params ---"
 echo "LOGIC = $LOGIC"
 echo "ENV = $ENV"
 echo "CONSTRAINT = $CONSTRAINT"
+echo "HORIZON = $HORIZON"
 echo "ADDITIONAL_FILES = $ADDITIONAL_FILES"
 
 
@@ -38,23 +40,5 @@ echo "BASE_PATH = $BASE_PATH"
 
 
 echo ""
-echo "Reifying constraint..."
-gringo formula_to_automaton/$LOGIC/theory.lp $BASE_PATH.lp --output=reify > $BASE_PATH.reified.lp $ADDITIONAL_FILES
-if [ -s $BASE_PATH.reified.lp ]
-then
-     echo "$GREEN Reification successfull $NC"
-else
-     echo "$RED Reification failed, file is empty $NC"
-     exit 1
-fi
-
-echo "Translating...."
-clingo $BASE_PATH.reified.lp ./formula_to_automaton/automata_$LOGIC.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $BASE_PATH.automaton.lp
-
-if [ -s $BASE_PATH.automaton.lp ]
-then
-     echo "$GREEN Translation successfull$NC"
-else
-     echo "$RED Translation failed, file is empty$NC"
-     exit 1
-fi
+echo "Fining plans..."
+clingo $BASE_PATH.automaton.lp automata_run/run.lp env/$ENV/glue.lp -c horizon=$HORIZON $ADDITIONAL_FILES 

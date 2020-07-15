@@ -16,7 +16,5 @@
         >?  : 4, binary, left;  % until
         >*  : 4, binary, left   % release
     };
-    show_term {/ : 1, binary, left};
-    &tel/0 : formula_body, body;
-    &show/0 : show_term, directive
+    &tel/0 : formula_body, body
 }.

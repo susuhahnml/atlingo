@@ -6,6 +6,7 @@ import subprocess
 import itertools
 
 
+
 class Context:
     def id(self, x):
         return x
@@ -17,7 +18,6 @@ def sort_trace(trace):
 
 def parse_model(m):
     ret = []
-    # print(m)
     for sym in m.symbols(shown=True):
         if sym.name=="holds_map":
             ret.append((sym.arguments[0].number, str(sym.arguments[1]) ))
@@ -36,24 +36,27 @@ def solve(const=[], files=[],inline_data=[]):
     ctl.solve(on_model= lambda m: r.append(parse_model(m)))
     return sorted(r)
 
-def translate(constraint,file):
-    f = open("examples/temporal_constraints/{}".format(file), "w")
+def translate(constraint,file,extra=[]):
+    f = open("env/test/temporal_constraints/del/{}".format(file), "w")
     f.write(constraint)
     f.close()
-    command = "./scripts/translate.sh del {}".format(file) 
+    command = './scripts/translate.sh LOGIC=del CONSTRAINT={} ENV=test'.format(file[:-3]) 
     subprocess.check_output(command.split())
 
-def run_generate(constraint,file="formula_test.lp",horizon=3):
+def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):
     translate(constraint,file)
-    return solve(["-c horizon={}".format(horizon)],["./output_automata_facts/del/formula_test.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"])
+    files = ["env/test/temporal_constraints/del/formula_test.automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
+    if not mapping is None:
+        files.append(mapping)
+    return solve(["-c horizon={}".format(horizon)],files)
 
-def run_check(constraint,trace="",mapping="./examples/traces/test_trace_mapping.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False):
+def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False):
     translate(constraint,file)
     if visualize:
         command = "python scripts/viz.py del {}".format(file[:-3]) 
         subprocess.check_output(command.split())
 
-    return solve(["-c horizon={}".format(horizon)],["./output_automata_facts/del/formula_test.lp","./automata_run/run.lp",mapping],[trace,encoding])
+    return solve(["-c horizon={}".format(horizon)],["env/test/temporal_constraints/del/formula_test.automaton.lp","./automata_run/run.lp",mapping],[trace,encoding])
 
 
 
@@ -123,10 +126,10 @@ class TestMain(TestCase):
 
         ######### Examples using asprilo env starting actions in timepoint 1.
         
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="./examples/traces/asprilo_trace_mapping.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="env/asprilo/glue.lp")
         self.assert_sat(result)
 
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="./examples/traces/asprilo_trace_mapping.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="env/asprilo/glue.lp")
         self.assert_unsat(result)
 
         ######### Examples using simple env starting actions in timepoint 0.
@@ -258,7 +261,7 @@ class TestMain(TestCase):
 
         # Choice (Box)
 
-        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="q(0). p(0).",horizon=0,visualize=True)
+        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="q(0). p(0).",horizon=0)
         self.assert_sat(result)
 
         result = run_check(":-not &del{ ?q + &true .>* p}.",trace="p(1).",horizon=2)
@@ -333,3 +336,17 @@ class TestMain(TestCase):
 
         result = run_check(":-not &del{ * (?q) .>* p}.",trace="p(0).",horizon=2)
         self.assert_sat(result)
+
+
+
+    def test_multiple(self):
+        self.maxDiff=None
+
+        result = run_check(":- not &del{ &true .>? p }. :- not &del{ &true .>? q }.",trace="p(1).q(1).",horizon=2)
+        self.assert_sat(result)
+
+
+    def test_special(self):
+        self.maxDiff=None
+
+        result = run_generate(":- not &del{ ?X .>* (* &true .>? ~X) },prop(X).prop(p).",horizon=2)

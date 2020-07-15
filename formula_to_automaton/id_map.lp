@@ -89,4 +89,3 @@ id_map(ID_3,MAP_3).
 
 
 #show id_map/2. %DONT REMOVE
-#show tuple_pos/1.

@@ -95,7 +95,6 @@ $ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/tr
 ```
 
 
-
 *Note: This process obtains one stable model per accepted run. When multiple traces are given, each will generate the corresponding runs.* 
 
 *Note: The last time step is generated with a choice rule before the given horizon. Therefore many traces might be considered.*
@@ -109,6 +108,12 @@ Example:
 ```shell
 $ gringo examples/temporal_constraints/del_robot_move_asprilo.lp formula_to_automaton/del/theory.lp env/asprilo-encodings/{examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp,input.lp} --output=reify > output_reified_formulas/del/formula_2.lp
 ```
+
+<!-- gringo examples/temporal_constraints/tel_robot_move.lp formula_to_automaton/tel/theory.lp env/asprilo-encodings/{examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp,input.lp} --output=reify > output_reified_formulas/tel/formula_test_theo.lp
+
+clingo output_reified_formulas/tel/formula_test_theo.lp formula_to_automaton/automata_tel.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/tel/automata_theo.lp
+
+clingo output_automata_facts/tel/tel_theo.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz -->
 
 <!-- gringo examples/temporal_constraints/del_robot_move_asprilo_simple.lp formula_to_automaton/del/theory.lp env/asprilo-encodings/{generatedInstances/x5_y1_n5_r1_s1_ps1_pr1_u1_o1_l1_N001.lp,input.lp} --output=reify > output_reified_formulas/del/formula_2.lp -->
 
@@ -133,11 +138,11 @@ The representation of the automata, corresponding to the transition diagram, can
 $ python scripts/viz.py del <automata_name>
 ```
 
-Where automata_name is the name of the file with the facts inside 'output_automata_facts/del', an image with the same name will be saved in 'output_viz/del'.
+Where automata_name is the name of the file with the facts inside 'output_automata_facts/del', an image with the same name will be saved in 'img/del'.
 
 Example:
 
-![](output_viz/del/formula_test.png)
+![](img/del/formula_test.png)
 
 
 ## Tests
