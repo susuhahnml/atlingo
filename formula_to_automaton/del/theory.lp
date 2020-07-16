@@ -14,8 +14,6 @@
         .>? : 0, binary, right; % diamond (eventually)
         .>* : 0, binary, right  % box (always)
     };
-    show_term {/ : 1, binary, left};
-    &del/0 : formula_body, body;
-    &show/0 : show_term, directive
+    &del/0 : formula_body, body
 }.
 

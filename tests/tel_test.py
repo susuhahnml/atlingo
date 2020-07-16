@@ -35,23 +35,27 @@ def solve(const=[], files=[],inline_data=[]):
     ctl.solve(on_model= lambda m: r.append(parse_model(m)))
     return sorted(r)
 
-def translate(constraint,file):
-    f = open("examples/temporal_constraints/{}".format(file), "w")
+def translate(constraint,file,extra=[]):
+    f = open("env/test/temporal_constraints/tel/{}".format(file), "w")
     f.write(constraint)
     f.close()
-    command = "./scripts/translate.sh tel {}".format(file) 
+    command = './scripts/translate.sh LOGIC=tel CONSTRAINT={} ENV=test'.format(file[:-3]) 
     subprocess.check_output(command.split())
 
-def run_generate(constraint,file="formula_test.lp",horizon=3):
+def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):
     translate(constraint,file)
-    return solve(["-c horizon={}".format(horizon)],["./output_automata_facts/tel/formula_test.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"])
+    files = ["env/test/temporal_constraints/tel/formula_test.automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
+    if not mapping is None:
+        files.append(mapping)
+    return solve(["-c horizon={}".format(horizon)],files)
 
-def run_check(constraint,trace="",mapping="./examples/traces/test_trace_mapping.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False):
+def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False):
     translate(constraint,file)
     if visualize:
         command = "python scripts/viz.py tel {}".format(file[:-3]) 
         subprocess.check_output(command.split())
-    return solve(["-c horizon={}".format(horizon)],["./output_automata_facts/tel/formula_test.lp","./automata_run/run.lp",mapping],[trace,encoding])
+
+    return solve(["-c horizon={}".format(horizon)],["env/test/temporal_constraints/tel/formula_test.automaton.lp","./automata_run/run.lp",mapping],[trace,encoding])
 
 
 
@@ -89,16 +93,47 @@ class TestMain(TestCase):
 
         self.assert_all(expected_models,result)                   
 
+    def test_multiple(self):
+
+        ######### Examples using asprilo env starting actions in timepoint 1.
+        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }.",trace="move(robot(2),(1,0),1).move(robot(2),(1,0),2).move(robot(1),(1,0),1).move(robot(1),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
+        self.assert_sat(result)
+
+        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }.",trace="move(robot(2),(1,0),1).move(robot(2),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
+        self.assert_unsat(result)
+
+        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }.",trace="move(robot(1),(1,0),1).move(robot(1),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
+        self.assert_unsat(result)
+
+        result = run_generate("robot(1).robot(2).robot(3).robot(4).:- not &tel{ move(robot(R),(1,0)) & > move(robot(R),(1,0)) & > > move(robot(R),(1,0)) },robot(R).",horizon=2,mapping="./env/asprilo/glue.lp")
+
+        # result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }",trace="move(robot(1),(1,0),2).move(robot(1),(1,0),1).",horizon=2,mapping="./env/asprilo/glue.lp")
+        # self.assert_unsat(result)
+
+        # result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }",trace="move(robot(2),(1,0),1).move(robot(2),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
+        # self.assert_unsat(result)
+
+
+
+
+
+        result = run_check(":- not &tel{ p }. :- not &tel{ q }.",trace="p(0).",horizon=2)
+        self.assert_unsat(result)
+        result = run_check(":- not &tel{ p }. :- not &tel{ q }.",trace="q(0).",horizon=2)
+        self.assert_unsat(result)
+        result = run_check(":- not &tel{ p }. :- not &tel{ q }.",trace="q(0).p(0).",horizon=2)
+        self.assert_sat(result)
+
 
     def test_check(self):
         self.maxDiff=None
         
         ######### Examples using asprilo env starting actions in timepoint 1.
 
-        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).move(robot(1),(1,0),1).",horizon=2,mapping="./examples/traces/asprilo_trace_mapping.lp")
+        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).move(robot(1),(1,0),1).",horizon=2,mapping="./env/asprilo/glue.lp")
         self.assert_sat(result)
 
-        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="./examples/traces/asprilo_trace_mapping.lp")
+        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
         self.assert_unsat(result)
 
         ######### Examples using simple env starting actions in timepoint 0.
@@ -273,7 +308,7 @@ class TestMain(TestCase):
         result = run_check(":- not &tel{ &false >* p}.",trace="p(1).",horizon=2)
         self.assert_unsat(result)
 
-        result = run_check(":- not &tel{ &false >* p}.",trace="p(2).",horizon=2,visualize=True)
+        result = run_check(":- not &tel{ &false >* p}.",trace="p(2).",horizon=2)
         self.assert_unsat(result)
         
         result = run_check(":- not &tel{ &false >* p}.",trace="p(0).p(1).p(2).",horizon=2)
@@ -290,3 +325,11 @@ class TestMain(TestCase):
 
         result = run_check(":-not &tel{ q >* p}.",trace="p(0).q(0).",horizon=0)
         self.assert_sat(result) 
+
+    def test_z(self):
+        self.maxDiff=None
+        
+
+        # result = run_check(":- not &tel{ > p & (q >? p) }.",trace="p(1).q(0).p(1).",horizon=2)
+        result = run_generate(":- not &tel{ > a & (b >? a) }.",horizon=2)
+        # self.assert_sat(result)

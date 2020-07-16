@@ -1,0 +1,1 @@
+:- not &del{ ?X .>* (* &true .>? ~X) },prop(X).prop(p).
