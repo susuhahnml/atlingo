@@ -13,6 +13,8 @@ do
             LOGIC)              LOGIC=${VALUE} ;;
             CONSTRAINT)    CONSTRAINT=${VALUE} ;;    
             HORIZON)    HORIZON=${VALUE} ;;     
+            CLINGO)    CLINGO=${VALUE} ;;     
+            VIZ)    VIZ="viz" ;;
             *) ADDITIONAL_FILES+="${KEY} "
     esac    
 done
@@ -20,11 +22,6 @@ done
 LOGIC=${LOGIC:-tel}
 ENV=$"asprilo"
 HORIZON=${HORIZON:-10}
-echo "--- Params ---"
-echo "LOGIC = $LOGIC"
-echo "CONSTRAINT = $CONSTRAINT"
-echo "HORIZON = $HORIZON"
-
 
 if [ -z "$CONSTRAINT" ]
 then
@@ -37,6 +34,14 @@ BASE_PATH=$"env/$ENV/temporal_constraints/$LOGIC/$CONSTRAINT"
 echo "BASE_PATH = $BASE_PATH"
 
 
-scripts/translate.sh CONSTRAINT=$CONSTRAINT env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $ADDITIONAL_FILES
+scripts/translate.sh CONSTRAINT=$CONSTRAINT LOGIC=$LOGIC env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $ADDITIONAL_FILES
 
-scripts/run.sh CONSTRAINT=$CONSTRAINT env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/{action-MD.lp,goal-MD.lp,output-M.lp} HORIZON=$HORIZON env/asprilo/augmented-md-to-m.lp $ADDITIONAL_FILES
+
+scripts/run.sh CONSTRAINT=$CONSTRAINT LOGIC=$LOGIC env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/{action-MD.lp,goal-MD.lp,output-M.lp} HORIZON=$HORIZON env/asprilo/augmented-md-to-m.lp $ADDITIONAL_FILES $CLINGO
+
+if [ -z "$VIZ" ]
+then
+    echo ""
+else
+    sed '5q;6d' plan.txt | viz
+fi

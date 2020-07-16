@@ -3,5 +3,5 @@
 % % are moving right
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- not &tel{>move_v(robot(R)) & > >move_v(robot(R))}, robot(R).
+:- not &tel{move_v(robot(R)) & >move_v(robot(R))  & > > move_v(robot(R))}, robot(R).
 

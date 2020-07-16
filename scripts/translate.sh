@@ -2,7 +2,12 @@
 set -e
 RED=`tput setaf 1`
 GREEN=`tput setaf 2`
+BLUE=`tput setaf 3`
 NC=`tput sgr0`
+
+echo "$BLUE -------------------------"
+echo " |      Translating      |"
+echo " -------------------------$NC"
 
 ADDITIONAL_FILES=()
 for ARGUMENT in "$@"
@@ -20,11 +25,13 @@ done
 LOGIC=${LOGIC:-tel}
 ENV=${ENV:-asprilo}
 HORIZON=${HORIZON:-10}
-echo "--- Params ---"
-echo "LOGIC = $LOGIC"
-echo "ENV = $ENV"
-echo "CONSTRAINT = $CONSTRAINT"
-echo "ADDITIONAL_FILES = $ADDITIONAL_FILES"
+echo "$BLUE LOGIC = $NC $LOGIC"
+echo "$BLUE ENV = $NC $ENV"
+echo "$BLUE CONSTRAINT = $NC $CONSTRAINT"
+echo "$BLUE ADDITIONAL_FILES = $NC $ADDITIONAL_FILES"
+BASE_PATH=$"env/$ENV/temporal_constraints/$LOGIC/$CONSTRAINT"
+echo "$BLUE BASE_PATH = $NC $BASE_PATH"
+echo "$BLUE ------------------------$NC"
 
 
 if [ -z "$CONSTRAINT" ]
@@ -33,18 +40,18 @@ then
     exit 1
 fi
 
-BASE_PATH=$"env/$ENV/temporal_constraints/$LOGIC/$CONSTRAINT"
-echo "BASE_PATH = $BASE_PATH"
 
 
 echo ""
 echo "Reifying constraint..."
 gringo formula_to_automaton/$LOGIC/theory.lp $BASE_PATH.lp --output=reify > $BASE_PATH.reified.lp $ADDITIONAL_FILES
-if [ -s $BASE_PATH.reified.lp ]
+
+
+if  grep theory_atom $BASE_PATH.reified.lp -q
 then
      echo "$GREEN Reification successfull $NC"
 else
-     echo "$RED Reification failed, file is empty $NC"
+     echo "$RED Reification failed, theory was not reified"
      exit 1
 fi
 

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import os
 import sys
 import networkx as nx
 import pygraphviz as pgv        
@@ -10,12 +10,18 @@ class Context:
     def seq(self, x, y):
         return [x, y]
 
-
+def isint(value):
+  try:
+    int(value)
+    return True
+  except ValueError:
+    return False
 
 type_formula = sys.argv[1]
-in_file = sys.argv[2]
+in_path = sys.argv[2]
+file_name=os.path.basename(in_path)
 
-print("Computing visualization for {} automaton in {}...".format(type_formula,in_file))
+print("Computing visualization for {} automaton in {}...".format(type_formula,in_path))
 
 
 
@@ -29,7 +35,8 @@ def construct_str_map(symbol):
     args = symbol.arguments
     name=str(symbol.arguments[0]).replace('"','')
     start = 1
-    if name == "":
+
+    if isint(name):
         start = 0
         name = ""
     args_str = []
@@ -58,7 +65,6 @@ def construct_str_map(symbol):
         s = " {} R {} ".format(args_str[0],args_str[1])
     else:
         s = name+"("+','.join(args_str)+')'
-    
     return s
 
 def str_formula(symbol,maps):
@@ -70,8 +76,12 @@ def str_formula(symbol,maps):
         return str(symbol.number)
     if str(symbol.type) == "String":
         return str(symbol.string)
+    if str(symbol.type) == "Tuple":
+        return str(symbol)
+    
     args = symbol.arguments
     name= symbol.name
+
     if name == "top":
         s = "⟙"
     elif name == "bottom":
@@ -99,7 +109,7 @@ def str_formula(symbol,maps):
 
 ctl = clingo.Control("0")
 ctl.add("base",[],"")
-ctl.load("./output_automata_facts/{}/{}.lp".format(type_formula,in_file))
+ctl.load(in_path)
 ctl.ground([("base", [])], context=Context())
 with ctl.solve(yield_=True) as handle:
     for model in handle:
@@ -166,4 +176,4 @@ for i,initial in enumerate(initials):
 
     # Print automaton
 
-    G.draw('./img/{}/{}_{}.png'.format(type_formula,in_file,i),prog='dot')  
+    G.draw('./img/{}/{}_{}.png'.format(type_formula,file_name[:-3],i),prog='dot')  

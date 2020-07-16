@@ -60,8 +60,8 @@ accepting(node_run(true,T,P)):-node_run(true,T,P).
 :- node_run(false,N,P).
 
 
-#show run_node_at(N,T):node_run(N,T,_).
-#show id_map/2.
+% #show run_node_at(N,T):node_run(N,T,_).
+% #show id_map/2.
 % #show holds/2.
 % #show node_run/3.
 % #show initial_state/1.

@@ -4,4 +4,4 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- not &del{(* &true) .>? (?move(robot(X),(1,0)) ;; &true ;; ?move(robot(X),(1,0)) ;; &true ;; ?move(robot(X),(1,0))).>? (&true.>* &false)}, robot(X).
+:- not &del{(* &true) .>? (?move_d(robot(X)) ;; &true ;; ?move_d(robot(X)) ;; &true).>? (&true.>* &false)}, robot(X).
