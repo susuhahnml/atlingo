@@ -15,7 +15,8 @@ ADDITIONAL_FILES=()
 for ARGUMENT in "$@"
 do
     KEY=$(echo $ARGUMENT | cut -f1 -d=)
-    VALUE=$(echo $ARGUMENT | cut -f2 -d=)   
+    VALUE=$(echo $ARGUMENT | cut -f2 -d=)  
+    echo $KEY 
     case "$KEY" in
             LOGIC)              LOGIC=${VALUE} ;;
             ENV)    ENV=${VALUE} ;;     
@@ -47,7 +48,7 @@ fi
 
 # set -o pipefail
 echo ""
-echo "Fining plans..."
+echo "Finding plans..."
 clingo $BASE_PATH.automaton.lp automata_run/run.lp env/$ENV/glue.lp -c horizon=$HORIZON $ADDITIONAL_FILES | tee plan.txt
 echo $?
 # set +o pipefail

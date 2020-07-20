@@ -333,3 +333,9 @@ class TestMain(TestCase):
         # result = run_check(":- not &tel{ > p & (q >? p) }.",trace="p(1).q(0).p(1).",horizon=2)
         result = run_generate(":- not &tel{ > a & (b >? a) }.",horizon=2)
         # self.assert_sat(result)
+
+    def test_special(self):
+        self.maxDiff=None
+
+        result = run_generate(":-not &tel{>*(~X | >? ~X)},prop(X).prop(p).",horizon=2)
+        print(result)

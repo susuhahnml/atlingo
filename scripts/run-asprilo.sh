@@ -42,13 +42,12 @@ CLINGO="$CLINGO -n $MODEL_N"
 
 scripts/run.sh CONSTRAINT=$CONSTRAINT LOGIC=$LOGIC env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/{action-MD.lp,goal-MD.lp,output-M.lp} HORIZON=$HORIZON env/asprilo/augmented-md-to-m.lp $ADDITIONAL_FILES $CLINGO
 
-MODEL_N_S="$(($MODEL_N*2+2))"
-MODEL_N_E="$(($MODEL_N*2+3))"
 
-echo "-n ${MODEL_N_S},${MODEL_N_E}p"
 if [ -z "$VIZ" ]
 then
     echo ""
 else
+    MODEL_N_S="$(($MODEL_N*2+2))"
+    MODEL_N_E="$(($MODEL_N*2+3))"
     sed -n "${MODEL_N_S},${MODEL_N_E}"p plan.txt | viz
 fi
