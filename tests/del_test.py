@@ -350,3 +350,4 @@ class TestMain(TestCase):
         self.maxDiff=None
 
         result = run_generate(":- not &del{ ?X .>* (* &true .>? ~X) },prop(X).prop(p).",horizon=2)
+        
