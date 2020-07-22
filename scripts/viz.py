@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*- 
 import os
 import sys
 import networkx as nx
@@ -19,7 +20,8 @@ def isint(value):
 
 type_formula = sys.argv[1]
 in_path = sys.argv[2]
-file_name=os.path.basename(in_path)
+env = [in_path.split(os.sep)[i+1] for i,d in enumerate(in_path.split(os.sep)) if d=='env']
+base_path,file_name = os.path.split(in_path)
 
 print("Computing visualization for {} automaton in {}...".format(type_formula,in_path))
 
@@ -176,4 +178,4 @@ for i,initial in enumerate(initials):
 
     # Print automaton
 
-    G.draw('./img/{}/{}_{}.png'.format(type_formula,file_name[:-3],i),prog='dot')  
+    G.draw('{}/img_a_{}.png'.format(base_path,i),prog='dot')  

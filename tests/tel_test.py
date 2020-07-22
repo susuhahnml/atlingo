@@ -44,7 +44,7 @@ def translate(constraint,file,extra=[]):
 
 def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):
     translate(constraint,file)
-    files = ["env/test/temporal_constraints/tel/formula_test.automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
+    files = ["outputs/test/tel/formula_test/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
     if not mapping is None:
         files.append(mapping)
     return solve(["-c horizon={}".format(horizon)],files)
@@ -55,7 +55,8 @@ def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file=
         command = "python scripts/viz.py tel {}".format(file[:-3]) 
         subprocess.check_output(command.split())
 
-    return solve(["-c horizon={}".format(horizon)],["env/test/temporal_constraints/tel/formula_test.automaton.lp","./automata_run/run.lp",mapping],[trace,encoding])
+    return solve(["-c horizon={}".format(horizon)],["outputs/test/tel/formula_test/automaton.lp","./automata_run/run.lp",mapping],[trace,encoding])
+
 
 
 
@@ -338,4 +339,4 @@ class TestMain(TestCase):
         self.maxDiff=None
 
         result = run_generate(":-not &tel{>*(~X | >? ~X)},prop(X).prop(p).",horizon=2)
-        print(result)
+        # print(result)

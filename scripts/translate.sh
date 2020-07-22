@@ -30,6 +30,7 @@ echo "$BLUE ENV = $NC $ENV"
 echo "$BLUE CONSTRAINT = $NC $CONSTRAINT"
 echo "$BLUE ADDITIONAL_FILES = $NC $ADDITIONAL_FILES"
 BASE_PATH=$"env/$ENV/temporal_constraints/$LOGIC/$CONSTRAINT"
+OUTPUT_PATH=$"outputs/$ENV/$LOGIC/$CONSTRAINT"
 echo "$BLUE BASE_PATH = $NC $BASE_PATH"
 echo "$BLUE ------------------------$NC"
 
@@ -40,14 +41,19 @@ then
     exit 1
 fi
 
-
+if test -f "$BASE_PATH.lp"; then
+     mkdir -p $OUTPUT_PATH
+else
+     echo "File not found $BASE_PATH.lp"
+     exit 1
+fi
 
 echo ""
 echo "Reifying constraint..."
-gringo formula_to_automaton/$LOGIC/theory.lp $BASE_PATH.lp --output=reify > $BASE_PATH.reified.lp $ADDITIONAL_FILES
+gringo formula_to_automaton/$LOGIC/theory.lp $BASE_PATH.lp --output=reify > $OUTPUT_PATH/reified.lp $ADDITIONAL_FILES
 
 
-if  grep theory_atom $BASE_PATH.reified.lp -q
+if  grep theory_atom $OUTPUT_PATH/reified.lp -q
 then
      echo "$GREEN Reification successfull $NC"
 else
@@ -56,9 +62,9 @@ else
 fi
 
 echo "Translating...."
-clingo $BASE_PATH.reified.lp ./formula_to_automaton/automata_$LOGIC.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $BASE_PATH.automaton.lp
+clingo $OUTPUT_PATH/reified.lp ./formula_to_automaton/automata_$LOGIC.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $OUTPUT_PATH/automaton.lp
 
-if [ -s $BASE_PATH.automaton.lp ]
+if [ -s $OUTPUT_PATH/automaton.lp ]
 then
      echo "$GREEN Translation successfull$NC"
 else

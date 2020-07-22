@@ -16,7 +16,6 @@ for ARGUMENT in "$@"
 do
     KEY=$(echo $ARGUMENT | cut -f1 -d=)
     VALUE=$(echo $ARGUMENT | cut -f2 -d=)  
-    echo $KEY 
     case "$KEY" in
             LOGIC)              LOGIC=${VALUE} ;;
             ENV)    ENV=${VALUE} ;;     
@@ -29,13 +28,13 @@ done
 LOGIC=${LOGIC:-tel}
 ENV=${ENV:-asprilo}
 HORIZON=${HORIZON:-10}
-BASE_PATH=$"env/$ENV/temporal_constraints/$LOGIC/$CONSTRAINT"
+OUTPUT_PATH=$"outputs/$ENV/$LOGIC/$CONSTRAINT"
 echo "$BLUE LOGIC = $NC $LOGIC"
 echo "$BLUE ENV = $NC $ENV"
 echo "$BLUE CONSTRAINT = $NC $CONSTRAINT"
 echo "$BLUE HORIZON = $NC $HORIZON"
 echo "$BLUE ADDITIONAL_FILES = $NC $ADDITIONAL_FILES"
-echo "$BLUE BASE_PATH = $NC $BASE_PATH"
+echo "$BLUE OUTPUT_PATH = $NC $OUTPUT_PATH"
 echo "$BLUE ------------------"
 echo "$NC"
 
@@ -49,6 +48,6 @@ fi
 # set -o pipefail
 echo ""
 echo "Finding plans..."
-clingo $BASE_PATH.automaton.lp automata_run/run.lp env/$ENV/glue.lp -c horizon=$HORIZON $ADDITIONAL_FILES | tee plan.txt
+clingo $OUTPUT_PATH/automaton.lp automata_run/run.lp env/$ENV/glue.lp -c horizon=$HORIZON $ADDITIONAL_FILES | tee $OUTPUT_PATH/plan.txt
 echo $?
 # set +o pipefail

@@ -3,8 +3,8 @@
 % %     Crates proposition for last time_step
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-used_id(ID):-theory_string(ID,S),S!="last".
-used_id(ID):-theory_function(ID,IDS,_),theory_string(IDS,S),S!="last".
+used_id(ID) :- theory_string(ID,S),S!="last".
+used_id(ID) :- theory_function(ID,IDS,_),theory_string(IDS,S), S!= "last".
 
 last_id(MID+1):- #max{ID:used_id(ID)}=MID.
 

@@ -31,9 +31,7 @@ then
     exit 1
 fi
 
-
-BASE_PATH=$"env/$ENV/temporal_constraints/$LOGIC/$CONSTRAINT"
-echo "BASE_PATH = $BASE_PATH"
+OUTPUT_PATH=$"outputs/$ENV/$LOGIC/$CONSTRAINT"
 
 
 scripts/translate.sh CONSTRAINT=$CONSTRAINT LOGIC=$LOGIC env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $ADDITIONAL_FILES
@@ -49,5 +47,5 @@ then
 else
     MODEL_N_S="$(($MODEL_N*2+2))"
     MODEL_N_E="$(($MODEL_N*2+3))"
-    sed -n "${MODEL_N_S},${MODEL_N_E}"p plan.txt | viz
+    sed -n "${MODEL_N_S},${MODEL_N_E}"p $OUTPUT_PATH/plan.txt | viz
 fi

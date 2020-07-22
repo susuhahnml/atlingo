@@ -45,7 +45,7 @@ def translate(constraint,file,extra=[]):
 
 def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):
     translate(constraint,file)
-    files = ["env/test/temporal_constraints/del/formula_test.automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
+    files = ["outputs/test/del/formula_test/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
     if not mapping is None:
         files.append(mapping)
     return solve(["-c horizon={}".format(horizon)],files)
@@ -56,7 +56,7 @@ def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file=
         command = "python scripts/viz.py del {}".format(file[:-3]) 
         subprocess.check_output(command.split())
 
-    return solve(["-c horizon={}".format(horizon)],["env/test/temporal_constraints/del/formula_test.automaton.lp","./automata_run/run.lp",mapping],[trace,encoding])
+    return solve(["-c horizon={}".format(horizon)],["outputs/test/del/formula_test/automaton.lp","./automata_run/run.lp",mapping],[trace,encoding])
 
 
 
@@ -349,6 +349,5 @@ class TestMain(TestCase):
     def test_special(self):
         self.maxDiff=None
 
-        result = run_generate(":- not &del{ ?X .>* (* &true .>? ~X) },prop(X).prop(p).",horizon=2)
-        print(result)
+        result = run_generate(":- not &del{ ?X .>* (* &true .>? ~X) },f(X).f(p).",horizon=2)
         

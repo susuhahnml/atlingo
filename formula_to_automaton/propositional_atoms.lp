@@ -23,30 +23,34 @@ operator("&").
 operator(".>?").
 operator(".>*").
 
-other_string("holds").
-other_string("trace").
-other_string("last").
-other_string("true").
-other_string("false").
+reserved_words("holds").
+reserved_words("trace").
+reserved_words("last").
+reserved_words("true").
+reserved_words("false").
 
-pos_prop_id(ID):-
-theory_function(ID,ID_O,ID_T),
-theory_string(ID_O,P), not operator(P), not other_string(P).
+pos_prop_id(ID) :- theory_function(ID,ID_O,ID_T),
+                   theory_string(ID_O,P), 
+                   not operator(P), 
+                   not reserved_words(P).
 
-pos_prop_id(ID):-
-theory_string(ID,P), not operator(P), not other_string(P).
+pos_prop_id(ID) :- theory_string(ID,P), 
+                   not operator(P), 
+                   not reserved_words(P).
 
 % Find max arity of a tuple
-tuple_max(MAX):-#max{D:theory_tuple(_,D,_)}=MAX.
+% tuple_max(MAX) :- #max{D:theory_tuple(_,D,_)}=MAX.
 
 % Remove arguments of atoms from the prop: 
 % Example: Remove robot(1) when only appearing in move(robot(1)).
-prop_id(ID):-
-pos_prop_id(ID), 
-#count{1,ID_PARENT:theory_function(ID_PARENT, _, ID_T),theory_tuple(ID_T,0..MAX,ID),not pos_prop_id(ID_PARENT)}>0, tuple_max(MAX).
+prop_id(ID) :- pos_prop_id(ID), 
+               #count{1,ID_PARENT: theory_function(ID_PARENT, _, ID_T),
+                                   theory_tuple(ID_T,0..MAX,ID),
+                                   not pos_prop_id(ID_PARENT)} > 0, 
+               #max{D:theory_tuple(_,D,_)}=MAX.
 
-prop_id(ID):-
-pos_prop_id(ID),
-theory_atom(ID_A,ID_O,ID_E),
-theory_element(ID_E,ID_T,_),
-theory_tuple(ID_T,0,ID).
+% Include also proposition when the whole formula is a proposition
+prop_id(ID) :- pos_prop_id(ID),
+               theory_atom(ID_A,ID_O,ID_E),
+               theory_element(ID_E,ID_T,_),
+               theory_tuple(ID_T,0,ID).

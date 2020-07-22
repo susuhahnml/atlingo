@@ -23,9 +23,6 @@ holds(I,T) :- position(robot(N),(X,Y),T),id_map(I,("position",("robot",N),(X,Y))
 
 holds(I,T) :- following(robot(N),robot(M),T),id_map(I,("following",("robot",N),("robot",M))).
 
-% Must include other actions that afect the last time step
-% to make sure nothing holds after the last point of the trace
-holds("action",T-1):-move(R,D,T).
 
 following(robot(R'),robot(R),T):-position(robot(R),(X,Y),T), position(robot(R'),(X,Y),T-1).
 
@@ -42,6 +39,6 @@ move_v(R,T):-move(R,(0,_),T).
 move_h(R,T):-move(R,(_,0),T).
 
 
-#show holds/2.
-#show position/3.
-#show id_map/2.
+% #show holds/2.
+% #show position/3.
+% #show id_map/2.
