@@ -11,14 +11,14 @@
 
 %last_id Should come as part of the facts
 
-time(0..horizon). %Start in 1 (like in asprilo)
+time_atlingo(0..horizon). %Start in 1 (like in asprilo)
 % Last holds in horizon
 holds(ID,horizon):-last_id(ID).
 
 % % Last can hold at any instant
-% {holds(ID,T)}:-time(T),last_id(ID).
+% {holds(ID,T)}:-time_atlingo(T),last_id(ID).
 % % Only one last step
-% :- #count{1,T:holds(ID,T),time(T)}!=1,last_id(ID).
+% :- #count{1,T:holds(ID,T),time_atlingo(T)}!=1,last_id(ID).
 
 % Nothing can hold after last
 :-holds(ID,T),holds(P,T'),T'>T,last_id(ID).

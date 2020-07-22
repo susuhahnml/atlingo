@@ -39,4 +39,4 @@ theory_element(0,5,0).
 theory_element_tuple(0).
 theory_element_tuple(0,0).
 theory_atom(2,0,0).
-output(prop(p),0).
+output(f(p),0).

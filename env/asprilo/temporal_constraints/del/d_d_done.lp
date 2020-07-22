@@ -4,5 +4,8 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- not &del{(* &true) .>? (?move_d(robot(X)) ;; &true ;; ?move_d(robot(X)) ;; &true).>? (*(&true).>* ( ?move_v(robot(X)) + ?move_h(robot(X))) .>* &false)}, robot(X), robot(X+1).
-% :- not &del{(* &true) .>? (?move_d(robot(X)) ;; &true ;; ?move_d(robot(X)) ;; &true).>? (*(&true).>* ( move_v(robot(X)) + ?move_h(robot(X))) .>* &false)}, robot(X).
+:- not &del{(* &true) .>? 
+        (?move_d(robot(X)) ;; &true ;; ?move_d(robot(X)) ;; &true).>? 
+        (*(&true).>* ( ?move_v(robot(X)) + ?move_h(robot(X))) .>* &false)
+        
+    }, robot(X).

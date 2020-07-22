@@ -44,9 +44,17 @@ id_map(ID_2,MAP_2).
 % ------- Function
 
 % Arity 1
+id_map(ID,-MAP_0):-
+theory_function(ID,ID_O,ID_T),
+theory_string(ID_O,"-"), 
+theory_tuple(ID_T,0,ID_0),
+not theory_tuple(ID_T,1,_),
+id_map(ID_0,MAP_0).
+
+% Arity 1
 id_map(ID,(P,MAP_0)):-
 theory_function(ID,ID_O,ID_T),
-theory_string(ID_O,P), 
+theory_string(ID_O,P), P!="-",
 theory_tuple(ID_T,0,ID_0),
 not theory_tuple(ID_T,1,_),
 id_map(ID_0,MAP_0).
