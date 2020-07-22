@@ -38,7 +38,7 @@ scripts/translate.sh CONSTRAINT=$CONSTRAINT LOGIC=$LOGIC env/asprilo/asprilo-abs
 
 CLINGO="$CLINGO -n $MODEL_N"
 
-scripts/run.sh CONSTRAINT=$CONSTRAINT LOGIC=$LOGIC env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/{action-MD.lp,goal-MD.lp,output-M.lp} HORIZON=$HORIZON env/asprilo/augmented-md-to-m.lp $ADDITIONAL_FILES $CLINGO
+scripts/run.sh CONSTRAINT=$CONSTRAINT LOGIC=$LOGIC env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/{action-MD.lp,goal-MD.lp,output-M.lp} HORIZON=$HORIZON env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp $ADDITIONAL_FILES $CLINGO
 
 
 if [ -z "$VIZ" ]
