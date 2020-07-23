@@ -8,8 +8,8 @@ state(top).
 state(diamond(star(top),neg(prop(3)))).
 state(box(check(prop(3)),diamond(star(top),neg(prop(3))))).
 state(diamond(top,diamond(star(top),neg(prop(3))))).
-delta(prop(3),pbf_decide(3,pbf_true,pbf_false)).
-delta(neg(prop(3)),pbf_decide(3,pbf_false,pbf_true)).
+delta(prop(3),pbf_if(3,pbf_true,pbf_false)).
+delta(neg(prop(3)),pbf_if(3,pbf_false,pbf_true)).
 delta(top,pbf_true).
 delta(bottom,pbf_false).
 id_map(0,"del").
@@ -36,6 +36,6 @@ id_pred_map(13,diamond(star(top),neg(prop(3)))).
 id_pred_map(14,box(check(prop(3)),diamond(star(top),neg(prop(3))))).
 last_id(15).
 id_map(15,"last").
-delta(diamond(top,diamond(star(top),neg(prop(3)))),pbf_decide(15,pbf_false,pbf_id(diamond(star(top),neg(prop(3)))))).
-delta(diamond(star(top),neg(prop(3))),pbf_or(pbf_decide(3,pbf_false,pbf_true),pbf_decide(15,pbf_false,pbf_id(diamond(star(top),neg(prop(3))))))).
-delta(box(check(prop(3)),diamond(star(top),neg(prop(3)))),pbf_or(pbf_decide(3,pbf_false,pbf_true),pbf_or(pbf_decide(3,pbf_false,pbf_true),pbf_decide(15,pbf_false,pbf_id(diamond(star(top),neg(prop(3)))))))).
+delta(diamond(top,diamond(star(top),neg(prop(3)))),pbf_if(15,pbf_false,pbf_state(diamond(star(top),neg(prop(3)))))).
+delta(diamond(star(top),neg(prop(3))),pbf_or(pbf_if(3,pbf_false,pbf_true),pbf_if(15,pbf_false,pbf_state(diamond(star(top),neg(prop(3))))))).
+delta(box(check(prop(3)),diamond(star(top),neg(prop(3)))),pbf_or(pbf_if(3,pbf_false,pbf_true),pbf_or(pbf_if(3,pbf_false,pbf_true),pbf_if(15,pbf_false,pbf_state(diamond(star(top),neg(prop(3)))))))).

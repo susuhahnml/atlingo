@@ -1,0 +1,40 @@
+<runscript output="asprilo_DFA_benchmark">
+
+	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
+	
+  	<config name="seq-asprilo-dfa" template="templates/seq-asprilo-dfa.sh"/>
+  
+	<system name="to_automata_and_runs" version="1" measures="clasp" config="seq-asprilo-dfa">
+
+    		<setting name="without-constraint_h_15" cmdline="15" tag="basic" />
+    		<!-- <setting name="without-constraint_h_15" cmdline="15" tag="basic" /> -->
+    		<!-- <setting name="constraint_square-release_h_15" cmdline="15 constraints/constraints/square_release.lp constraints/predicates_needed/looping_starts.lp" tag="basic" />
+    		<setting name="constraint_h-b-v_h15" cmdline="15 constraints/constraints/horizontally_before_vertically.lp constraints/predicates_needed/move_h_v.lp" tag="basic" />
+    		<setting name="constraint_v-b-h_h_15" cmdline="15 constraints/constraints/vertically_before_horizontally.lp constraints/predicates_needed/move_h_v.lp" tag="basic" />
+    		<setting name="constraint_never-both-direction_h_15" cmdline="15 constraints/constraints/never_both_direction.lp constraints/predicates_needed/empty.lp" tag="basic" />
+    		<setting name="constraint_eventually-follows_h_15" cmdline="15 constraints/constraints/eventually_follows.lp constraints/predicates_needed/following.lp" tag="basic" />
+
+
+
+    		<setting name="without-constraint_h_25" cmdline="25" tag="basic" />
+    		<setting name="constraint_square-release_h_25" cmdline="25 constraints/constraints/square_release.lp constraints/predicates_needed/looping_starts.lp" tag="basic" />
+    		<setting name="constraint_v-b-h_h_25" cmdline="25 constraints/constraints/vertically_before_horizontally.lp constraints/predicates_needed/move_h_v.lp" tag="basic" />
+    		<setting name="constraint_never-both-direction_h_25" cmdline="25 constraints/constraints/never_both_direction.lp constraints/predicates_needed/empty.lp" tag="basic" />
+    		<setting name="constraint_robotcentipede_h_25" cmdline="25 constraints/constraints/robotcentipede.lp constraints/predicates_needed/following.lp" tag="basic" /> -->
+
+    		<!-- <setting name="constraint_h-b-v_h_25" cmdline="25 constraints/constraints/horizontally_before_vertically.lp constraints/predicates_needed/move_h_v.lp" tag="basic" /> -->
+    		<!-- <setting name="constraint_eventually-follows_h_25" cmdline="25 constraints/constraints/eventually_follows.lp constraints/predicates_needed/following.lp" tag="basic" /> -->
+    </system>
+
+	<seqjob name="seq-gen" timeout="900" runs="1" script_mode="timeout" walltime="50:00:00" parallel="1"/>
+
+	<benchmark name="asprilo-benchmarkk">
+		<folder path="../../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/"> </folder> 
+	</benchmark>
+	
+	<project name="clingo-seq-job" job="seq-gen">
+		<runtag machine="komputer" benchmark="asprilo-benchmarkk" tag="basic"/>
+	</project>
+
+</runscript>
+

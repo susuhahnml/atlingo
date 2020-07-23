@@ -6,8 +6,8 @@ state(6).
 state(4).
 state(7).
 state(8).
-delta(3,pbf_decide(3,pbf_true,pbf_false)).
-delta(6,pbf_decide(6,pbf_true,pbf_false)).
+delta(3,pbf_if(3,pbf_true,pbf_false)).
+delta(6,pbf_if(6,pbf_true,pbf_false)).
 id_map(0,"tel").
 id_map(3,"a").
 id_map(2,">").
@@ -19,6 +19,6 @@ id_map(4,(">","a")).
 id_map(8,("&",(">","a"),(">?","b","a"))).
 last_id(9).
 id_map(9,"last").
-delta(4,pbf_decide(9,pbf_false,pbf_id(3))).
-delta(7,pbf_or(pbf_decide(3,pbf_true,pbf_false),pbf_and(pbf_decide(6,pbf_true,pbf_false),pbf_decide(9,pbf_false,pbf_id(7))))).
-delta(8,pbf_and(pbf_decide(9,pbf_false,pbf_id(3)),pbf_or(pbf_decide(3,pbf_true,pbf_false),pbf_and(pbf_decide(6,pbf_true,pbf_false),pbf_decide(9,pbf_false,pbf_id(7)))))).
+delta(4,pbf_if(9,pbf_false,pbf_state(3))).
+delta(7,pbf_or(pbf_if(3,pbf_true,pbf_false),pbf_and(pbf_if(6,pbf_true,pbf_false),pbf_if(9,pbf_false,pbf_state(7))))).
+delta(8,pbf_and(pbf_if(9,pbf_false,pbf_state(3)),pbf_or(pbf_if(3,pbf_true,pbf_false),pbf_and(pbf_if(6,pbf_true,pbf_false),pbf_if(9,pbf_false,pbf_state(7)))))).
