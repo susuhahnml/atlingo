@@ -3,4 +3,4 @@
 % %     Generates possible traces
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-{holds(ID,T)}:-prop_id(ID),time_atlingo(T).
+{in_trace_at(ID,0..horizon)} :- prop_id(ID).

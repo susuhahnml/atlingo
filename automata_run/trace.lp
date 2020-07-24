@@ -14,10 +14,11 @@
 time_atlingo(0..horizon). %Use a different name to avoid conflicts with each domain
 
 % Last holds in horizon
-holds(ID,horizon):-last_id(ID).
+in_trace_at(ID,horizon):-last_id(ID).
 
 % Nothing can hold after last
-% :-holds(ID,T),holds(P,T'),T'>T,last_id(ID).
+% :-in_trace_at(ID,T),in_trace_at(P,T'),T'>T,last_id(ID).
 
-#show holds_map(T,MAP): holds(ID,T), id_map(ID,MAP).
+#show holds_map(T,MAP): in_trace_at(ID,T), id_map(ID,MAP).
+% #show in_trace_at/2.
 

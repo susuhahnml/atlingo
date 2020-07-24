@@ -7,21 +7,21 @@
 
 
 % One rule for each type of predicate used in the formula
-holds(I,T-1) :- move(robot(N),(X,Y),T),id_map(I,("move",("robot",N),(X,Y))).
-holds(I,T-1) :- move(robot(N),(X,Y),T),id_map(I,("move",("robot",N),(X,Y))).
-holds(I,T-1) :- move_r(robot(N),T),id_map(I,("move_r",("robot",N))).
-holds(I,T-1) :- move_l(robot(N),T),id_map(I,("move_l",("robot",N))).
-holds(I,T-1) :- move_u(robot(N),T),id_map(I,("move_u",("robot",N))).
-holds(I,T-1) :- move_d(robot(N),T),id_map(I,("move_d",("robot",N))).
+in_trace_at(I,T-1) :- move(robot(N),(X,Y),T),id_map(I,("move",("robot",N),(X,Y))).
+in_trace_at(I,T-1) :- move(robot(N),(X,Y),T),id_map(I,("move",("robot",N),(X,Y))).
+in_trace_at(I,T-1) :- move_r(robot(N),T),id_map(I,("move_r",("robot",N))).
+in_trace_at(I,T-1) :- move_l(robot(N),T),id_map(I,("move_l",("robot",N))).
+in_trace_at(I,T-1) :- move_u(robot(N),T),id_map(I,("move_u",("robot",N))).
+in_trace_at(I,T-1) :- move_d(robot(N),T),id_map(I,("move_d",("robot",N))).
 
-holds(I,T-1) :- move_h(robot(N),T),id_map(I,("move_h",("robot",N))).
-holds(I,T-1) :- move_v(robot(N),T),id_map(I,("move_v",("robot",N))).
+in_trace_at(I,T-1) :- move_h(robot(N),T),id_map(I,("move_h",("robot",N))).
+in_trace_at(I,T-1) :- move_v(robot(N),T),id_map(I,("move_v",("robot",N))).
 
-holds(I,T-1) :- no_move(robot(N),T),id_map(I,("no_move",("robot",N))).
+in_trace_at(I,T-1) :- no_move(robot(N),T),id_map(I,("no_move",("robot",N))).
 
-holds(I,T) :- position(robot(N),(X,Y),T),id_map(I,("position",("robot",N),(X,Y))).
+in_trace_at(I,T) :- position(robot(N),(X,Y),T),id_map(I,("position",("robot",N),(X,Y))).
 
-holds(I,T) :- following(robot(N),robot(M),T),id_map(I,("following",("robot",N),("robot",M))).
+in_trace_at(I,T) :- following(robot(N),robot(M),T),id_map(I,("following",("robot",N),("robot",M))).
 
 
 following(robot(R'),robot(R),T):-position(robot(R),(X,Y),T), position(robot(R'),(X,Y),T-1).
