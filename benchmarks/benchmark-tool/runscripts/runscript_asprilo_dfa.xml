@@ -9,26 +9,27 @@
 
 		<!-- WITHOUT CONSTRAINTS, HENCE WITHOUT MODE -->
 
-    		<setting name="without-constraint_h_15" cmdline="15" tag="basic" />
-    		<!-- <setting name="without-constraint_h_25" cmdline="25" tag="basic" /> -->
+    		<setting name="without-constraint_h_15-alternating" cmdline="15" tag="basic" />
+    		<setting name="without-constraint_h_25-alternating" cmdline="25" tag="basic" />
 
 			<!-- HORIZON 15 -->
-    		<setting name="constraint_v_b_h_15" cmdline="15 v_before_h" tag="basic" />
-    		<!-- <setting name="constraint_h-b-v_h_15_mode_2" cmdline="15 constraints/constraints/horizontally_before_vertically.lp constraints/predicates_needed/move_h_v.lp" tag="basic" />
-    		<setting name="constraint_v-b-h_h_15_mode_2" cmdline="15 constraints/constraints/vertically_before_horizontally.lp constraints/predicates_needed/move_h_v.lp" tag="basic" />
-    		<setting name="constraint_never-both-direction_h_15_mode_2" cmdline="15 constraints/constraints/never_both_direction.lp constraints/predicates_needed/empty.lp" tag="basic" />
-    		<setting name="constraint_eventually-follows_h_15_mode_2" cmdline="15 constraints/constraints/eventually_follows.lp constraints/predicates_needed/following.lp" tag="basic" /> -->
+			<setting name="constraint_follow_unitl_0_0_h_15-alternating" cmdline="15 follow_unitl_0_0" tag="basic" />
+    		<setting name="constraint_h-b-v_h_15-alternating" cmdline="15 horizontally_before_vertically" tag="basic" />
+    		<setting name="constraint_v-b-h_h_15-alternating" cmdline="15 vertically_before_horizontally" tag="basic" />
+    		<setting name="constraint_never-both-direction_h_15-alternating" cmdline="15 never_both_direction" tag="basic" />
+    		<setting name="constraint_eventually-follows_h_15-alternating" cmdline="15 eventually_follows" tag="basic" />
 
 			<!-- HORIZON 25 -->
-    		<!-- <setting name="constraint_square-release_h_25_mode_2" cmdline="25 constraints/constraints/square_release.lp constraints/predicates_needed/looping_starts.lp" tag="basic" />
-    		<setting name="constraint_v-b-h_h_25_mode_2" cmdline="25 constraints/constraints/vertically_before_horizontally.lp constraints/predicates_needed/move_h_v.lp" tag="basic" />
-    		<setting name="constraint_never-both-direction_h_25_mode_2" cmdline="25 constraints/constraints/never_both_direction.lp constraints/predicates_needed/empty.lp" tag="basic" />
-    		<setting name="constraint_robotcentipede_h_25_mode_2" cmdline="25 constraints/constraints/robotcentipede.lp constraints/predicates_needed/following.lp" tag="basic" /> -->
+    		<setting name="constraint_follow_unitl_0_0_h_15-alternating" cmdline="25 follow_unitl_0_0" tag="basic" />
+    		<setting name="constraint_h-b-v_h_15-alternating" cmdline="25 horizontally_before_vertically" tag="basic" />
+    		<setting name="constraint_v-b-h_h_15-alternating" cmdline="25 vertically_before_horizontally" tag="basic" />
+    		<setting name="constraint_never-both-direction_h_15-alternating" cmdline="25 never_both_direction" tag="basic" />
+    		<setting name="constraint_eventually-follows_h_15-alternating" cmdline="25 eventually_follows" tag="basic" />
 
 
     </system>
 
-	<seqjob name="seq-gen" timeout="900" runs="1" script_mode="timeout" walltime="50:00:00" parallel="1"/>
+	<seqjob name="seq-gen" timeout="900" runs="2" script_mode="timeout" walltime="50:00:00" parallel="1"/>
 
 	<benchmark name="asprilo-benchmarkk">
 		<folder path="../../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/"> </folder> 

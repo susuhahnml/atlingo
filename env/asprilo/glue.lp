@@ -23,6 +23,9 @@ in_trace_at(I,T) :- position(robot(N),(X,Y),T),id_map(I,("position",("robot",N),
 
 in_trace_at(I,T) :- following(robot(N),robot(M),T),id_map(I,("following",("robot",N),("robot",M))).
 
+in_trace_at(I,T-1) :- move(robot(N),T),id_map(I,("move",("robot",N))).
+in_trace_at(I,T-1) :- looping_starts(robot(N),T),id_map(I,("looping_starts",("robot",N))).
+
 
 following(robot(R'),robot(R),T):-position(robot(R),(X,Y),T), position(robot(R'),(X,Y),T-1).
 
@@ -39,6 +42,13 @@ move_v(R,T):-move(R,(0,_),T).
 move_h(R,T):-move(R,(_,0),T).
 
 
+move(R, T) :- move(R, _, T).
+looping_starts(R, T) :- move(R, (1,0), T), move(R, (0,-1), T+1), move(R, (-1,0), T+2), move(R, (0,1), T+3).
+
+
+
+
 % #show holds/2.
 % #show position/3.
 % #show id_map/2.
+#show move/2.
