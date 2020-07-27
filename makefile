@@ -23,7 +23,8 @@ run-asprilo:
 
 	@ echo " $BFinding plans... $(NC)"
 
-	@ clingo ./outputs/asprilo/$(LOGIC)/$(CONSTRAINT)/automaton.lp automata_run/run.lp env/asprilo/glue.lp $(INSTANCE) env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/{action-MD.lp,goal-MD.lp,output-M.lp} env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp -c horizon=$(HORIZON) --stats | tee ./outputs/asprilo/$(LOGIC)/$(CONSTRAINT)/plan.txt
+	# @ clingo ./outputs/asprilo/$(LOGIC)/$(CONSTRAINT)/automaton.lp automata_run/run.lp env/asprilo/glue.lp $(INSTANCE) env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/{action-MD.lp,goal-MD.lp,output-M.lp} env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp -c horizon=$(HORIZON) --stats | tee ./outputs/asprilo/$(LOGIC)/$(CONSTRAINT)/plan.txt
+	@ clingo $(BASE_OUT)/automaton.lp automata_run/run.lp env/asprilo/glue.lp $(INSTANCE) env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp -c horizon=$(HORIZON) --stats | tee ./outputs/asprilo/$(LOGIC)/$(CONSTRAINT)/plan.txt
 
 viz-asprilo:
 	sed -n "4,5p" ./outputs/asprilo/$(LOGIC)/$(CONSTRAINT)/plan.txt | viz

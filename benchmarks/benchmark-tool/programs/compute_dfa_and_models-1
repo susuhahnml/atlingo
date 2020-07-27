@@ -17,10 +17,13 @@ echo $ROOT
 echo $INSTANCE
 echo $HORIZON 
 
-PATH_FROM_DFA_TO_ROOT="tools/benchmark-tool/"
+PATH_FROM_DFA_TO_ROOT="benchmark/benchmark-tool/"
 PATH_FROM_ROOT_TO_DFA="../../"
 PATH_CONVERT_M_TO_MD="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-m-to-md.lp"
-PATH_ENCODING_M="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/{action-MD.lp,goal-MD.lp,output-M.lp}"
+PATH_ENCODING_M_1="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp"
+PATH_ENCODING_M_2="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp"
+PATH_ENCODING_M_3="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp"
+PATH_ENCODING_M="$PATH_ENCODING_M_1 ""$PATH_ENCODING_M_2 ""$PATH_ENCODING_M_3"
 
 # echo $PATH_CONVERT_M_TO_MD
 
@@ -34,10 +37,21 @@ if [ $# -eq 3 ]
 	INSTANCE_NAME=$(basename "$INSTANCE")
 
 	INSTANCE=${INSTANCE#"$ROOT"}
-	INSTANCE=$PATH_FROM_DFA_TO_ROOT$INSTANCE
-	CONSTRAINT=$PATH_FROM_DFA_TO_ROOT$4
-	echo "HEYYYY"
-	( cd $ROOT ; cd $PATH_FROM_ROOT_TO_DFA ; make run-asprilo INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT HORIZON=$HORIZON ; make stats INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT)
+	INSTANCE=${INSTANCE#"$PATH_FROM_ROOT_TO_DFA"}
+	# INSTANCE=$PATH_FROM_DFA_TO_ROOT$INSTANCE
+	# CONSTRAINT=$PATH_FROM_DFA_TO_ROOT$4
+	CONSTRAINT=$4
+	CONSTRAINT_NAME=$(basename "$CONSTRAINT")
+	
+	# echo "AAAAAAAAAAAAAAAAAAAA"
+	# echo $CONSTRAINT
+	# echo $INSTANCE_NAME
+	# echo "AAAAAAAAAAAAAAAAAAAA"
+	echo "new7"
+	COMMAND="	( cd $ROOT ; cd $PATH_FROM_ROOT_TO_DFA ; make run-asprilo INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT_NAME HORIZON=$HORIZON ; make stats INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT_NAME)"
+	echo $COMMAND
+	
+	( cd $ROOT ; cd $PATH_FROM_ROOT_TO_DFA ; make run-asprilo INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT_NAME HORIZON=$HORIZON ; make stats INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT_NAME)
  	# cat $SAVE_NAME 
 fi
 
