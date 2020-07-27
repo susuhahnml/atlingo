@@ -20,6 +20,7 @@ do
             LOGIC)              LOGIC=${VALUE} ;;
             ENV)    ENV=${VALUE} ;;     
             CONSTRAINT)    CONSTRAINT=${VALUE} ;;     
+            INSTANCE)    INSTANCE=${VALUE} ;;     
             HORIZON)    HORIZON=${VALUE} ;;     
             *) ADDITIONAL_FILES+="${KEY} "
     esac    
@@ -34,6 +35,7 @@ echo "$BLUE ENV = $NC $ENV"
 echo "$BLUE CONSTRAINT = $NC $CONSTRAINT"
 echo "$BLUE HORIZON = $NC $HORIZON"
 echo "$BLUE ADDITIONAL_FILES = $NC $ADDITIONAL_FILES"
+echo "$BLUE INSTANCE = $NC $INSTANCE"
 echo "$BLUE OUTPUT_PATH = $NC $OUTPUT_PATH"
 echo "$BLUE ------------------"
 echo "$NC"
@@ -48,6 +50,6 @@ fi
 # set -o pipefail
 echo ""
 echo "Finding plans..."
-clingo $OUTPUT_PATH/automaton.lp automata_run/run.lp env/$ENV/glue.lp -c horizon=$HORIZON $ADDITIONAL_FILES | tee $OUTPUT_PATH/plan.txt
+clingo $OUTPUT_PATH/automaton.lp automata_run/run.lp env/$ENV/glue.lp $INSTANCE $ADDITIONAL_FILES -c horizon=$HORIZON | tee $OUTPUT_PATH/plan.txt
 echo $?
 # set +o pipefail
