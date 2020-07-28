@@ -8,14 +8,19 @@ $(eval APP ?= asprilo)
 $(eval LOGIC ?= tel)
 $(eval NAME_INSTANCE = $(basename $(notdir $(INSTANCE))))
 $(eval PATH_OUT = ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE))
+$(eval PATH_INPUT = env/$(APP)/temporal_constraints/$(LOGIC)/$(CONSTRAINT))
 ZSH_RESULT:=$(shell mkdir -p $(PATH_OUT))
+$(eval EXTRA = $(PATH_INPUT).extra.lp)
+
+ifeq ("$(wildcard $(EXTRA))","")
+    $(eval EXTRA = )
+endif
 
 clean:
 	rm -rf outputs/*
 
 translate:
 
-	$(eval PATH_INPUT = env/$(APP)/temporal_constraints/$(LOGIC)/$(CONSTRAINT))
 	@ echo "$B Reifying constraint... $(NC)"
 
 	gringo formula_to_automaton/$(LOGIC)/theory.lp $(PATH_INPUT).lp $(INSTANCE) $(TRANSLATE_FILES) --output=reify > $(PATH_OUT)/reified.lp 
@@ -42,7 +47,7 @@ run:
 
 	@ echo " $BFinding filtered plans... $(NC)"
 
-	clingo $(PATH_OUT)/automaton.lp automata_run/run.lp env/$(APP)/glue.lp $(INSTANCE) $(RUN_FILES) -c horizon=$(HORIZON) --stats | tee ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/plan.txt
+	clingo $(PATH_OUT)/automaton.lp automata_run/run.lp env/$(APP)/glue.lp $(INSTANCE) $(EXTRA) $(RUN_FILES) -c horizon=$(HORIZON) --stats | tee ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/plan.txt
 
 generate-traces:
 

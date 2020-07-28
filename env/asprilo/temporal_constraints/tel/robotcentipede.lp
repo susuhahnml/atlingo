@@ -1,0 +1,1 @@
+:- not &tel{> > > (following(robot(R1), robot(R2)) >? (position(robot(1), (1,1) ) ))}, robot(R2), robot(R1), R1+1=R2.

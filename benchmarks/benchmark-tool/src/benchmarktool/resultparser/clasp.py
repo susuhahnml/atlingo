@@ -12,7 +12,8 @@ import codecs
 clasp_re = {
     "models"      : ("float", re.compile(r"^(c )?Models[ ]*:[ ]*(?P<val>[0-9]+)\+?[ ]*$")),
     "choices"     : ("float", re.compile(r"^(c )?Choices[ ]*:[ ]*(?P<val>[0-9]+)\+?[ ]*$")),
-    "time"        : ("float", re.compile(r"^Real time \(s\): (?P<val>[0-9]+(\.[0-9]+)?)$")),
+    # "time"        : ("float", re.compile(r"^Real time \(s\): (?P<val>[0-9]+(\.[0-9]+)?)$")),
+    "time"        : ("float", re.compile(r"^(c )?Time[ ]*:[ ]*(?P<val>[0-9]+(\.[0-9]+)?)s")),
     "conflicts"   : ("float", re.compile(r"^(c )?Conflicts[ ]*:[ ]*(?P<val>[0-9]+)\+?[ ]*$")),
     "restarts"    : ("float", re.compile(r"^(c )?Restarts[ ]*:[ ]*(?P<val>[0-9]+)\+?[ ]*$")),
     "optimum"     : ("string", re.compile(r"^(c )?Optimization[ ]*:[ ]*(?P<val>(-?[0-9]+)( -?[0-9]+)*)[ ]*$")),
@@ -29,7 +30,7 @@ def clasp(root, runspec, instance):
 
     timeout = runspec.project.job.timeout
     res     = { "time": ("float", timeout) }
-    for f in ["runsolver.solver", "runsolver.watcher"]:
+    for f in ["runsolver.solver"]:#, "runsolver.watcher"]:
         for line in codecs.open(os.path.join(root, f), errors='ignore', encoding='utf-8'):
             for val, reg in clasp_re.items():
                 m = reg[1].match(line)

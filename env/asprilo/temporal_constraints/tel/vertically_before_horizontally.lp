@@ -1,1 +1,1 @@
-:- not &tel{(~ move_h(robot(R)) ) >? (>* ~ move_v(robot(R))) }, robot(R).
+:- not &tel{(~ move_horizontally(robot(R)) ) >? (>* ~ move_vertically(robot(R))) }, robot(R).
