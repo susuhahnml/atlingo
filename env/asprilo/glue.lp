@@ -51,4 +51,4 @@ looping_starts(R, T) :- move(R, (1,0), T), move(R, (0,-1), T+1), move(R, (-1,0),
 % #show holds/2.
 % #show position/3.
 % #show id_map/2.
-#show move/2.
+% #show move/2.

@@ -23,9 +23,6 @@ in_path = sys.argv[2]
 env = [in_path.split(os.sep)[i+1] for i,d in enumerate(in_path.split(os.sep)) if d=='env']
 base_path,file_name = os.path.split(in_path)
 
-print("Computing visualization for {} automaton in {}...".format(type_formula,in_path))
-
-
 
 
 
@@ -177,5 +174,6 @@ for i,initial in enumerate(initials):
         idx+=1            
 
     # Print automaton
-
-    G.draw('{}/img_a_{}.png'.format(base_path,i),prog='dot')  
+    name = '{}/img_a_{}.png'.format(base_path,i)
+    G.draw(name,prog='dot')  
+    print("Automaton {} saved in {}".format(i,name))

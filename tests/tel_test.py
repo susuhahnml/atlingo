@@ -6,6 +6,9 @@ import subprocess
 import itertools
 
 
+
+logic = 'tel'
+
 class Context:
     def id(self, x):
         return x
@@ -36,15 +39,15 @@ def solve(const=[], files=[],inline_data=[]):
     return sorted(r)
 
 def translate(constraint,file,extra=[]):
-    f = open("env/test/temporal_constraints/tel/{}".format(file), "w")
+    f = open("env/test/temporal_constraints/{}/{}".format(logic,file), "w")
     f.write(constraint)
     f.close()
-    command = 'make translate LOGIC=tel CONSTRAINT={} APP=test INSTANCE=test'.format(file[:-3]) 
+    command = 'make translate LOGIC={} CONSTRAINT={} APP=test INSTANCE=env/test/instances/empty.lp'.format(logic,file[:-3]) 
     subprocess.check_output(command.split())
 
 def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):
     translate(constraint,file)
-    files = ["outputs/test/tel/formula_test/test/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
+    files = ["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./automata_run/run.lp","./automata_run/trace_generator.lp"]
     if not mapping is None:
         files.append(mapping)
     return solve(["-c horizon={}".format(horizon)],files)
@@ -52,10 +55,10 @@ def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):
 def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False):
     translate(constraint,file)
     if visualize:
-        command = "python scripts/viz.py tel {}".format(file[:-3]) 
+        command = "python scripts/viz.py {} {}".format(logic,file[:-3]) 
         subprocess.check_output(command.split())
 
-    return solve(["-c horizon={}".format(horizon)],["outputs/test/tel/formula_test/test/automaton.lp","./automata_run/run.lp",mapping],[trace,encoding])
+    return solve(["-c horizon={}".format(horizon)],["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./automata_run/run.lp",mapping],[trace,encoding])
 
 
 

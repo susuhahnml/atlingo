@@ -1,6 +1,6 @@
 # ASP encodings to translate temporal logics into Alternating Automatons 
 
-This project contains the encodings to transform temporal logic formulas into alternating automatons which allow validation and generation of traces.
+This project contains the encodings to transform temporal logic formulas into alternating automata which allow validation and generation of traces.
 We work with two different types of formulas:
 - **TEL** (Linear Temporal Logic over finite traces) LTLf
 -  **DEL** (Linear Dynamic Logic over finite traces) LDLf
@@ -8,38 +8,52 @@ We work with two different types of formulas:
 We will use in this document `del` as an example but it can be substituted by `tel`.
 
 We think of this approach in two steps:
-1.  Generation of a declarative representation of an automaton from a theory atom representing a temporal formula, with files in [formula_to_automaton](./formula_to_automaton).
-2.  Using a declarative representation of an automaton to check if a trace is accepted by generating all valid runs  with files in [automata_run](./automata_run). This process has two options.
+1.  Generation of a declarative representation of an automaton from a theory formula representing a temporal formula. All files for this step are found in the directory [formula_to_automaton](./formula_to_automaton).
+2.  Using a declarative representation of an automaton, we check if a trace is valid in the automaton by generating all accepted runs. All files for this step are found in the directory  [automata_run](./automata_run). This process has two options.
     1. The trace is explicitly provided via facts, or an external encoding (such as asprilo). 
     2. Traces are generated using a choice rule, thus computing all valid traces for a given horizon.
 
-We now explain the encodings used and provide examples.
+![](img/workflow.png)
+
+We now explain the encodings used and provide examples. The presented commands used the following share arguments:
+
+- `$LOGIC` is either 'tel' or 'del'.
+- `$APP` the application domain name. A directory with this name must exist inside the folder `\env`.
+- `$CONSTRAINT` the name of the file for the temporal constraint without extension. Multiple constraints for the same type of logic can be provided.
+- `$INSTANCE` the full path to the encoding of the instance for the planning problem. An empty file can also be provided.
+- `$PATH_OUT`  directory to store output files are stored in which should be constructed as `./outputs/$APP/$LOGIC/$CONSTRAINT/$NAME_INSTANCE` where `$NAME_INSTANCE` is the name of the instance file. This directory will save: Reified format, Automaton, Plans found, and image visualizations. This parameter is not required in when using the make file.
 
 ## 1. Formula to automaton
 
 ### Step 1.1: Reification of theory atom
 
-#### Requires:
+#### Used Files:
 
-- **Temporal formula in an integrity constraint** such as [del_robot_move](./examples/temporal_constraints/del_robot_move.lp) with format:
+- **Temporal formula in an integrity constraint** such as [env/test/temporal_constraints/del/example.lp](./env/test/temporal_constraints/del/example.lp) with format:
 ```
 :- not &del{<formula here>}, <additional atoms>.
 ```
 
-- **Theory definition** defining the syntax for the formulas [del/theory.lp](./formula_to_automaton/del/theory.lp).
+- **Theory definition** defining the syntax for the formulas [formula_to_automaton/del/theory.lp](./formula_to_automaton/del/theory.lp).
 
-Temporal constraints are passed tru `gringo` along with the theory definition to unfold their structure. They are saved in its reified format to represent the syntax tree that will by the automaton construction.
+Temporal constraints are passed trough `gringo` along with the theory definition to unfold their structure. They are saved in its reified format to represent the syntax tree that will by the automaton construction. 
 
-Example:
+The process can be done with the following command:
+
 ```shell
-$ gringo examples/temporal_constraints/del_robot_move.lp formula_to_automaton/del/theory.lp --output=reify > output_reified_formulas/del/formula_1.lp
+$ gringo formula_to_automaton/$LOGIC/theory.lp env/$APP/temporal_constraints/$LOGIC/$CONSTRAINT.lp $INSTANCE $TRANSLATE_FILES --output=reify > $PATH_OUT/reified.lp
 ```
+
+Where:
+
+- `$TRANSLATE_FILES` are additional domain specific files required for the translation. Containing information used in the temporal constraints.
+
 
 ### Step 1.2: Translation of reified formula to automaton representation
 
-We transform the formula to an automaton with the file [automata.lp](./formula_to__del_del.lp).
+We transform the reified formula to an automaton with the file [formula_to_automaton/automata_del.lp](./formula_to_automaton/automata_del.lp).
 
-#### Requires:
+#### Used files:
 
 - **Last propostion** We define the proposition for the last step using [last_prop.lp](./formula_to_automaton/last_prop.lp)
 - **Atomic propositions** Gather all atomic propositions used in the formula from the reified output with [propositional_atoms.lp](./formula_to_automaton/propositional_atoms.lp)
@@ -47,102 +61,105 @@ We transform the formula to an automaton with the file [automata.lp](./formula_t
 - **Delta** Compute the transition function. This process depends on the type of logic we use. [del/delta.lp](./formula_to_automaton/del/delta.lp).
 - **Map** Create a mapping from ids used in the reification with [id_map.lp](./formula_to_automaton/id_map.lp). This is used in the traces and for visualization.
 
-The representation is the saved inside [output_automata_facts](./output_automata_facts)
+
+The process can be done with the following command:
 
 Example:
 ```shell
-$ clingo output_reified_formulas/del/formula_1.lp formula_to_automaton/automata_del.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_1.lp
+$ clingo $(PATH_OUT)/reified.lp ./formula_to_automaton/automata_$(LOGIC).lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/automaton.lp
 ```
 
-### Script
-The full translation process can be run from a script using only the command:
+#### *Using make file*
+
+The full translation process can be made using the make file:
 
 ```shell
-$ scripts/translate.sh del <constraint_file.lp>
+$ make translate LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE 
 ```
-Where constraint_file.lp is inside 'examples/temporal_constraints/'. The automaton representation is saved using the same name inside 'output_automata_facts/del/'.
 
 
 ## 2. Runs of the automaton
 
-To compute the runs for an automaton we require a trace defining which atomic propositions hold in what instant. Given the trace, all accepted runs for the automaton are computed using [run.lp](./automata_run/run.lp). 
+Given an automaton representation, to compute the runs we require a trace defining which atomic propositions hold in what instant. Given the trace, all accepted runs for the automaton are computed using [run.lp](./automata_run/run.lp). 
+
+#### Used files:
+
+- **Automata instance** the previously generated instance inside the output folder with extension .automaton 
+
+- **Automata run** encoding to run the automaton with the given trace, it will generate the accepted runs. [automata_run/run](./automata_run/run.lp)
+  
 
 The trace can be obtain in two ways:
 
-1.  It is generated using a choice rule [trace_generator.lp](./automata_run/trace_generator.lp)
 
-Example generating traces of maximum length 3:
+### Validation of trace randomly generated
+
+The trace is randomly generated using a choice rule [automata_run/trace_generator.lp](./automata_run/trace_generator.lp)
+
+
+The process is done with the command:
+
 ```shell
-$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp automata_run/trace_generator.lp -c horizon=3
+$ clingo $PATH_OUT/automaton.lp automata_run/run.lp  automata_run/trace_generator.lp -c horizon=$HORIZON
 ```
 
+Where:
 
-2.  It is explicitly defined, this option requires a definition of the mapping, see example [example](./examples/traces/asprilo_trace_mapping.lp), and either an explicit trace like [trace](./examples/traces/asprilo_trace_explicit_valid_1.lp) or an encoding passed generating the traces.
-
-Example explicit valid trace:
-```shell
-$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp examples/traces/asprilo_trace_explicit_valid_1.lp -c horizon=6
-```
-
-Example explicit invalid trace:
-```shell
-$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp examples/traces/asprilo_trace_explicit_invalid.lp -c horizon=6
-```
-
-Example parallel to asprilo encoding:
-```shell
-$ clingo output_automata_facts/del/automata_1.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8
-```
-
+- `$HORIZON` the fixed horizon. The last time step will be set to this point.
 
 *Note: This process obtains one stable model per accepted run. When multiple traces are given, each will generate the corresponding runs.* 
 
-*Note: The last time step is generated with a choice rule before the given horizon. Therefore many traces might be considered.*
 
-
-## Further integration with asprilo
-
-Use other predicates as part of constraint by including them in the reification.
-
-Example:
-```shell
-$ gringo examples/temporal_constraints/del_robot_move_asprilo.lp formula_to_automaton/del/theory.lp env/asprilo-encodings/{examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp,input.lp} --output=reify > output_reified_formulas/del/formula_2.lp
-```
-
-<!-- gringo examples/temporal_constraints/tel_robot_move.lp formula_to_automaton/tel/theory.lp env/asprilo-encodings/{examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp,input.lp} --output=reify > output_reified_formulas/tel/formula_test_theo.lp
-
-clingo output_reified_formulas/tel/formula_test_theo.lp formula_to_automaton/automata_tel.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/tel/automata_theo.lp
-
-clingo output_automata_facts/tel/tel_theo.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz -->
-
-<!-- gringo examples/temporal_constraints/del_robot_move_asprilo_simple.lp formula_to_automaton/del/theory.lp env/asprilo-encodings/{generatedInstances/x5_y1_n5_r1_s1_ps1_pr1_u1_o1_l1_N001.lp,input.lp} --output=reify > output_reified_formulas/del/formula_2.lp -->
-
-Perform step 1.2 normally.
-
-Example:
-```shell
-$ clingo output_reified_formulas/del/formula_2.lp formula_to_automaton/automata_del.lp --outf=0 -V0 --out-atomf=%s. | head -n1 | tr ". " ".\n"  > output_automata_facts/del/automata_2.lp
-```
-
-Use a pipeline with the visualization with the same example.
+#### *Using make file*
 
 ```shell
-$ clingo output_automata_facts/del/automata_2.lp automata_run/run.lp examples/traces/asprilo_trace_mapping.lp env/asprilo-encodings/m/{action-M.lp,goal-M.lp,output-M.lp} env/asprilo-encodings/input.lp env/asprilo-encodings/examples/x4_y4_n16_r2_s3_ps1_pr2_u4_o2_N1.lp -c horizon=8 --outf=0 -V0 --out-atomf=%s. | head -n1 | viz
+$ make generate-traces LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
 ```
+
+### Validation of trace from planning encoding
+
+The trace is defined by a planning problem. Instead of the files for the planning encoding a trace can be provided as a set of facts to validate it.
+
+#### Used files: 
+ 
+- **Glue file** file defining the relationship between the automaton mapping and the planning problem [glue](./env/test/glue.lp). Must describe all predicates used in the temporal constraint.
+
+
+The process is done with the command:
+
+```shell
+$ clingo $PATH_OUT/automaton.lp automata_run/run.lp env/$APP/glue.lp $INSTANCE $RUN_FILES -c horizon=$HORIZON --stats | tee $OUT_PATH/plan.txt
+```
+
+Where:
+
+- `$RUN_FILES` are additional domain specific files with the explicit trace of the planning encoding. 
+- `$HORIZON` the fixed horizon. The last time step will be set to this point.
+
+*Note: This process obtains one stable model per accepted run. When multiple traces are given, each will generate the corresponding runs.* 
+
+
+#### *Using make file*
+
+```shell
+$ make run LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_FILES=$RUN_FILES HORIZON=$HORIZON
+```
+
+------------
 
 ## Visalization of Automata
 
 The representation of the automata, corresponding to the transition diagram, can be visualized on an image by running:
 
 ```shell
-$ python scripts/viz.py del <automata_name>
+$ make viz-automata LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 ```
-
-Where automata_name is the name of the file with the facts inside 'output_automata_facts/del', an image with the same name will be saved in 'img/del'.
 
 Example:
 
 ![](img/del/formula_test.png)
+
+------------
 
 
 ## Tests
@@ -150,5 +167,38 @@ Example:
 The tests are ran using the command:
 
 ```shell
-$ python -m unittest tests.del_test
+$ make tests -B
 ```
+
+------------
+
+## Asprilo integration
+
+To make the integration with asprilo simpler, the following commands are provided:
+
+Translate temporal constraint from asprilo.
+
+```shell
+$ make translate-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
+```
+
+Run automaton from asprilo using MD domain.
+
+```shell
+$ make run-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
+```
+
+Translate and run automaton from asprilo using MD domain.
+
+```shell
+$ make translate-run-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
+```
+
+Visualize the plan found using asprilo visualizer
+
+```shell
+$ make viz-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
+```
+
+
+
