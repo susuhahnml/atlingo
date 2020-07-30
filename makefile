@@ -78,6 +78,11 @@ tests:
 stats:
 	tail -32 ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/plan.txt
 
+######################  BENCHAMRKS ########################
+
+plot:
+	python ./benchmarks/plot_benchamrks_script.py $1
+
 ######################  ASPRILO ########################
 
 run-asprilo:
