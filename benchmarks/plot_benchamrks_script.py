@@ -6,7 +6,7 @@ import pandas as pd
 import itertools
 import seaborn as sns
 
-N_OUT = 5
+N_OUT = 4
 
 def clean_df(df):
     cols = df.columns[1:]
@@ -26,18 +26,43 @@ def clean_df(df):
     return df,cols
 
 # Make a data frame
+# approaches = ['asp1','asp2']
+# approaches = ['dfa','afw']
+approaches = ['dfa','afw','asp1','asp2']
 approach_df = []
-df2 = pd.read_csv('benchmarks/benchmarks-results/results_dfa_full.csv')
-approach_df.append(clean_df(df2))
-df = pd.read_csv('benchmarks/benchmarks-results/results_alternating_full.csv')
-approach_df.append(clean_df(df))
-# df2 = pd.read_csv('benchmarks/benchmarks-results/results_asp.csv')
-# approach_df.append(clean_df(df2))
-# df = pd.read_csv('benchmarks/benchmarks-results/results_asp2.csv')
-# approach_df.append(clean_df(df))
-# style
-# create a color palette
-out_values = ['time','choices']
+for a in approaches:
+    df = pd.read_csv('benchmarks/benchmarks-results/results_{}.csv'.format(a))
+    approach_df.append(clean_df(df))
+yellow = {15:'#F3F55F',
+    # 25:'#FFEE00',
+    25:'#E7C803',
+    40:'#E7C803',
+    80:'#BCA300'
+    }
+blue= {15:'#96DBED',
+    # 25:'#42AFDB',
+    25:'#455AE2',
+    40:'#455AE2',
+    80:'#0E1BA8'
+    }
+green = {15:'#A7DAA4',
+    # 25:'#73C571',
+    25:'#268C3E',
+    40:'#268C3E',
+    80:'#034D09'
+    }
+red = {15:'#F3AEAE',
+    # 25:'#FE6B6B',
+    25:'#FF2D2D',
+    40:'#FF2D2D',
+    80:'#CC0000'
+    }
+    
+# colors = [green,red]
+colors = [blue,yellow,green,red]
+
+out_values = ['time','choices','conflicts']
+# out_values = ['time']
 for out_value in out_values:
  
     # multiple line plot
@@ -47,23 +72,33 @@ for out_value in out_values:
     # for i in range(0,1):
         plt.style.use('seaborn-dark-palette')
         palette = plt.get_cmap('Set1')
-        for df,columns in approach_df:
-            column=columns[i]
-            
-            num= num +1
+        column_base = "".join(approach_df[0][1][i].split('_h_')[0])
 
-            new_models = 1-df[column+'-models']
-            new_models[ new_models==0 ] = np.nan
-            only_on_unsat = new_models*df[column+'-{}'.format(out_value)]
-            plt.scatter(df['instance-name'], only_on_unsat, color='r')
+        for ap_idx, (df,columns) in enumerate(approach_df):
+            column_full_name=columns[i]
+            approach_name = column_full_name.split('-')[-1]
+            cols_all_h = [c for c in columns if c.split('_h_')[0] == column_base]
+            for column in cols_all_h:
+                plot_unsat=True
+                try:
+                    h = int(column.split('_h_')[1].split('-')[0])
+                except:
+                    plot_unsat = False
+                    h=40
+                num= num +1
 
-            plt.plot(df['instance-name'], df[column+'-{}'.format(out_value)], marker='', linewidth=1, alpha=0.9, label=column.split('-')[-1])
+                new_models = 1-df[column+'-models']
+                new_models[ new_models==0 ] = np.nan
+                only_on_unsat = new_models*df[column+'-{}'.format(out_value)]
+                label = "{}-{}".format(approach_name,h) if plot_unsat else approach_name
+                plt.plot(df['instance-name'], df[column+'-{}'.format(out_value)], marker='', linewidth=1, alpha=1, label=label, color=colors[ap_idx][h],zorder=-1)
+                if plot_unsat:
+                    plt.scatter(df['instance-name'], only_on_unsat, color='r',s=1,alpha=1,zorder=1)
             # plt.tight_layout()
             # Add legend
         plt.legend(loc=2, ncol=2)    
         # Add titles
-        column_base = "".join(approach_df[0][1][i].split('-')[:-1])
-        plt.title("Ploting {} for {}".format(column_base,out_value),  fontsize=12, fontweight=0)
+        plt.title(column_base,  fontsize=12, fontweight=0)
         plt.xticks(rotation='vertical')
         plt.xlabel("Instance")
         plt.ylabel(out_value)
