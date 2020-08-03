@@ -1,0 +1,19 @@
+#!/bin/bash
+
+
+ROOT="$1""/"
+INSTANCE=$2
+HORIZON=$3
+
+
+PATH_FROM_DFA_TO_ROOT="benchmark/benchmark-tool/"
+PATH_FROM_ROOT_TO_DFA="../../"
+PATH_CONVERT_M_TO_MD="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-m-to-md.lp"
+PATH_ENCODING_M_1="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp"
+PATH_ENCODING_M_2="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp"
+PATH_ENCODING_M_3="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp"
+PATH_ENCODING_M="$PATH_ENCODING_M_1 ""$PATH_ENCODING_M_2 ""$PATH_ENCODING_M_3"
+
+
+echo "	clingo --stats $INSTANCE $PATH_CONVERT_M_TO_MD $PATH_ENCODING_M -c horizon=$HORIZON	"
+clingo --stats $INSTANCE $PATH_CONVERT_M_TO_MD $PATH_ENCODING_M -c horizon=$HORIZON	

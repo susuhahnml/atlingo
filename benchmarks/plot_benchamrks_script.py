@@ -32,9 +32,9 @@ def clean_df(df):
     return df,cols
 
 # Make a data frame
-# approaches = ['asp1','asp2']
+approaches = ['asp1','asp2']
 # approaches = ['dfa','afw']
-approaches = ['dfa','afw','asp2']
+# approaches = ['dfa','afw','asp2']
 approach_df = []
 for a in approaches:
     df = pd.read_csv('benchmarks/benchmarks-results/results_{}.csv'.format(a))
@@ -65,16 +65,17 @@ red = {15:'#F3AEAE',
     }
 
 lines =   {15:'-',25:':',40:'-',80:':','all':'-'}
-# colors = [green,red]
-colors = [blue,yellow,green,red]
+colors = [yellow,green]
+# colors = [blue,yellow,green,red]
 
-# out_values = ['time','choices','conflicts']
-out_values = ['time']
+out_values = ['time','choices','conflicts']
+# out_values = ['time']
 all_labels_from1= approach_df[0][1]
 
-base_labels = set([s.split('_h_')[0] for s in all_labels_from1])
-nb_plots= len(base_labels)
+base_labels_general = set([s.split('_h_')[0] for s in all_labels_from1])
+nb_plots= len(base_labels_general)
 for out_value in out_values:
+    base_labels = base_labels_general.copy()
     
     num=0
     # fig, axs = plt.subplots(nb_plots, sharex=True)
@@ -115,7 +116,7 @@ for out_value in out_values:
         plt.xlabel("Instance")
         plt.ylabel(out_value)
 
-        file_name = 'benchmarks/img/{}-{}.png'.format(out_value,column_base)
+        file_name = 'benchmarks/img/asp/{}-{}.png'.format(out_value,column_base)
         plt.savefig(file_name,dpi=700,bbox_inches='tight')
         print("Saved {}".format(file_name))
         plt.clf()

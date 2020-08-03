@@ -1,10 +1,10 @@
-<runscript output="asprilo_DFA_benchmark">
+<runscript output="asprilo_AWF_benchmark">
 
 	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
 	
-  	<config name="seq-asprilo-dfa" template="templates/seq-asprilo-dfa.sh"/>
+  	<config name="seq-asprilo" template="templates/seq-asprilo.sh"/>
   
-	<system name="compute_dfa_and_models" version="1" measures="clasp" config="seq-asprilo-dfa">
+	<system name="compute_afw" version="1" measures="clasp" config="seq-asprilo">
 
 
 		<!-- WITHOUT CONSTRAINTS, HENCE WITHOUT MODE -->
@@ -36,12 +36,12 @@
 
 	<seqjob name="seq-gen" timeout="900" runs="1" script_mode="timeout" walltime="50:00:00" parallel="1"/>
 
-	<benchmark name="asprilo-benchmarkk">
+	<benchmark name="asprilo-benchmark">
 		<folder path="../../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/"> </folder> 
 	</benchmark>
 	
 	<project name="clingo-seq-job" job="seq-gen">
-		<runtag machine="komputer" benchmark="asprilo-benchmarkk" tag="basic"/>
+		<runtag machine="komputer" benchmark="asprilo-benchmark" tag="basic"/>
 	</project>
 
 </runscript>
