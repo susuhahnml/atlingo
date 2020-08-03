@@ -152,7 +152,7 @@ $ make run LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_F
 The representation of the automata, corresponding to the transition diagram, can be visualized on an image by running:
 
 ```shell
-$ make viz-automata LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
+$ make viz-automaton LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 ```
 
 Example:
@@ -199,6 +199,24 @@ Visualize the plan found using asprilo visualizer
 ```shell
 $ make viz-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 ```
+
+## Benchmarks
+
+
+Benchmarks
+
+```shell
+$ cd benchmarks/benchmark-tool/runsolver-3.4.0/runsolver/src
+$ make clean
+$ make 
+```
+```shell
+cd benchmarks/benchmark-tool
+./bgen runscripts/runscript_asprilo_no_constraint.xm
+python2 asprilo_NO-CONSTARINT_benchmark/clingo-seq-job/komputer/start.py
+
+./beval runscripts/runscript_asprilo_no_constraint.xml >results/ benchmark_evaluated.xml
+(temporal-automata) hahnmartinlu@zuse:~/temporal-automata/atlingo/benchmarks/benchmark-tool$ ./bconv -m time,models,choices,conflicts  results/benchmark_evaluated.xml > results/results_no_constraint.ods
 
 
 
