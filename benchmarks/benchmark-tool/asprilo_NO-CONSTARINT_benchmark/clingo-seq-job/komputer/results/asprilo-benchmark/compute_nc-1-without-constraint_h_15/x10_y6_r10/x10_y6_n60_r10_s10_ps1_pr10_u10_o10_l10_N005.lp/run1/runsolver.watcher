@@ -1,0 +1,99 @@
+runsolver version 3.4.0 (svn: 3018) Copyright (C) 2010-2013 Olivier ROUSSEL
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+NUMA information:
+  number of nodes: 2
+  memory of node 0: 31966 MiB (24778 MiB free)
+  memory of node 1: 32240 MiB (24191 MiB free)
+  node distances:
+     10  21
+     21  10
+
+command line: ../../../../../../../../../runsolver-3.4.0/runsolver/src/runsolver -M 20000 -w runsolver.watcher -o runsolver.solver -W 900 ../../../../../../../../../programs/compute_nc-1 ../../../../../../../../.. ../../../../../../../../../../../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y6_r10/x10_y6_n60_r10_s10_ps1_pr10_u10_o10_l10_N005.lp 15 
+
+running on 44 cores: 0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,36,38,40,42,44,46,1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,37,39,41,43,45,47
+
+Enforcing wall clock limit (soft limit, will send SIGTERM then SIGKILL): 900 seconds
+Enforcing VSIZE limit (soft limit, will send SIGTERM then SIGKILL): 20480000 KiB
+Enforcing VSIZE limit (hard limit, stack expansion will fail with SIGSEGV, brk() and mmap() will return ENOMEM): 20531200 KiB
+Linux 4.9.0-12-amd64
+solver pid=9389, runsolver pid=9385
+Current StackSize limit: 8192 KiB
+
+
+[startup+0.100101 s]*
+/proc/loadavg: 20.01 19.90 19.92 22/1033 9392
+/proc/meminfo: memFree=50138680/65748816 swapFree=1048572/1048572
+[pid=9389] ppid=9385 vsize=12728 memory=2916 CPUtime=0 cores=0-47
+/proc/9389/stat : 9389 (compute_nc-1) S 9385 9389 35387 34842 9287 4194304 173 0 0 0 0 0 0 0 20 0 1 0 206697561 13033472 729 18446744073709551615 4194304 5242124 140720462172448 0 0 0 65536 16781317 65538 0 0 0 17 17 0 0 0 0 0 7341384 7388228 21872640 140720462181123 140720462181370 140720462181370 140720462184391 0
+/proc/9389/statm: 3182 729 673 256 0 92 0
+[pid=9391] ppid=9389 vsize=33372 memory=15332 CPUtime=0.1 cores=0-47
+/proc/9391/stat : 9391 (clingo) R 9389 9389 35387 34842 9287 4194304 2361 0 5 0 9 1 0 0 20 0 1 0 206697561 34172928 3833 18446744073709551615 93854386069504 93854386665686 140722555394784 0 0 0 0 16781313 8407558 0 0 0 17 28 0 0 0 0 0 93854386900424 93854386944192 93854395162624 140722555396492 140722555397110 140722555397110 140722555400124 0
+/proc/9391/statm: 8343 3833 1799 146 0 2275 0
+Current children cumulated CPU time: 0.1 s
+Current children cumulated vsize: 46100 KiB
+Current children cumulated memory: 18248 KiB
+
+[startup+0.215694 s]
+# the end of solver process 9389 was just reported to runsolver
+# cumulated CPU time of all completed processes:  user=0.164 s, system=0.02 s
+
+Solver just ended.
+??? end of watcher thread
+Dumping a history of the last processes samples
+
+[startup+0.100101 s]*
+/proc/loadavg: 20.01 19.90 19.92 22/1033 9392
+/proc/meminfo: memFree=50138680/65748816 swapFree=1048572/1048572
+[pid=9389] ppid=9385 vsize=12728 memory=2916 CPUtime=0 cores=0-47
+/proc/9389/stat : 9389 (compute_nc-1) S 9385 9389 35387 34842 9287 4194304 173 0 0 0 0 0 0 0 20 0 1 0 206697561 13033472 729 18446744073709551615 4194304 5242124 140720462172448 0 0 0 65536 16781317 65538 0 0 0 17 17 0 0 0 0 0 7341384 7388228 21872640 140720462181123 140720462181370 140720462181370 140720462184391 0
+/proc/9389/statm: 3182 729 673 256 0 92 0
+[pid=9391] ppid=9389 vsize=33372 memory=15332 CPUtime=0.1 cores=0-47
+/proc/9391/stat : 9391 (clingo) R 9389 9389 35387 34842 9287 4194304 2361 0 5 0 9 1 0 0 20 0 1 0 206697561 34172928 3833 18446744073709551615 93854386069504 93854386665686 140722555394784 0 0 0 0 16781313 8407558 0 0 0 17 28 0 0 0 0 0 93854386900424 93854386944192 93854395162624 140722555396492 140722555397110 140722555397110 140722555400124 0
+/proc/9391/statm: 8343 3833 1799 146 0 2275 0
+Current children cumulated CPU time: 0.1 s
+Current children cumulated vsize: 46100 KiB
+Current children cumulated memory: 18248 KiB
+
+Child status: 10
+Real time (s): 0.215721
+CPU time (s): 0.184
+CPU user time (s): 0.164
+CPU system time (s): 0.02
+CPU usage (%): 85.2954
+Max. virtual memory (cumulated for all children) (KiB): 46100
+Max. memory (cumulated for all children) (KiB): 18248
+
+getrusage(RUSAGE_CHILDREN,...) data:
+user time used= 0.164
+system time used= 0.02
+maximum resident set size= 25896
+integral shared memory size= 0
+integral unshared data size= 0
+integral unshared stack size= 0
+page reclaims= 5547
+page faults= 5
+swaps= 0
+block input operations= 46388
+block output operations= 18
+messages sent= 0
+messages received= 0
+signals received= 0
+voluntary context switches= 188
+involuntary context switches= 55
+
+
+# summary of solver processes directly reported to runsolver:
+#   pid: 9389
+#   total CPU time (s): 0.184
+#   total CPU user time (s): 0.164
+#   total CPU system time (s): 0.02
+
+??? end of timestamper thread
+runsolver used 0.068 second user time and 0.048 second system time
+
+The end

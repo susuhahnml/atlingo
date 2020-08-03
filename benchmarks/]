@@ -1,0 +1,14 @@
+#!/bin/sh
+#SBATCH --time=00:10:00 
+#SBATCH -N 1 # number of nodes
+#SBATCH -n 1 # number of cores
+echo "Start"
+~/temporal-automata/atlingo/benchmarks/benchmark-tool
+echo $PATH
+ls
+cd benchmark-tool
+ls
+./bgen ./runscripts/runscript_asprilo_no_constraint.xml
+python2 asprilo_NO-CONSTARINT_benchmark/clingo-seq-job/komputer/start.py
+./beval runscripts/runscript_asprilo_no_constraint.xml >results/benchmark_evaluated.xml
+./bconv -m time,models,choices,conflicts  results/benchmark_evaluated.xml > results/results_no_constraint.ods
