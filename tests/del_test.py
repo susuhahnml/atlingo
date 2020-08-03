@@ -127,10 +127,10 @@ class TestMain(TestCase):
 
         ######### Examples using asprilo env starting actions in timepoint 1.
         
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="env/asprilo/glue.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="env/asprilo/glue.lp")
         self.assert_sat(result)
 
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="env/asprilo/glue.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="env/asprilo/glue.lp")
         self.assert_unsat(result)
 
         ######### Examples using simple env starting actions in timepoint 0.

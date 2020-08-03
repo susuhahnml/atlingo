@@ -99,28 +99,6 @@ class TestMain(TestCase):
 
     def test_multiple(self):
 
-        ######### Examples using asprilo env starting actions in timepoint 1.
-        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }.",trace="move(robot(2),(1,0),1).move(robot(2),(1,0),2).move(robot(1),(1,0),1).move(robot(1),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
-        self.assert_sat(result)
-
-        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }.",trace="move(robot(2),(1,0),1).move(robot(2),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
-        self.assert_unsat(result)
-
-        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }.",trace="move(robot(1),(1,0),1).move(robot(1),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
-        self.assert_unsat(result)
-
-        result = run_generate("robot(1).robot(2).robot(3).robot(4).:- not &tel{ move(robot(R),(1,0)) & > move(robot(R),(1,0)) & > > move(robot(R),(1,0)) },robot(R).",horizon=2,mapping="./env/asprilo/glue.lp")
-
-        # result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }",trace="move(robot(1),(1,0),2).move(robot(1),(1,0),1).",horizon=2,mapping="./env/asprilo/glue.lp")
-        # self.assert_unsat(result)
-
-        # result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }. :- not &tel{ move(robot(2),(1,0)) & > move(robot(2),(1,0)) }",trace="move(robot(2),(1,0),1).move(robot(2),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
-        # self.assert_unsat(result)
-
-
-
-
-
         result = run_check(":- not &tel{ p }. :- not &tel{ q }.",trace="p(0).",horizon=2)
         self.assert_unsat(result)
         result = run_check(":- not &tel{ p }. :- not &tel{ q }.",trace="q(0).",horizon=2)
@@ -134,10 +112,10 @@ class TestMain(TestCase):
         
         ######### Examples using asprilo env starting actions in timepoint 1.
 
-        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).move(robot(1),(1,0),1).",horizon=2,mapping="./env/asprilo/glue.lp")
+        result = run_check(":- not &tel{ > move(robot(1),(1,0)) & > > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).move(robot(1),(1,0),1).",horizon=2,mapping="./env/asprilo/glue.lp")
         self.assert_sat(result)
 
-        result = run_check(":- not &tel{ move(robot(1),(1,0)) & > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
+        result = run_check(":- not &tel{ > move(robot(1),(1,0)) & > > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
         self.assert_unsat(result)
 
         ######### Examples using simple env starting actions in timepoint 0.
