@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e 
 APPROACH=$1
 # BT_PATH=benchmark-tool
 BT_PATH=atlingo/benchmarks/benchmark-tool
@@ -11,8 +12,8 @@ sed 's/{H}/'$HORIZON'/g' ./runscripts/runscript_asprilo_$APPROACH.xml > $NEW_RUN
 rm -rf scrips_asprilo_${APPROACH}__h-$HORIZON
 ./bgen $NEW_RUNSCRIPT
 echo "Start..."
-python2 asprilo_${APPROACH}_benchmark/clingo-seq-job/komputer/start.py
+python2 scripts_asprilo_${APPROACH}__h-$HORIZON/clingo-seq-job/komputer/start.py
 echo "Eval..."
 ./beval $NEW_RUNSCRIPT > results/benchmark_evaluated_${APPROACH}__h-$HORIZON.xml
 echo "Conv..."
-./bconv -m time,models,choices,conflicts  results/benchmark_evaluated__${APPROACH}__h-$HORIZON.xml > results/results_${APPROACH}__h-$HORIZON.ods
+./bconv -m time,models,choices,conflicts  results/benchmark_evaluated_${APPROACH}__h-$HORIZON.xml > results/results_${APPROACH}__h-$HORIZON.ods
