@@ -6,6 +6,7 @@ NC=`tput sgr0`
 
 $(eval APP ?= asprilo)
 $(eval LOGIC ?= tel)
+$(eval MODELS ?= 1)
 $(eval NAME_INSTANCE = $(basename $(notdir $(INSTANCE))))
 $(eval PATH_OUT = ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE))
 $(eval PATH_INPUT = env/$(APP)/temporal_constraints/$(LOGIC)/$(CONSTRAINT))
@@ -47,7 +48,7 @@ run:
 
 	@ echo " $BFinding filtered plans... $(NC)"
 
-	clingo $(PATH_OUT)/automaton.lp automata_run/run.lp env/$(APP)/glue.lp $(INSTANCE) $(EXTRA) $(RUN_FILES) -c horizon=$(HORIZON) --stats | tee ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/plan.txt
+	clingo $(PATH_OUT)/automaton.lp automata_run/run.lp env/$(APP)/glue.lp $(INSTANCE) $(EXTRA) $(RUN_FILES) -c horizon=$(HORIZON) -n $(MODELS) --stats | tee ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/plan.txt
 
 generate-traces:
 
@@ -60,7 +61,7 @@ translate-run:
 
 	@ make translate CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=$(APP)TRANSLATE_FILES=$(TRANSLATE_FILES)
 	
-	@ make run CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=$(APP)TRANSLATE_FILES=$(RUN_FILES)
+	@ make run CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=$(APP)RUN_FILES=$(RUN_FILES) MODELS=$(MODELS)
 
 
 viz-automaton:
@@ -87,7 +88,7 @@ plot:
 
 run-asprilo:
 
-	@ make run CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=asprilo RUN_FILES="env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp"
+	@ make run CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=asprilo RUN_FILES="env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp $(RUN_FILES)" MODELS=$(MODELS)
 
 translate-asprilo:
 
@@ -97,7 +98,7 @@ translate-run-asprilo:
 
 	@ make translate-asprilo CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=$(APP)
 	
-	@ make run-asprilo CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=$(APP)
+	@ make run-asprilo CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=$(APP) MODELS=$(MODELS)
 
 viz-asprilo:
 	sed -n "4,5p" ./outputs/asprilo/$(LOGIC)/$(CONSTRAINT)/plan.txt | viz

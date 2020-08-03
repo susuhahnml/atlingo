@@ -19,4 +19,4 @@ in_trace_at(ID,horizon):-last_id(ID).
 % Nothing can hold after last
 % :-in_trace_at(ID,T),in_trace_at(P,T'),T'>T,last_id(ID).
 holds_map(T,MAP):- in_trace_at(ID,T), id_map(ID,MAP).
-#show holds_map/2.
+% #show holds_map/2.

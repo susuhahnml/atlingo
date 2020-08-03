@@ -34,6 +34,7 @@ def solve(const=[], files=[],inline_data=[]):
         ctl.load(f)
     for d in inline_data:
         ctl.add("base", [], d)
+    ctl.add("base",[],"#show holds_map/2.")
     ctl.ground([("base", [])], context=Context())
     ctl.solve(on_model= lambda m: r.append(parse_model(m)))
     return sorted(r)
