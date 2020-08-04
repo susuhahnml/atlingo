@@ -10,7 +10,7 @@ from pandas_ods_reader import read_ods
 #PARAMS
 approaches = ['afw']
 # approaches = ['afw']
-horizon = 25
+horizons = [15,25]
 models = 1
 out_value = 'time'
 plot_n_models = True
@@ -22,8 +22,9 @@ avarage = False
 assert not 'no_constraint' in approaches or avarage and constraints is None, 'No constraint only with average'
 assert not plot_n_models or not avarage, "Only avarage or models ploted"
 
-base_path = "benchmarks/benchmark-tool/results/results_{}__h-{}__n-{}.ods"
-files = [base_path.format(a,horizon,models) for a in approaches]
+approaches = ["{}__h-{}".format(a,h) for a,h in list(itertools.product(approaches, horizons))]
+base_path = "benchmarks/benchmark-tool/results/results_{}__n-{}.ods"
+files = [base_path.format(a,models) for a in approaches]
 dfs = [read_ods(f,1) for f in files]
 n_out_options = len(set(dfs[0].iloc[0][:]))-1
 
