@@ -20,8 +20,8 @@ cd ~/temporal-automata/$BT_PATH
 
 echo "$G Crating main script scripts...$NC"
 NEW_RUNSCRIPT=./runscripts/runscript_asprilo_${APPROACH}__h-${HORIZON}__n-${MODELS}.xml
-sed 's/{H}/'$HORIZON'/g' ./runscripts/runscript_asprilo_$APPROACH.xml > $NEW_RUNSCRIPT
-sed 's/{N}/'$MODELS'/g' $NEW_RUNSCRIPT > $NEW_RUNSCRIPT
+sed 's/{H}/'$HORIZON'/g' ./runscripts/runscript_asprilo_$APPROACH.xml > ./runscripts/temp.xml
+sed 's/{N}/'$MODELS'/g' ./runscripts/temp.xml > $NEW_RUNSCRIPT
 rm -rf scrips_asprilo_${APPROACH}__h-${HORIZON}__n-${MODELS}
 echo "$G Generating scripts...$NC"
 ./bgen $NEW_RUNSCRIPT

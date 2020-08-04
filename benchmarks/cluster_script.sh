@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --time=01:30:00 
+#SBATCH --time=00:59:00 
 #SBATCH -N 1 # number of nodes
 #SBATCH -n 1 # number of cores
 $PATH_AWF = atlingo/benchmarks/benchmark-tool
