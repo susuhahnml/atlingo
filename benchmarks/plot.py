@@ -10,11 +10,11 @@ from pandas_ods_reader import read_ods
 #PARAMS
 approaches = ['afw']
 # approaches = ['afw']
-horizons = [15,25]
+horizons = [15,25,35]
 models = 1
 out_value = 'time'
 plot_n_models = True
-group_instances = True
+group_instances = False
 constraints = None #All
 # constraints = ['horizontal_before_vertical']
 avarage = False
@@ -44,6 +44,7 @@ def clean_df(df):
     df.drop(df.tail(9).index,inplace=True) #Remove last computed values
     df.columns = new_cols
 
+    print(df)
     for i in range(1,len(df.columns)):
         df.iloc[:,i] = pd.to_numeric(df.iloc[:,i], downcast="float")
     
@@ -60,7 +61,7 @@ def clean_df(df):
     
     #Order instances by complexity TODO!!! Why error?????
     df = df.sort_values(by=['instance-name'], ascending=False)
-    
+    df = df.reset_index(drop=True)
     
     #Select columns based on out-value
     if constraints is None:

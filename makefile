@@ -48,7 +48,7 @@ run:
 
 	@ echo " $BFinding filtered plans... $(NC)"
 
-	clingo $(PATH_OUT)/automaton.lp automata_run/run.lp env/$(APP)/glue.lp $(INSTANCE) $(EXTRA) $(RUN_FILES) -c horizon=$(HORIZON) -n $(MODELS) --stats | tee ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/plan.txt
+	clingo $(PATH_OUT)/automaton.lp automata_run/run.lp env/$(APP)/glue.lp $(INSTANCE) $(EXTRA) $(RUN_FILES) -c horizon=$(HORIZON) -n $(MODELS) --stats | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
 
 generate-traces:
 
@@ -77,7 +77,7 @@ tests:
 
 
 stats:
-	tail -32 ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/plan.txt
+	tail -32 $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
 
 ######################  BENCHAMRKS ########################
 
@@ -101,4 +101,4 @@ translate-run-asprilo:
 	@ make run-asprilo CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=$(APP) MODELS=$(MODELS)
 
 viz-asprilo:
-	sed -n "4,5p" ./outputs/asprilo/$(LOGIC)/$(CONSTRAINT)/plan.txt | viz
+	sed -n "4,5p" $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt | viz
