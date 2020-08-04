@@ -29,5 +29,3 @@ echo "$G Start...$NC"
 python2 scripts_asprilo_${APPROACH}__h-${HORIZON}__n-${MODELS}/clingo-seq-job/komputer/start.py
 echo "$G Evaluating...$NC"
 ./beval $NEW_RUNSCRIPT > results/benchmark_evaluated_${APPROACH}__h-${HORIZON}__n-${MODELS}.xml
-echo "$G Computing .ods...$NC"
-./bconv -m time,models,choices,conflicts  results/benchmark_evaluated_${APPROACH}__h-${HORIZON}__n-${MODELS}.xml > results/results_${APPROACH}__h-${HORIZON}__n-${MODELS}.ods

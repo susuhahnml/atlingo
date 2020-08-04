@@ -492,10 +492,6 @@ class Summary:
 
     def calc(self, n, colA, minmum, median, maximum):
         self.avg = self.sum / self.count
-        print(self)
-        print("Before error")
-        print(self.count)
-        print(self.avg)
         if self.count - self.avg * self.avg <0 or self.sqsum<0:
             self.dev= 0
         else:

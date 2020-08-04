@@ -8,70 +8,118 @@ import seaborn as sns
 from pandas_ods_reader import read_ods
 
 #PARAMS
-approaches = ['afw','no_constraint']
-horizon = 15
+approaches = ['afw']
+# approaches = ['afw']
+horizon = 25
 models = 1
 out_value = 'time'
-plot_n_models = False
-group_instances = False
+plot_n_models = True
+group_instances = True
 constraints = None #All
 # constraints = ['horizontal_before_vertical']
 avarage = False
 
-base_path = "benchmarks/benchmark-tool/results/results_{}__h-{}.ods"
-files = [base_path.format(a,horizon) for a in approaches]
+assert not 'no_constraint' in approaches or avarage and constraints is None, 'No constraint only with average'
+assert not plot_n_models or not avarage, "Only avarage or models ploted"
+
+base_path = "benchmarks/benchmark-tool/results/results_{}__h-{}__n-{}.ods"
+files = [base_path.format(a,horizon,models) for a in approaches]
 dfs = [read_ods(f,1) for f in files]
 n_out_options = len(set(dfs[0].iloc[0][:]))-1
 
-print(n_out_options)
-
-
-#plot every option
-#plot number of models
-
-
 
 def clean_df(df):
-    df.drop(df.columns[-3*n_out_options:], axis=1, inplace=True) #Drop min max median
     
+    #Drop min max median
+    df.drop(df.columns[-3*n_out_options:], axis=1, inplace=True) 
+    
+    #Rename columns
     cols = df.columns[1:]
     cols = [c.split("/")[-1] for i,c in enumerate(cols) if i%n_out_options==0]
     params = df.iloc[0][1:n_out_options+1]
-
-
     new_cols = ["{}-{}".format(c,p) for c,p in list(itertools.product(cols, params))]
     new_cols = ["instance-name"] + new_cols
-    df.drop(df.index[0], inplace=True)
-
-
-    df.drop(df.tail(9).index,inplace=True)
-    # print(new_cols[-2*n_out_options]+new_cols[-1*n_out_options])
+    df.drop(df.index[0], inplace=True) #Remove unused out values
+    df.drop(df.tail(9).index,inplace=True) #Remove last computed values
     df.columns = new_cols
-    df.iloc[:,0]=df.iloc[:,0].apply(lambda x: "{}-{}".format(x.split('/')[0] , x[-5:-3]))
+
     for i in range(1,len(df.columns)):
         df.iloc[:,i] = pd.to_numeric(df.iloc[:,i], downcast="float")
+    
+    ###### Handle rows (INSTANCES)
+    
+    #Rename instances with shorter name
+    df.iloc[:,0]=df.iloc[:,0].apply(lambda x: "{}-{}-{}".format(x.split('/')[0][0],x.split('/')[1] , x[-5:-3]))
 
-    return df,cols
-
-clean_dfs = []
-for df in dfs:
-    d, c = clean_df(df)
+    if group_instances:
+        df['instance-group']=df['instance-name'].apply(lambda x: x.split('-0')[0])
+        df = df.groupby(['instance-group'], as_index=False).mean()
+        df['instance-name'] = df['instance-group']
+        df = df.sort_values(by=['instance-name'], ascending=False)
+    
+    #Order instances by complexity TODO!!! Why error?????
+    df = df.sort_values(by=['instance-name'], ascending=False)
+    
+    
+    #Select columns based on out-value
     if constraints is None:
-        selected_cols = ["{}-{}".format(col,out_value) for col in c]
+        selected_cols = ["{}-{}".format(col,out_value) for col in cols]
     else:
         selected_cols = ["{}-{}".format(col,out_value) for col in constraints]
-    selected_cols = ['instance-name'] + selected_cols
-    d =d[selected_cols]
-    d = d.sort_values(by=['instance-name'], ascending=False)
     
-    if group_instances:
-        d['instance-group']=d['instance-name'].apply(lambda x: x.split('-')[0])
-        print(d)
-        d = d.groupby(['instance-group'], as_index=False).mean()
-        d['instance-name'] = d['instance-group']
-        d = d.sort_values(by=['instance-name'], ascending=False)
+    #Save models for plotting
+    if constraints is None:
+        selected_cols_models = ["{}-{}".format(col,'models') for col in cols]
+    else:
+        selected_cols_models = ["{}-{}".format(col,'models') for col in constraints]
 
-    clean_dfs.append(d)
+
+    df_models = df[['instance-name']+selected_cols_models]
+    selected_cols = ['instance-name'] + selected_cols
+    df =df[selected_cols]
+
+    #Remove unnecessary output in column name
+    df.columns = [x.replace('-{}'.format(out_value),'') for x in  selected_cols]
+    df_models.columns = [x.replace('-{}'.format(out_value),'') for x in  selected_cols]
+
+
+    if avarage:
+        df['mean'] = df.loc[:, df.columns != 'instance-name'].mean(axis = 1)
+        df= df[["instance-name","mean"]]
+    
+    return df, df_models
+
+cleaned_dfs_tuple = [clean_df(df) for df in dfs]
+cleaned_dfs = [t[0] for t in cleaned_dfs_tuple]
+cleaned_dfs_models = [t[1] for t in cleaned_dfs_tuple]
+
+columns = cleaned_dfs[0].columns[1:]
+instances = cleaned_dfs[0]['instance-name']
+n_columns = len(columns)
+
+for column in columns:
+    for i, df in enumerate(cleaned_dfs):
+        plt.plot(instances, df[column], linewidth=1, alpha=1, label=approaches[i],zorder=-1)
+        if plot_n_models:
+            color = '#811515'
+            plt.scatter(instances, df[column], color=color,s=1,alpha=1,zorder=1,label='#models')
+            for i, txt in enumerate(cleaned_dfs_models[i][column]):
+                plt.annotate(int(txt), (instances[i], df[column][i]),fontsize=7,color=color)
+        # plt.tight_layout()
+        # Add legend
+    plt.legend(loc=2, ncol=2)    
+    # Add titles
+    plt.title(column.replace('_',' '),  fontsize=12, fontweight=0)
+    plt.xticks(rotation='vertical')
+    plt.xlabel("Instance")
+    plt.ylabel(out_value)
+
+    file_name = 'benchmarks/img/{}-{}.png'.format(out_value,column)
+    plt.savefig(file_name,dpi=700,bbox_inches='tight')
+    print("Saved {}".format(file_name))
+    plt.clf()
+
+
 # # Make a data frame
 # approaches = ['asp1','asp2']
 # # approaches = ['dfa','afw']
