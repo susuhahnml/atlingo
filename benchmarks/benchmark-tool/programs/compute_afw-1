@@ -6,7 +6,7 @@ INSTANCE=$2
 HORIZON=$3
 
 
-PATH_FROM_DFA_TO_ROOT="benchmark/benchmark-tool/"
+PATH_FROM_DFA_TO_ROOT="benchmarks/benchmark-tool/"
 PATH_FROM_ROOT_TO_DFA="../../"
 PATH_CONVERT_M_TO_MD="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-m-to-md.lp"
 PATH_ENCODING_M_1="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp"
@@ -23,7 +23,7 @@ CONSTRAINT=$5
 CONSTRAINT_NAME=$(basename "$CONSTRAINT")
 
 COMMAND="	( cd $ROOT ; cd $PATH_FROM_ROOT_TO_DFA ; make translate-run-asprilo INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT_NAME HORIZON=$HORIZON MODELS=$MODELS RUN_FILES='-q'; make stats INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT_NAME)"
-echo $COMMAND
+printf $COMMAND
 
 ( cd $ROOT ; cd $PATH_FROM_ROOT_TO_DFA ; make translate-run-asprilo INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT_NAME HORIZON=$HORIZON MODELS=$MODELS RUN_FILES='-q'; make stats INSTANCE=$INSTANCE CONSTRAINT=$CONSTRAINT_NAME HORIZON=$HORIZON MODELS=$MODELS)
 
