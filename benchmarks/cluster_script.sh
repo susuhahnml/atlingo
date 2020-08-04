@@ -5,8 +5,14 @@
 $PATH_AWF = atlingo/benchmarks/benchmark-tool
 srun ./single-bm.sh no_constraint 15 1
 srun ./single-bm.sh no_constraint 25 1
+srun ./single-bm.sh no_constraint 35 1
+srun ./single-bm.sh no_constraint 45 1
 
 srun ./single-bm.sh afw 15 1
 srun ./single-bm.sh afw 25 1
+srun ./single-bm.sh afw 35 1
+srun ./single-bm.sh afw 45 1
 
 srun ./single-bm.sh afw 15 0
+srun ./single-bm.sh afw 25 0
+srun ./single-bm.sh afw 35 0
