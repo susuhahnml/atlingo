@@ -492,7 +492,14 @@ class Summary:
 
     def calc(self, n, colA, minmum, median, maximum):
         self.avg = self.sum / self.count
-        self.dev = math.sqrt(self.sqsum / self.count - self.avg * self.avg)
+        print(self)
+        print("Before error")
+        print(self.count)
+        print(self.avg)
+        if self.count - self.avg * self.avg <0 or self.sqsum<0:
+            self.dev= 0
+        else:
+            self.dev = math.sqrt(self.sqsum / self.count - self.avg * self.avg)
         colA.extend([None for _ in range(0,  - len(colA))])
         # geometric distance, best
         if minmum != None:
