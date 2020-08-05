@@ -1,18 +1,9 @@
 #!/bin/sh
 #SBATCH --time=00:59:00 
 #SBATCH -N 1 # number of nodes
-#SBATCH -n 1 # number of cores
+#SBATCH --output=out.%j
+#SBATCH --error=err.%j
+#SBATCH --job-name={APP}-{H}-{N}
 $PATH_AWF = atlingo/benchmarks/benchmark-tool
-srun ./single-bm.sh no_constraint 15 1
-srun ./single-bm.sh no_constraint 25 1
-srun ./single-bm.sh no_constraint 35 1
-srun ./single-bm.sh no_constraint 45 1
-
-srun ./single-bm.sh afw 15 1
-srun ./single-bm.sh afw 25 1
-srun ./single-bm.sh afw 35 1
-srun ./single-bm.sh afw 45 1
-
-srun ./single-bm.sh afw 15 0
-srun ./single-bm.sh afw 25 0
-srun ./single-bm.sh afw 35 0
+set -e
+srun ./single-bm.sh {APP} {H} {N}

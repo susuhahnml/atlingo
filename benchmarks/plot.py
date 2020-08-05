@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # libraries and data
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -7,17 +8,41 @@ import itertools
 import seaborn as sns
 from pandas_ods_reader import read_ods
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Plot obs files from benchmark tool')
+parser.add_argument("--stat", type=str, default="time",
+        help="Status: time, choice, conflicts or models" )
+parser.add_argument("--approach", type=str, action='append',
+        help="Approach to be plotted awf, asp, no_constraint or dfa. Can pass multiple",required=True)
+parser.add_argument("--constraint", type=str, action='append',
+        help="Contraint to be plotted, if non is passed all constraints will be plotted. Can pass multiple")
+parser.add_argument("--horizon", type=int, action='append',
+        help="Horizon to be plotted. Can pass multiple",required=True)
+parser.add_argument("--models", type=int, default=1,
+        help="Number of models computed in the benchmark with clingo -n" )
+parser.add_argument("--prefix", type=str, default="",
+        help="Prefix for output files" )
+parser.add_argument("--plotmodels", default=False, action='store_true',
+    help="When this flag is passed, the number of models in plotted")
+parser.add_argument("--group", default=False, action='store_true',
+    help="When this flag is passed, instances are grouped")
+parser.add_argument("--avarage", default=False, action='store_true',
+    help="When this flag is passed, only average will be computed per instance.Necessary for no-constraint")
+
+args = parser.parse_args()
+
 #PARAMS
-approaches = ['afw']
-# approaches = ['afw']
-horizons = [15,25,35]
-models = 1
-out_value = 'time'
-plot_n_models = True
-group_instances = False
-constraints = None #All
-# constraints = ['horizontal_before_vertical']
-avarage = False
+approaches = args.approach
+horizons = args.horizon
+models = args.models
+out_value = args.stat
+plot_n_models = args.plotmodels
+group_instances = args.group
+constraints = args.constraint
+avarage = args.avarage
+prefix = args.prefix
+
 
 assert not 'no_constraint' in approaches or avarage and constraints is None, 'No constraint only with average'
 assert not plot_n_models or not avarage, "Only avarage or models ploted"
@@ -25,7 +50,14 @@ assert not plot_n_models or not avarage, "Only avarage or models ploted"
 approaches = ["{}__h-{}".format(a,h) for a,h in list(itertools.product(approaches, horizons))]
 base_path = "benchmarks/benchmark-tool/results/results_{}__n-{}.ods"
 files = [base_path.format(a,models) for a in approaches]
-dfs = [read_ods(f,1) for f in files]
+dfs = []
+for f in files:
+    try:
+        dfs.append(read_ods(f,1))
+    except:
+        print("Error reading file {}".format(f))
+        print("Make sure the file exists".format(f))
+        sys.exit(1)
 n_out_options = len(set(dfs[0].iloc[0][:]))-1
 
 
@@ -44,7 +76,6 @@ def clean_df(df):
     df.drop(df.tail(9).index,inplace=True) #Remove last computed values
     df.columns = new_cols
 
-    print(df)
     for i in range(1,len(df.columns)):
         df.iloc[:,i] = pd.to_numeric(df.iloc[:,i], downcast="float")
     
@@ -103,6 +134,7 @@ for column in columns:
     for i, df in enumerate(cleaned_dfs):
         plt.plot(instances, df[column], linewidth=1, alpha=1, label=approaches[i],zorder=-1)
         if plot_n_models:
+            print(cleaned_dfs_models[i][column])
             color = '#811515'
             plt.scatter(instances, df[column], color=color,s=1,alpha=1,zorder=1,label='#models')
             for i, txt in enumerate(cleaned_dfs_models[i][column]):
@@ -116,98 +148,7 @@ for column in columns:
     plt.xlabel("Instance")
     plt.ylabel(out_value)
 
-    file_name = 'benchmarks/img/{}-{}.png'.format(out_value,column)
+    file_name = 'benchmarks/img/{}{}-{}.png'.format(prefix,out_value,column)
     plt.savefig(file_name,dpi=700,bbox_inches='tight')
     print("Saved {}".format(file_name))
     plt.clf()
-
-
-# # Make a data frame
-# approaches = ['asp1','asp2']
-# # approaches = ['dfa','afw']
-# # approaches = ['dfa','afw','asp2']
-# approach_df = []
-# for a in approaches:
-#     df = pd.read_csv('benchmarks/benchmarks-results/results_{}.csv'.format(a))
-#     approach_df.append(clean_df(df))
-# yellow = {15:'#F3F55F',
-#     # 25:'#FFEE00',
-#     25:'#E7C803',
-#     40:'#E7C803',
-#     80:'#BCA300'
-#     }
-# blue= {15:'#96DBED',
-#     # 25:'#42AFDB',
-#     25:'#455AE2',
-#     40:'#455AE2',
-#     80:'#0E1BA8'
-#     }
-# green = {15:'#A7DAA4',
-#     # 25:'#73C571',
-#     25:'#268C3E',
-#     40:'#268C3E',
-#     80:'#034D09'
-#     }
-# red = {15:'#F3AEAE',
-#     # 25:'#FE6B6B',
-#     25:'#FF2D2D',
-#     40:'#FF2D2D',
-#     80:'#CC0000'
-#     }
-
-# lines =   {15:'-',25:':',40:'-',80:':','all':'-'}
-# colors = [yellow,green]
-# # colors = [blue,yellow,green,red]
-
-# out_values = ['time','choices','conflicts']
-# # out_values = ['time']
-# all_labels_from1= approach_df[0][1]
-
-# base_labels_general = set([s.split('_h_')[0] for s in all_labels_from1])
-# nb_plots= len(base_labels_general)
-# for out_value in out_values:
-#     base_labels = base_labels_general.copy()
-    
-#     num=0
-#     # fig, axs = plt.subplots(nb_plots, sharex=True)
-
-#     for i in range(0,len(all_labels_from1)):
-#     # for i in range(0,1):
-#         column_base = "".join(all_labels_from1[i].split('_h_')[0])
-#         if not column_base in base_labels:
-#             continue
-#         else:
-#             base_labels.remove(column_base)
-#         for ap_idx, (df,columns) in enumerate(approach_df):
-#             column_full_name=columns[i]
-#             approach_name = column_full_name.split('-')[-1]
-#             cols_all_h = [c for c in columns if c.split('_h_')[0] == column_base]
-#             for column in cols_all_h:
-#                 plot_unsat=True
-#                 try:
-#                     h = int(column.split('_h_')[1].split('-')[0])
-#                 except:
-#                     plot_unsat = False
-#                     h='all'
-#                 num= num +1
-
-#                 label = "{}-{}".format(approach_name,h) if plot_unsat else approach_name
-#                 new_models = 1-df[column+'-models']
-#                 new_models[ new_models==0 ] = np.nan
-#                 only_on_unsat = new_models*df[column+'-{}'.format(out_value)]
-#                 plt.plot(df['instance-name'], df[column+'-{}'.format(out_value)], lines[h],marker='', linewidth=1, alpha=1, label=label, color=colors[ap_idx][40],zorder=-1)
-#                 if plot_unsat and label!="median":
-#                     plt.scatter(df['instance-name'], only_on_unsat, color='r',s=1,alpha=1,zorder=1)
-#             # plt.tight_layout()
-#             # Add legend
-#         plt.legend(loc=2, ncol=2)    
-#         # Add titles
-#         plt.title(column_base,  fontsize=12, fontweight=0)
-#         plt.xticks(rotation='vertical')
-#         plt.xlabel("Instance")
-#         plt.ylabel(out_value)
-
-#         file_name = 'benchmarks/img/asp/{}-{}.png'.format(out_value,column_base)
-#         plt.savefig(file_name,dpi=700,bbox_inches='tight')
-#         print("Saved {}".format(file_name))
-#         plt.clf()
