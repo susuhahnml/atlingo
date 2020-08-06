@@ -6,4 +6,4 @@
 #SBATCH --job-name={APP}-{H}-{N}
 $PATH_AWF = atlingo/benchmarks/benchmark-tool
 set -e
-srun ./single-bm.sh {APP} {H} {N}
+srun ./single-bm.sh {APP} {H} {N} $PATH_AWF

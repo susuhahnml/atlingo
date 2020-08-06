@@ -6,7 +6,7 @@ NC=`tput sgr0`
 set -e 
 APPROACH=$1
 # BT_PATH=benchmark-tool
-BT_PATH=atlingo/benchmarks/benchmark-tool
+BT_PATH=$4
 HORIZON=$2
 MODELS=$3
 echo "$Y -------------------------"

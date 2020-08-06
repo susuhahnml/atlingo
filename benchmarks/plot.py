@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description='Plot obs files from benchmark tool
 parser.add_argument("--stat", type=str, default="time",
         help="Status: time, choice, conflicts or models" )
 parser.add_argument("--approach", type=str, action='append',
-        help="Approach to be plotted awf, asp, no_constraint or dfa. Can pass multiple",required=True)
+        help="Approach to be plotted awf, asp, nc or dfa. Can pass multiple",required=True)
 parser.add_argument("--constraint", type=str, action='append',
         help="Contraint to be plotted, if non is passed all constraints will be plotted. Can pass multiple")
 parser.add_argument("--horizon", type=int, action='append',
@@ -44,7 +44,7 @@ avarage = args.avarage
 prefix = args.prefix
 
 
-assert not 'no_constraint' in approaches or avarage and constraints is None, 'No constraint only with average'
+assert not 'nc' in approaches or avarage and constraints is None, 'No constraint only with average'
 assert not plot_n_models or not avarage, "Only avarage or models ploted"
 
 approaches = ["{}__h-{}".format(a,h) for a,h in list(itertools.product(approaches, horizons))]
