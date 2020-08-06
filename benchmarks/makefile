@@ -15,7 +15,6 @@ clean-slurm:
 clean-gen-out:
 	rm -rf ./benchmark-tool/output/*
 clean-all:
-	make clean-results
 	make clean-plots
 	make clean-runscripts
 	make clean-slurm

@@ -56,7 +56,7 @@ cd $BT_PATH
 
 
 #Output directory inside benchmark-tool is the value in <runscript output="">
-OUTPUT_DIR=output_$NAME/$PROJECT 
+OUTPUT_DIR=output/$NAME/$PROJECT 
 
 echo "$Y Removing old output directory "
 echo "$B    $OUTPUT_DIR$NC"
