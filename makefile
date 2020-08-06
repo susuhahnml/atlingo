@@ -47,7 +47,7 @@ translate:
 run:
 
 	@ printf " $BFinding filtered plans... $(NC)\n"
-
+	rm -f $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
 	clingo $(PATH_OUT)/automaton.lp automata_run/run.lp env/$(APP)/glue.lp $(INSTANCE) $(EXTRA) $(RUN_FILES) -c horizon=$(HORIZON) -n $(MODELS) --stats | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
 
 generate-traces:

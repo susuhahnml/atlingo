@@ -1,7 +1,10 @@
 #!/bin/bash
+R=`tput setaf 1`
 G=`tput setaf 2`
 Y=`tput setaf 3`
 B=`tput setaf 5`
+C=`tput setaf 6`
+
 NC=`tput sgr0`
 
 set -e
@@ -27,16 +30,21 @@ command=$PWD/solver.sh
 mode=2
 
 # if mode==2, set username to your login in the cluster
-USERNAME="hahnmartinlu"
+USERNAME="hahnmar"
 
 # email to send the results
 email="hahnmartinlu@uni-potsdam.de"
 
 dir=$PWD
+echo ""
+echo "$C ---------------------------"
+echo " Starting benchmarks for $NAME"
+echo "$C ---------------------------$NC"
 
-cd ..
-make clean
-cd benchmarks
+#conda activate temporal-automata
+#cd ..
+#make clean
+#cd benchmarks
 #Results directory
 RES_DIR=$dir/results/$NAME
 # create the runscript for the arguments
@@ -81,12 +89,11 @@ else
     sleep 3
     SEC=0
     while squeue | grep -q $USERNAME; do #TODO add here the id returned by sbatch
-	if !(( $SEC % 2 )); then
-	        squeue -u $USERNAME
-		echo "$B Waiting for the slurm process to finish"
+	if !(( $SEC % 5 )); then
+		echo "$B Waiting for all slurm process to finish..."
 	fi
 	sleep 1
-	SEC=$SEC+1
+	SEC=($SEC+1)
     done
 fi
 
@@ -97,13 +104,19 @@ do
 	if grep -q 'fail' $f; then
 		echo "$R Run failed in file $f $NC"
 		cat $f
+		#echo "done $1" | mail -s "[benchmark_failed] $NAME "  $email
 		exit 1
 	fi
 	echo "$(tail -32 $f)" > $f
 done
 
 echo "$Y beval...$NC"
-./beval $RUNSCRIPT_PATH > $RES_DIR/$NAME.beval 2> $RES_DIR/$NAME.error
+if ! ./beval $RUNSCRIPT_PATH > $RES_DIR/$NAME.beval 2> $RES_DIR/$NAME.error ; then
+	echo "$R Error in evaluation"
+	cat $RES_DIR/$NAME.error
+	echo "$NC"
+	exit 1
+fi
 echo "$G Evaluation results saved in  "
 echo "$B    $RES_DIR/$NAME.beval$NC"
 
@@ -122,6 +135,6 @@ echo "$B    $RES_DIR/$NAME.ods$NC"
 # cp $command $RES_DIR
 # rm -rf output/$project
 
-echo "$G Done $NAME"
+echo "$G Done $NAME$NC"
 # send an email to report that the experiments are done
-echo "done $1" | mail -s "[benchmark_finished] $1 " -A $RES_DIR/$NAME.ods $email
+#echo "done $1" | mail -s "[benchmark_finished] $NAME " -A $RES_DIR/$NAME.ods $email
