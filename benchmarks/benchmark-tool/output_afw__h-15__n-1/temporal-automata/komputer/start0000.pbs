@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH --output=out.%j
+#SBATCH --error=err.%j
+#SBATCH --time=00:50:00        # walltime
+#SBATCH --cpus-per-task=4    # number of processor cores (i.e. tasks)
+#SBATCH --partition=short
+
+# Good Idea to stop operation on first error.
+set -e
+
+# Load environment modules for your application here.
+source ~/.bashrc
+
+# Run jobs
+jobs="results/asprilo-benchmark/compute_afw-1-square_release/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N001.lp/run1/start.sh
+"
+echo running jobs@$(hostname)...
+echo ""
+echo "jobs:" $jobs
+echo ""
+for i in $jobs
+do
+    echo "running " $i
+    $i
+done

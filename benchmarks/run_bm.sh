@@ -1,7 +1,7 @@
 #!/bin/bash
 G=`tput setaf 2`
 Y=`tput setaf 3`
-B=`tput setaf 4`
+B=`tput setaf 5`
 NC=`tput sgr0`
 
 set -e
@@ -15,10 +15,10 @@ NAME=${APPROACH}__h-${HORIZON}__n-${MODELS}
 
 MACHINE=komputer # Value in <machine name="komputer"
 # set this
-BT_PATH=$HOME/$BT_PATH
+BT_PATH=$HOME/temporal-automata/$BT_PATH
 
 # this has to be the same as project name in run-benchmark.xml
-project=temporal-automata
+PROJECT=temporal-automata
 
 
 # this has to be the command used in run-benchmark.xml
@@ -28,7 +28,7 @@ command=$PWD/solver.sh
 mode=2
 
 # if mode==2, set username to your login in the cluster
-username=""
+USERNAME="hahnmartinlu"
 
 # email to send the results
 email=""
@@ -56,7 +56,7 @@ cd $BT_PATH
 
 
 #Output directory inside benchmark-tool is the value in <runscript output="">
-OUTPUT_DIR=output/$NAME 
+OUTPUT_DIR=output_$NAME/$PROJECT 
 
 echo "$Y Removing old output directory "
 echo "$B    $OUTPUT_DIR$NC"
@@ -65,7 +65,6 @@ rm -rf $OUTPUT_DIR
 
 echo "$Y Calling ./bgen$NC"
 
-echo "$Y bgen...$NC"
 ./bgen $RUNSCRIPT_PATH
 
 
@@ -77,8 +76,15 @@ else
     echo "$Y Running sh start file "
     echo "$B    $BT_PATH/$OUTPUT_DIR/$MACHINE/start.sh $NC"
     ./$OUTPUT_DIR/$MACHINE/start.sh
-    while squeue | grep -q $username; do #TODO add here the id returned by sbatch
-        sleep 1
+    sleep 3
+    SEC=0
+    while squeue | grep -q $USERNAME; do #TODO add here the id returned by sbatch
+	if !(( $SEC % 2 )); then
+	        squeue -u $USERNAME
+		echo "$B Waiting for the slurm process to finish"
+	fi
+	sleep 1
+	SEC=$SEC+1
     done
 fi
 
@@ -87,8 +93,10 @@ echo "$Y beval...$NC"
 echo "$G Evaluation results saved in  "
 echo "$B    $RES_DIR/$NAME.beval$NC"
 
+sed -i 's/partition="short" partition="short"/partition="short"/g' $RES_DIR/$NAME.beval
+
 echo "bconv..."
-cat $RES_DIR/$NAME.beval | ./bconv -m time,ctime,csolve,ground0,groundN,models,timeout,restarts,conflicts,choices,domain,vars,cons,mem,error,memout > $RES_DIR/$NAME.ods 2>> $RES_DIR/$NAME.error
+cat $RES_DIR/$NAME.beval | ./bconv -m models > $RES_DIR/$NAME.ods 2>> $RES_DIR/$NAME.error
 echo "$G Conversion results saved in "
 echo "$B    $RES_DIR/$NAME.ods$NC"
 
