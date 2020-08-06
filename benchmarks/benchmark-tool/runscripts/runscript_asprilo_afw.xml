@@ -14,13 +14,13 @@
 
     </system>
 
-	<seqjob name="seq-gen" timeout="900" runs="1" script_mode="timeout" walltime="50:00:00" parallel="1"/>
+	<pbsjob name="pbs-gen" timeout="1200" runs="1" script_mode="timeout" walltime="50:00:00" cpt="4"/>
 
 	<benchmark name="asprilo-benchmark">
 		<folder path="../asprilo_instances/"> </folder> 
 	</benchmark>
 	
-	<project name="clingo-seq-job" job="seq-gen">
+	<project name="clingo-pbs-job" job="pbs-gen">
 		<runtag machine="komputer" benchmark="asprilo-benchmark" tag="basic"/>
 	</project>
 

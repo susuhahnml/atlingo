@@ -7,6 +7,7 @@ clean-plots:
 	rm -rf ./img/*
 clean-scripts:
 	rm -rf ./cluster_script__*.sh
+	rm -rf ./benchamark-tool/runscript_asprio_*__*
 ods:
 	./compute_all_ods.sh
 clean-slurm:
