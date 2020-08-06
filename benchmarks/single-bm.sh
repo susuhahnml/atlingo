@@ -26,6 +26,8 @@ rm -rf scrips_asprilo_${APPROACH}__h-${HORIZON}__n-${MODELS}
 echo "$G Generating scripts...$NC"
 ./bgen $NEW_RUNSCRIPT
 echo "$G Start...$NC"
-python2 scripts_asprilo_${APPROACH}__h-${HORIZON}__n-${MODELS}/clingo-seq-job/komputer/start.py
+cd scripts_asprilo_${APPROACH}__h-${HORIZON}__n-${MODELS}/clingo-pbs-job/komputer
+./start.sh
+cd ../../..
 echo "$G Evaluating...$NC"
 ./beval $NEW_RUNSCRIPT > results/benchmark_evaluated_${APPROACH}__h-${HORIZON}__n-${MODELS}.xml
