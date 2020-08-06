@@ -1,6 +1,5 @@
 #!/bin/sh
-PATH_AWF=atlingo/benchmarks/benchmark-tool
-./run_bm.sh afw 15 1 $PATH_AWF
+./run_bm.sh afw 15 1
 
 #./generate_run_script.sh afw 25 1 $PATH_AWF
 #./generate_run_script.sh afw 35 1 $PATH_AWF

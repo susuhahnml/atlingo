@@ -48,8 +48,8 @@ assert not 'nc' in approaches or avarage and constraints is None, 'No constraint
 assert not plot_n_models or not avarage, "Only avarage or models ploted"
 
 approaches = ["{}__h-{}".format(a,h) for a,h in list(itertools.product(approaches, horizons))]
-base_path = "benchmarks/benchmark-tool/results/results_{}__n-{}.ods"
-files = [base_path.format(a,models) for a in approaches]
+base_path = "results/{}__n-{}/{}__n-{}.ods"
+files = [base_path.format(a,models,a,models) for a in approaches]
 dfs = []
 for f in files:
     try:
@@ -148,7 +148,7 @@ for column in columns:
     plt.xlabel("Instance")
     plt.ylabel(out_value)
 
-    file_name = 'benchmarks/img/{}{}-{}.png'.format(prefix,out_value,column)
+    file_name = 'plots/{}{}-{}.png'.format(prefix,out_value,column)
     plt.savefig(file_name,dpi=700,bbox_inches='tight')
     print("Saved {}".format(file_name))
     plt.clf()

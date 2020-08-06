@@ -8,14 +8,13 @@ set -e
 APPROACH=$1
 HORIZON=$2
 MODELS=$3
-BT_PATH=$4
 
 NAME=${APPROACH}__h-${HORIZON}__n-${MODELS}
 
 
 MACHINE=komputer # Value in <machine name="komputer"
 # set this
-BT_PATH=$HOME/temporal-automata/$BT_PATH
+BT_PATH=$HOME/temporal-automata/atlingo/benchmarks/benchmark-tool
 
 # this has to be the same as project name in run-benchmark.xml
 PROJECT=temporal-automata
@@ -31,7 +30,7 @@ mode=2
 USERNAME="hahnmartinlu"
 
 # email to send the results
-email=""
+email="hahnmartinlu@uni-potsdam.de"
 
 dir=$PWD
 
@@ -94,9 +93,10 @@ echo "$G Evaluation results saved in  "
 echo "$B    $RES_DIR/$NAME.beval$NC"
 
 sed -i 's/partition="short" partition="short"/partition="short"/g' $RES_DIR/$NAME.beval
+rm $RUNSCRIPT_PATH
 
-echo "bconv..."
-cat $RES_DIR/$NAME.beval | ./bconv -m models > $RES_DIR/$NAME.ods 2>> $RES_DIR/$NAME.error
+echo "$Y bconv..."
+cat $RES_DIR/$NAME.beval | ./bconv -m time,ctime,csolve,ground0,groundN,models,timeout,restarts,conflicts,choices,domain,vars,cons,mem,error,memout > $RES_DIR/$NAME.ods 2>> $RES_DIR/$NAME.error
 echo "$G Conversion results saved in "
 echo "$B    $RES_DIR/$NAME.ods$NC"
 
@@ -107,7 +107,6 @@ echo "$B    $RES_DIR/$NAME.ods$NC"
 # cp $command $RES_DIR
 # rm -rf output/$project
 
-# echo "done"
-# echo $RES_DIR/$NAME.ods
-# # send an email to report that the experiments are done
-# echo "done $1" | mail -s "[benchmark_finished] $1 " -A $RES_DIR/$NAME.ods $email
+echo "$G Done $NAME"
+# send an email to report that the experiments are done
+echo "done $1" | mail -s "[benchmark_finished] $1 " -A $RES_DIR/$NAME.ods $email
