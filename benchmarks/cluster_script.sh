@@ -1,8 +1,8 @@
 #!/bin/sh
 #SBATCH --time=00:59:00 
 #SBATCH -N 1 # number of nodes
-#SBATCH --output=slrum_out/out.{APP}-{H}-{N}
-#SBATCH --error=slrum_out/out.{APP}-{H}-{N}
+#SBATCH --output=slurm_out/out.%j
+#SBATCH --error=slurm_out/err.%j
 #SBATCH --job-name={APP}-{H}-{N}
 $PATH_AWF = atlingo/benchmarks/benchmark-tool
 set -e
