@@ -4,6 +4,5 @@
 #SBATCH --output=slurm_out/out.%j
 #SBATCH --error=slurm_out/err.%j
 #SBATCH --job-name={APP}-{H}-{N}
-$PATH_AWF = atlingo/benchmarks/benchmark-tool
 set -e
-srun ./single-bm.sh {APP} {H} {N} $PATH_AWF
+srun ./single-bm.sh {APP} {H} {N} {PATH}
