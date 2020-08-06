@@ -34,6 +34,9 @@ email="hahnmartinlu@uni-potsdam.de"
 
 dir=$PWD
 
+cd ..
+make clean
+cd benchmarks
 #Results directory
 RES_DIR=$dir/results/$NAME
 # create the runscript for the arguments
@@ -86,6 +89,18 @@ else
 	SEC=$SEC+1
     done
 fi
+
+echo "$G Slurm queue is now empty $NC"
+#shopt -s nullglob
+for f in $(find ./$OUTPUT_DIR/$MACHINE/results/asprilo-benchmark  -type f -name "*runsolver.solver");
+do
+	if grep -q 'fail' $f; then
+		echo "$R Run failed in file $f $NC"
+		cat $f
+		exit 1
+	fi
+	echo "$(tail -32 $f)" > $f
+done
 
 echo "$Y beval...$NC"
 ./beval $RUNSCRIPT_PATH > $RES_DIR/$NAME.beval 2> $RES_DIR/$NAME.error
