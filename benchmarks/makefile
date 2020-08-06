@@ -5,9 +5,9 @@ clean-results:
 	rm -rf ./benchmark-tool/scripts_asprilo_*
 clean-plots:
 	rm -rf ./img/*
-clean-scripts:
+clean-runscripts:
 	rm -rf ./cluster_script__*.sh
-	rm -rf ./benchamark-tool/runscript_asprio_*__*
+	rm -rf ./benchamark-tool/runscripts/_asprio_*__*
 ods:
 	./compute_all_ods.sh
 clean-slurm:
@@ -16,5 +16,5 @@ clean-slurm:
 clean-all:
 	make clean-results
 	make clean-plots
-	make clean-scripts
+	make clean-runscripts
 	make clean-slurm

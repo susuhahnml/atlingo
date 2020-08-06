@@ -1,4 +1,4 @@
-<runscript output="scripts_asprilo_afw__h-15__n-1">
+<runscript output="output/afw__h-15__n-1">
 
 	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
 	
@@ -14,13 +14,13 @@
 
     </system>
 
-	<pbsjob name="pbs-gen" timeout="1200" runs="1" script_mode="timeout" walltime="50:00:00" cpt="4"/>
+	<pbsjob name="pbs-gen" partition="short" timeout="1200" runs="1" script_mode="timeout" walltime="50:00:00" cpt="4"/>
 
 	<benchmark name="asprilo-benchmark">
-		<folder path="../asprilo_instances/"> </folder> 
+		<folder path="/home/hahnmartinlu/atlingo/benchamarks/asprilo_instances/"> </folder> 
 	</benchmark>
 	
-	<project name="clingo-pbs-job" job="pbs-gen">
+	<project name="temporal-automata" job="pbs-gen">
 		<runtag machine="komputer" benchmark="asprilo-benchmark" tag="basic"/>
 	</project>
 
