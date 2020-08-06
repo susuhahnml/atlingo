@@ -134,7 +134,6 @@ for column in columns:
     for i, df in enumerate(cleaned_dfs):
         plt.plot(instances, df[column], linewidth=1, alpha=1, label=approaches[i],zorder=-1)
         if plot_n_models:
-            print(cleaned_dfs_models[i][column])
             color = '#811515'
             plt.scatter(instances, df[column], color=color,s=1,alpha=1,zorder=1,label='#models')
             for i, txt in enumerate(cleaned_dfs_models[i][column]):

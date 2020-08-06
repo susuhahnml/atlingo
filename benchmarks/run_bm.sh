@@ -128,13 +128,6 @@ cat $RES_DIR/$NAME.beval | ./bconv -m time,ctime,csolve,ground0,groundN,models,t
 echo "$G Conversion results saved in "
 echo "$B    $RES_DIR/$NAME.ods$NC"
 
-# echo "tar..."
-# tar -czf $NAME.tar.gz output/$project
-# mv $NAME.tar.gz $RES_DIR
-# cp $RUNSCRIPT_PATH $RES_DIR
-# cp $command $RES_DIR
-# rm -rf output/$project
 
 echo "$G Done $NAME$NC"
-# send an email to report that the experiments are done
-#echo "done $1" | mail -s "[benchmark_finished] $NAME " -A $RES_DIR/$NAME.ods $email
+
