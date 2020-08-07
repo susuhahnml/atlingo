@@ -1,0 +1,40 @@
+#!/bin/bash
+
+
+HERE=$(pwd)"/"
+
+ROOT="$1""/"
+INSTANCE=$2
+HORIZON=$3
+MODELS=$4
+MODE=$5
+
+
+TOTAL_PATH_DFA_ROOT="$HOME/stage_asp_gitlab"
+TOTAL_PATH_DFA_BT="$TOTAL_PATH_DFA_ROOT/tools/benchmark-tool/"
+TOTAL_PATH_AFW="$HOME/atlingo/benchmarks"
+PATH_FROM_DFA_TO_ROOT="tools/benchmark-tool/"
+PATH_FROM_ROOT_TO_DFA="../../"
+
+INSTANCE_NAME=$(basename "$INSTANCE")
+SAVE_NAME="$HERE""$INSTANCE_NAME""_plan.lp"
+INSTANCE=${INSTANCE#"$ROOT"}
+INSTANCE=$TOTAL_PATH_AFW$INSTANCE
+
+
+CONSTRAINT=$TOTAL_PATH_DFA_BT$6
+BONUS_FILE=$TOTAL_PATH_DFA_BT$7
+
+if [ $MODE -eq 6 ]
+then
+	( cd $TOTAL_PATH_DFA_ROOT; make asprilo-new-transform INSTANCE=$INSTANCE H=$HORIZON CONSTRAINT=$CONSTRAINT BONUS_FILE=$BONUS_FILE VERSION=1; make print_stats ; 
+		make save_plan SAVE_NAME=$SAVE_NAME)
+elif [ $MODE -eq 7 ]
+then 
+	( cd $TOTAL_PATH_DFA_ROOT; make asprilo-new-transform INSTANCE=$INSTANCE H=$HORIZON CONSTRAINT=$CONSTRAINT BONUS_FILE=$BONUS_FILE VERSION=2; make print_stats ; 
+		make save_plan SAVE_NAME=$SAVE_NAME)
+else	
+	( cd $TOTAL_PATH_DFA_ROOT; make asprilo-new INSTANCE=$INSTANCE H=$HORIZON CONSTRAINT=$CONSTRAINT BONUS_FILE=$BONUS_FILE MODE=$MODE ; make print_stats ; 
+		make save_plan SAVE_NAME=$SAVE_NAME)
+fi
+

@@ -4,20 +4,18 @@
 ROOT="$1""/"
 INSTANCE=$2
 HORIZON=$3
+MODELS=$4
 
 
 PATH_FROM_DFA_TO_ROOT="benchmarks/benchmark-tool/"
 PATH_FROM_ROOT_TO_DFA="../../"
-PATH_CONVERT_M_TO_MD="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-m-to-md.lp"
-PATH_ENCODING_M_1="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp"
-PATH_ENCODING_M_2="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp"
-PATH_ENCODING_M_3="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp"
+TOTAL_PATH_AAE="$HOME/temporal-automata/atlingo/env/asprilo/asprilo-abstraction-encodings"
+PATH_CONVERT_M_TO_MD="$TOTAL_PATH_AAE/asprilo/misc/augment-m-to-md.lp"
+PATH_ENCODING_M_1="$TOTAL_PATH_AAE/encodings/torsten/md/action-MD.lp"
+PATH_ENCODING_M_2="$TOTAL_PATH_AAE/encodings/torsten/md/goal-MD.lp"
+PATH_ENCODING_M_3="$TOTAL_PATH_AAE/encodings/torsten/md/output-M.lp"
 PATH_ENCODING_M="$PATH_ENCODING_M_1 ""$PATH_ENCODING_M_2 ""$PATH_ENCODING_M_3"
 
-
-MODELS=$4
-echo instance
-echo $INSTANCE
 
 
 INSTANCE=${INSTANCE#"$ROOT"}
