@@ -1,18 +1,18 @@
 #!/bin/sh
 ./run_bm.sh afw 15 1
-#./run_bm.sh afw 25 1
-#./run_bm.sh afw 35 1
-#./run_bm.sh afw 45 1
+./run_bm.sh afw 25 1
+./run_bm.sh afw 35 1
+./run_bm.sh afw 45 1
 
-#./run_bm.sh nc 15 1
-#./run_bm.sh nc 25 1
-#./run_bm.sh nc 35 1
-#./run_bm.sh nc 45 1
+./run_bm.sh nc 15 1
+./run_bm.sh nc 25 1
+./run_bm.sh nc 35 1
+./run_bm.sh nc 45 1
 
-#./run_bm.sh afw 15 0
+./run_bm.sh afw 15 0
 #./run_bm.sh afw 25 0
 
-#./run_bm.sh nc 15 0
+./run_bm.sh nc 15 0
 
 echo "--------------------" > results/summary.txt
 echo "Summary">> results/summary.txt
@@ -33,7 +33,7 @@ done
 
 cat results/summary.txt
 # send an email to report that the experiments are done
-mail -s "[Benchmark Finished]" hahnmartinlu@uni-potsdam.de <<< $(cat results/summary.txt)
+cat results/summary.txt | mail -s "[Benchmark Finished]" hahnmartinlu@uni-potsdam.de
 
 make clean-all -q
 cd ..
