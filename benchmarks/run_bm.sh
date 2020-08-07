@@ -119,11 +119,29 @@ if ! ./beval $RUNSCRIPT_PATH > $RES_DIR/$NAME.beval 2> $RES_DIR/$NAME.error ; th
 	rm -rf $OUTPUT_DIR
 	exit 1
 fi
+
+grep 'failed with unrecognized status or error!' $RES_DIR/$NAME.error | head -1 | sed -e 's#.*Run \(\)#\1#' | sed -e 's# failed.*\(\)#\1#' > fault_runsolver.txt
+LINE_ERR=$(cat fault_runsolver.txt)
+if [ ! -z $LINE_ERR ] 
+then
+	echo "$R Found error inside output of runsolver"
+	LINE_ERR=$LINE_ERR/runsolver.solver
+	echo $LINE_ERR
+	cat $LINE_ERR
+	echo "$NC"
+	rm fault_runsolver.txt
+	#rm -rf $OUPUT_DIR
+	exit 1
+fi
+
+rm fault_runsolver.txt
+#rm -rf $OUTPUT_DIR
 echo "$G Evaluation results saved in  "
 echo "$B    $RES_DIR/$NAME.beval$NC"
 
 #Clean output generated from benchmarktool
 rm -rf $OUTPUT_DIR
+
 
 sed -i 's/partition="short" partition="short"/partition="short"/g' $RES_DIR/$NAME.beval
 rm $RUNSCRIPT_PATH
