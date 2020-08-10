@@ -1,5 +1,7 @@
-#!/bin/sh
-#./run_bm.sh afw 15 1
+#!/bin/bash
+source /usr/local/apps/anaconda3/5.3.0/etc/profile.d/conda.sh
+conda activate temporal-automata
+./run_bm.sh afw 15 1
 #./run_bm.sh afw 25 1
 #./run_bm.sh afw 35 1
 #./run_bm.sh afw 45 1
@@ -14,9 +16,9 @@
 #./run_bm.sh asp 35 1
 #./run_bm.sh asp 45 1
 
-./run_bm.sh dfa 15 1
-./run_bm.sh dfa 25 1
-./run_bm.sh dfa 35 1
+#./run_bm.sh dfa 15 1
+#./run_bm.sh dfa 25 1
+#./run_bm.sh dfa 35 1
 #./run_bm.sh dfa 45 1
 
 # ./run_bm.sh afw 15 0
@@ -43,7 +45,7 @@ done
 
 cat results/summary.txt
 # send an email to report that the experiments are done
-cat results/summary.txt | mail -s "[Benchmark Finished]" hahnmartinlu@uni-potsdam.de
+#cat results/summary.txt | mail -s "[Benchmark Finished]" hahnmartinlu@uni-potsdam.de
 
 make clean-all -q
 cd ..

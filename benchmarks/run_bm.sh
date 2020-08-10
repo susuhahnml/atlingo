@@ -116,7 +116,7 @@ if ! ./beval $RUNSCRIPT_PATH > $RES_DIR/$NAME.beval 2> $RES_DIR/$NAME.error ; th
 	cat $RES_DIR/$NAME.error
 	echo "$NC"
 	#Clean output generated from benchmarktool
-	rm -rf $OUTPUT_DIR
+	#rm -rf $OUTPUT_DIR
 	exit 1
 fi
 
@@ -140,7 +140,6 @@ echo "$G Evaluation results saved in  "
 echo "$B    $RES_DIR/$NAME.beval$NC"
 
 #Clean output generated from benchmarktool
-rm -rf $OUTPUT_DIR
 
 
 sed -i 's/partition="short" partition="short"/partition="short"/g' $RES_DIR/$NAME.beval
