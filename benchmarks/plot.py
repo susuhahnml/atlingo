@@ -58,11 +58,12 @@ for f in files:
         print("Error reading file {}".format(f))
         print("Make sure the file exists".format(f))
         sys.exit(1)
+# print(set(dfs[0].iloc[0][:]))
+# print(dfs[0].iloc[0][:])
 n_out_options = len(set(dfs[0].iloc[0][:]))-1
 
 
 def clean_df(df):
-    
     #Drop min max median
     df.drop(df.columns[-3*n_out_options:], axis=1, inplace=True) 
     
@@ -70,10 +71,13 @@ def clean_df(df):
     cols = df.columns[1:]
     cols = [c.split("/")[-1] for i,c in enumerate(cols) if i%n_out_options==0]
     params = df.iloc[0][1:n_out_options+1]
+    # print(params)
     new_cols = ["{}-{}".format(c,p) for c,p in list(itertools.product(cols, params))]
     new_cols = ["instance-name"] + new_cols
     df.drop(df.index[0], inplace=True) #Remove unused out values
     df.drop(df.tail(9).index,inplace=True) #Remove last computed values
+    # print(df.columns)
+    # print(new_cols)
     df.columns = new_cols
 
     for i in range(1,len(df.columns)):
@@ -88,10 +92,15 @@ def clean_df(df):
         df['instance-group']=df['instance-name'].apply(lambda x: x.split('-0')[0])
         df = df.groupby(['instance-group'], as_index=False).mean()
         df['instance-name'] = df['instance-group']
-        df = df.sort_values(by=['instance-name'], ascending=False)
     
     #Order instances by complexity TODO!!! Why error?????
-    df = df.sort_values(by=['instance-name'], ascending=False)
+    def instance_complexity(s):
+        s = s.split('-')[1]
+        s = s.split('_')
+        x,y,r = (int(s[0][1:]),int(s[1][1:]),int(s[2][1:]))
+        return x*y + r
+    df['instance-value'] = df['instance-name'].apply(instance_complexity)
+    df = df.sort_values(by=['instance-value'], ascending=True)
     df = df.reset_index(drop=True)
     
     #Select columns based on out-value
@@ -137,7 +146,8 @@ for column in columns:
             color = '#811515'
             plt.scatter(instances, df[column], color=color,s=1,alpha=1,zorder=1,label='#models')
             for i, txt in enumerate(cleaned_dfs_models[i][column]):
-                plt.annotate(int(txt), (instances[i], df[column][i]),fontsize=7,color=color)
+                if int(txt)==0:
+                    plt.annotate(int(txt), (instances[i], df[column][i]),fontsize=7,color=color)
         # plt.tight_layout()
         # Add legend
     plt.legend(loc=2, ncol=2)    
