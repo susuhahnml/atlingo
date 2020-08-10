@@ -7,7 +7,7 @@ clean-plots:
 	rm -rf ./img/*
 clean-runscripts:
 	rm -rf ./cluster_script__*.sh
-	rm -rf ./runscripts/_asprio_*__*
+	rm -rf ./runscripts/runscript_asprilo_*__*
 clean:
 	make clean-plots
 	make clean-runscripts
