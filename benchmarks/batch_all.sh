@@ -6,9 +6,9 @@ conda activate temporal-automata
 
 
 ./run_bm.sh afw 15 1
-#./run_bm.sh afw 25 1
-#./run_bm.sh afw 35 1
-#./run_bm.sh afw 45 1
+./run_bm.sh afw 25 1
+./run_bm.sh afw 35 1
+./run_bm.sh afw 45 1
 
 #./run_bm.sh nc 15 1
 #./run_bm.sh nc 25 1
