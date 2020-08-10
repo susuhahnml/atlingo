@@ -1,5 +1,6 @@
-plots:
-	python plot.py $(ARGS)
+copy-programs:
+	cp -r programs/compute* benchmark-tool/programs
+	cp -r programs/runsolver-3.4.0 benchmark-tool
 clean-results:
 	rm -rf ./results/*
 clean-plots:
@@ -7,15 +8,10 @@ clean-plots:
 clean-runscripts:
 	rm -rf ./cluster_script__*.sh
 	rm -rf ./runscripts/_asprio_*__*
-ods:
-	./compute_all_ods.sh
-clean-slurm:
-	rm -rf slurm_out/out.*
-	rm -rf slurm_out/err.*
-clean-gen-out:
-	rm -rf ./benchmark-tool/output/*
-clean-all:
+clean:
 	make clean-plots
 	make clean-runscripts
-	make clean-slurm
-	make clean-gen-out
+plots:
+	python plot.py $(ARGS)
+ods:
+	./compute_all_ods.sh

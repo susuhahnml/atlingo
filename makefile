@@ -19,6 +19,8 @@ endif
 
 clean:
 	rm -rf outputs/*
+	cd benchmarks
+	make clean
 
 translate:
 
@@ -78,11 +80,6 @@ tests:
 
 stats:
 	tail -32 $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
-
-######################  BENCHAMRKS ########################
-
-plot:
-	python ./benchmarks/plot_benchamrks_script.py $1
 
 ######################  ASPRILO ########################
 
