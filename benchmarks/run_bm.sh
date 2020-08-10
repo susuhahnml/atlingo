@@ -7,6 +7,8 @@ C=`tput setaf 6`
 NC=`tput sgr0`
 
 set -e
+export PATH="$HOME/temporal-automata/stage_asp_gitlab/tools/MONA/Front:$PATH"
+
 APPROACH=$1
 HORIZON=$2
 MODELS=$3
@@ -14,7 +16,7 @@ MODELS=$3
 NAME=${APPROACH}__h-${HORIZON}__n-${MODELS}
 
 
-MACHINE=komputer # Value in <machine name="komputer"
+MACHIN=Ekomputer # Value in <machine name="komputer"
 # set this
 BT_PATH=$HOME/temporal-automata/atlingo/benchmarks/benchmark-tool
 
@@ -105,7 +107,7 @@ do
 		#rm -rf $OUTPUT_DIR
 		exit 1
 	fi
-	echo "$(tail -32 $f)" > $f
+	echo "$(tail -34 $f)" > $f
 done
 
 echo "$Y beval...$NC"
