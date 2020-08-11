@@ -2,9 +2,9 @@
 
 	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
 	
-  	<config name="seq-asprilo" template="templates/seq-asprilo.sh"/>
+	<config name="seq-asprilo" template="../programs/seq-asprilo.sh"/>
   
-	<system name="compute_dfa" version="1" measures="clasp" config="seq-asprilo">
+	<system name="compute_dfa" version="1" measures="clingo" config="seq-asprilo">
 
 		<setting name="horizontal_before_vertical" cmdline="{H} {N} 7 constraints/constraints/horizontally_before_vertically.lp constraints/predicates_needed/move_h_v.lp" tag="basic" />
 		<setting name="vertical_before_horizontal" cmdline="{H} {N} 7 constraints/constraints/vertically_before_horizontally.lp constraints/predicates_needed/move_h_v.lp" tag="basic" />

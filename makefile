@@ -19,8 +19,7 @@ endif
 
 clean:
 	rm -rf outputs/*
-	cd benchmarks
-	make clean
+	(cd benchmarks ; make clean)
 
 translate:
 

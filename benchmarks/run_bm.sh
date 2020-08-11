@@ -8,7 +8,7 @@ NC=`tput sgr0`
 
 set -e
 export PATH="$HOME/temporal-automata/stage_asp_gitlab/tools/MONA/Front:$PATH"
-
+eval $(make clean -q)
 APPROACH=$1
 HORIZON=$2
 MODELS=$3
@@ -16,7 +16,7 @@ MODELS=$3
 NAME=${APPROACH}__h-${HORIZON}__n-${MODELS}
 
 
-MACHIN=Ekomputer # Value in <machine name="komputer"
+MACHINE=komputer # Value in <machine name="komputer"
 # set this
 BT_PATH=$HOME/temporal-automata/atlingo/benchmarks/benchmark-tool
 

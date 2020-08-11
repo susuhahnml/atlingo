@@ -9,9 +9,15 @@ clean-plots:
 clean-runscripts:
 	rm -rf ./cluster_script__*.sh
 	rm -rf ./runscripts/runscript_asprilo_*__*
+clean-output:
+	rm -rf benckmark-tool/output/*
+clean-dfa:
+	(cd ../../stage_asp_gitlab ; make clean)
 clean:
 	make clean-plots
 	make clean-runscripts
+	make clean-output
+	make clean-dfa
 plots:
 	python plot.py $(ARGS)
 ods:
