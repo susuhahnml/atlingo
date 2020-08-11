@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Activate conda with instalation
+#Activate conda env
 source /usr/local/apps/anaconda3/5.3.0/etc/profile.d/conda.sh
 conda activate temporal-automata
 
@@ -50,7 +50,7 @@ done
 cat results/summary.txt
 
 # send an email to report that the experiments are done
-#cat results/summary.txt | mail -s "[Benchmark Finished]" hahnmartinlu@uni-potsdam.de
+cat results/summary.txt | mail -s "[Benchmark Finished]" hahnmartinlu@uni-potsdam.de
 
 cd ..
 make clean -q

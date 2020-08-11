@@ -7,8 +7,8 @@ C=`tput setaf 6`
 NC=`tput sgr0`
 
 set -e
-export PATH="$HOME/temporal-automata/stage_asp_gitlab/tools/MONA/Front:$PATH"
-eval $(make clean -q)
+#export PATH="$HOME/temporal-automata/stage_asp_gitlab/tools/MONA/Front:$PATH"
+
 APPROACH=$1
 HORIZON=$2
 MODELS=$3
@@ -23,17 +23,11 @@ BT_PATH=$HOME/temporal-automata/atlingo/benchmarks/benchmark-tool
 # this has to be the same as project name in run-benchmark.xml
 PROJECT=temporal-automata
 
-# this has to be the command used in run-benchmark.xml
-command=$PWD/solver.sh 
-
 # set mode: sequential=1 or cluster=2
 mode=2
 
 # if mode==2, set username to your login in the cluster
 USERNAME="hahnmar"
-
-# email to send the results
-email="hahnmartinlu@uni-potsdam.de"
 
 dir=$PWD
 echo ""
@@ -41,8 +35,10 @@ echo "$C ---------------------------"
 echo " Starting benchmarks for $NAME"
 echo "$C ---------------------------$NC"
 
-# Results directory
-RES_DIR=$dir/results/$NAME
+
+echo "$Y Cleaning with make "
+eval $(make clean -q)
+
 
 # Create the runscript for the arguments
 RUNSCRIPT_PATH=$PWD/runscripts/runscript_asprilo_$NAME.xml
@@ -51,10 +47,13 @@ echo "$B    $RUNSCRIPT_PATH $NC"
 sed 's/{H}/'$HORIZON'/g; s/{N}/'$MODELS'/g' ./runscripts/runscript_asprilo_$APPROACH.xml >  $RUNSCRIPT_PATH
 
 
+# Results directory
 echo "$Y Removing old result directory $NC"
+RES_DIR=$dir/results/$NAME
 rm -rf $RES_DIR
 mkdir -p $RES_DIR
 
+# Move to benchmark tool
 echo "$Y Moving to benchmarks-tool directory "
 echo "$B    $BT_PATH $NC"
 cd $BT_PATH
@@ -62,17 +61,10 @@ cd $BT_PATH
 
 #Output directory inside benchmark-tool is the value in <runscript output="">
 OUTPUT_DIR=output/$NAME/$PROJECT 
-
-echo "$Y Removing old output directory "
-echo "$B    $OUTPUT_DIR$NC"
-#Clean old output generated from benchmarktool
-rm -rf $OUTPUT_DIR
-
 echo "$Y Calling ./bgen$NC"
-
 ./bgen $RUNSCRIPT_PATH
 
-
+#Running start file
 if [ $mode -eq 1 ]; then
     echo "$Y Running python start file "
     echo "$B    $BT_PATH/$OUTPUT_DIR/$MACHINE/start.py $NC"
@@ -91,32 +83,31 @@ else
 	SEC=($SEC+1)
     done
 fi
-
-
-################ Error analysis
-
-
-# Analize errors in runsolver.solver
 echo "$G Slurm queue is now empty $NC"
+
+
+# Clean outputs in runsuolver.solver and check errors
 for f in $(find ./$OUTPUT_DIR/$MACHINE/results/asprilo-benchmark  -type f -name "*runsolver.solver");
 do
 	if grep -q 'fail' $f; then
 		echo "$R Run failed in file $f"
 		cat $f
 		echo "$NC"
-		#rm -rf $OUTPUT_DIR
+		rm -rf $OUTPUT_DIR
 		exit 1
 	fi
+	#Ignore the rest of the resut and saave only stats
 	echo "$(tail -34 $f)" > $f
 done
 
+# Get evealuation from runsolver results
 echo "$Y beval...$NC"
 if ! ./beval $RUNSCRIPT_PATH > $RES_DIR/$NAME.beval 2> $RES_DIR/$NAME.error ; then
 	# Analize errors during evaluation
-	echo "$R Error in evaluation"
+	echo "$R Error during evaluation"
 	cat $RES_DIR/$NAME.error
 	echo "$NC"
-	#rm -rf $OUTPUT_DIR
+	rm -rf $OUTPUT_DIR
 	exit 1
 fi
 
@@ -131,20 +122,16 @@ then
 	cat $LINE_ERR
 	echo "$NC"
 	rm fault_runsolver.txt
-	#rm -rf $OUPUT_DIR
+	rm -rf $OUTPUT_DIR
 	exit 1
 fi
 rm fault_runsolver.txt
+rm -rf $OUTPUT_DIR
 
-
-
-
-################ Clean beval output an generate ods file
-
-#rm -rf $OUTPUT_DIR
 echo "$G Evaluation results saved in  "
 echo "$B    $RES_DIR/$NAME.beval$NC"
 
+################ Clean beval output an generate ods file
 sed -i 's/partition="short" partition="short"/partition="short"/g' $RES_DIR/$NAME.beval
 rm $RUNSCRIPT_PATH
 
