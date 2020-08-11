@@ -8,6 +8,12 @@ import itertools
 import seaborn as sns
 from pandas_ods_reader import read_ods
 
+yellow = ['#F3F55F','#E7C803','#BCA300']
+blue= ['#96DBED','#455AE2','#0E1BA8']
+green = ['#A7DAA4','#268C3E','#034D09']
+red = ['#F3AEAE','#FF2D2D','#CC0000']
+colors = [blue,yellow,red,green]
+
 import argparse
 
 parser = argparse.ArgumentParser(description='Plot obs files from benchmark tool')
@@ -29,6 +35,8 @@ parser.add_argument("--group", default=False, action='store_true',
     help="When this flag is passed, instances are grouped")
 parser.add_argument("--avarage", default=False, action='store_true',
     help="When this flag is passed, only average will be computed per instance.Necessary for no-constraint")
+parser.add_argument("--bars", default=False, action='store_true',
+    help="When this flag is passed, will print bar for one approach with all times")
 
 args = parser.parse_args()
 
@@ -93,7 +101,7 @@ def clean_df(df):
         df = df.groupby(['instance-group'], as_index=False).mean()
         df['instance-name'] = df['instance-group']
     
-    #Order instances by complexity TODO!!! Why error?????
+    #Order instances by complexity
     def instance_complexity(s):
         s = s.split('-')[1]
         s = s.split('_')
@@ -102,62 +110,55 @@ def clean_df(df):
     df['instance-value'] = df['instance-name'].apply(instance_complexity)
     df = df.sort_values(by=['instance-value'], ascending=True)
     df = df.reset_index(drop=True)
-    
-    #Select columns based on out-value
-    if constraints is None:
-        selected_cols = ["{}-{}".format(col,out_value) for col in cols]
-    else:
-        selected_cols = ["{}-{}".format(col,out_value) for col in constraints]
-    
-    #Save models for plotting
-    if constraints is None:
-        selected_cols_models = ["{}-{}".format(col,'models') for col in cols]
-    else:
-        selected_cols_models = ["{}-{}".format(col,'models') for col in constraints]
-
-
-    df_models = df[['instance-name']+selected_cols_models]
-    selected_cols = ['instance-name'] + selected_cols
-    df =df[selected_cols]
-
-    #Remove unnecessary output in column name
-    df.columns = [x.replace('-{}'.format(out_value),'') for x in  selected_cols]
-    df_models.columns = [x.replace('-{}'.format(out_value),'') for x in  selected_cols]
-
+    df.drop(['instance-value'], axis=1, inplace=True) 
 
     if avarage:
         df['mean'] = df.loc[:, df.columns != 'instance-name'].mean(axis = 1)
         df= df[["instance-name","mean"]]
     
-    return df, df_models
+    return df
 
-cleaned_dfs_tuple = [clean_df(df) for df in dfs]
-cleaned_dfs = [t[0] for t in cleaned_dfs_tuple]
-cleaned_dfs_models = [t[1] for t in cleaned_dfs_tuple]
+cleaned_dfs = [clean_df(df) for df in dfs]
 
-columns = cleaned_dfs[0].columns[1:]
+columns = list(set([s.split('-')[0] for s in cleaned_dfs[0].columns[1:]]))
 instances = cleaned_dfs[0]['instance-name']
 n_columns = len(columns)
+n_instances = len(instances)
+x_instances = np.arange(len(instances))  # the label locations
+width = 0.35  # the width of the bars
 
 for column in columns:
+    plots_approach = []
     for i, df in enumerate(cleaned_dfs):
-        plt.plot(instances, df[column], linewidth=1, alpha=1, label=approaches[i],zorder=-1)
-        if plot_n_models:
-            color = '#811515'
-            plt.scatter(instances, df[column], color=color,s=1,alpha=1,zorder=1,label='#models')
-            for i, txt in enumerate(cleaned_dfs_models[i][column]):
-                if int(txt)==0:
-                    plt.annotate(int(txt), (instances[i], df[column][i]),fontsize=7,color=color)
-        # plt.tight_layout()
-        # Add legend
-    plt.legend(loc=2, ncol=2)    
+        # pwin = plt.bar(x_instances, wins, width=width_c,color='#1644AE')
+        # pilegal = plt.bar(x_instances, illegal,bottom=wins, width=width_c,color='#FC755A')
+
+        if args.bars:
+            solve = df[column + '-csolve']
+            ctime = df[column + '-ctime']
+            ground = ctime - solve
+            extra = df[column + '-time'] - ctime
+            p_ground = plt.bar(x_instances-(width*(i-1)/2), df[column + '-ctime'], alpha=1, label=approaches[i]+'-GROUND',width=width-0.5,color=colors[i][0])
+            p_solve =plt.bar(x_instances-(width*(i-1)/2), df[column + '-csolve'], alpha=1, label=approaches[i]+'-SOLVE',width=width-0.5,color=colors[i][1])
+            # p_ground = plt.bar(x_instances-(width*(i-1)/2), ground, alpha=1, label=approaches[i]+'-GROUND',width=width-0.5,color=colors[i][0])
+            # p_solve =plt.bar(x_instances-(width*(i-1)/2), solve, bottom=ground, alpha=1, label=approaches[i]+'-SOLVE',width=width-0.5,color=colors[i][1])
+            # p_prep, = plt.bar(x_instances-(width*(i-1)/2), extra, bottom=ctime, alpha=1, label=approaches[i]+'-PREP',width=width-0.5,color=colors[i][2])
+            plots_approach+=[p_ground,p_solve]
+        else:
+            column_out = column + '-' + out_value
+            p_out = plt.bar(x_instances-(width*(i-1)/2), df[column_out], alpha=1, label=approaches[i],width=width-0.5)
+            plots_approach.append(p_out)
+
+    [i.set_color("red") for idx, i in enumerate(plt.gca().get_xticklabels()) if df[column+'-'+'models'][idx]==0]
+
+    plt.legend(handles = plots_approach, loc = i)    
     # Add titles
     plt.title(column.replace('_',' '),  fontsize=12, fontweight=0)
-    plt.xticks(rotation='vertical')
+    plt.xticks(x_instances,instances,rotation='vertical')
     plt.xlabel("Instance")
     plt.ylabel(out_value)
 
     file_name = 'plots/{}{}-{}.png'.format(prefix,out_value,column)
-    plt.savefig(file_name,dpi=700,bbox_inches='tight')
+    plt.savefig(file_name,dpi=300,bbox_inches='tight')
     print("Saved {}".format(file_name))
     plt.clf()
