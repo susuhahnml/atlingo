@@ -71,7 +71,10 @@ for f in files:
         print("Error reading file {}".format(f))
         print("Make sure the file exists".format(f))
         sys.exit(1)
-n_out_options = len(set(dfs[0].iloc[0][:]))-1
+out_options = set(dfs[0].iloc[0][:])
+out_options.remove('')
+out_options=list(out_options)
+n_out_options = len(out_options)
 
 
 def clean_df(df):
@@ -118,8 +121,13 @@ def clean_df(df):
     df.drop(['instance-value'], axis=1, inplace=True) 
 
     if avarage:
-        df['mean'] = df.loc[:, df.columns != 'instance-name'].mean(axis = 1)
-        df= df[["instance-name","mean"]]
+        new_cols = ["instance-name"]
+        for a in out_options:
+            col_name = 'mean-'+a
+            is_a = [x.split('-')[-1]==a for x in df.columns]
+            df[col_name] = df.loc[:,is_a].mean(axis = 1)
+            new_cols.append(col_name)
+        df= df[new_cols]
     return df
 
 cleaned_dfs = [clean_df(df) for df in dfs]
