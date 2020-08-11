@@ -13,12 +13,13 @@ blue= ['#96DBED','#455AE2','#0E1BA8']
 green = ['#A7DAA4','#268C3E','#034D09']
 red = ['#F3AEAE','#FF2D2D','#CC0000']
 colors = [blue,yellow,red,green]
+loc = ['lower right','lower left','upper right']
 
 import argparse
 
 parser = argparse.ArgumentParser(description='Plot obs files from benchmark tool')
-parser.add_argument("--stat", type=str, default="time",
-        help="Status: time, choice, conflicts or models" )
+parser.add_argument("--stat", type=str, action='append',
+        help="Status: choices,conflicts,cons,csolve,ctime,error,mem,memout,models,ngadded,optimal,restarts,status,time,timeout,vars" )
 parser.add_argument("--approach", type=str, action='append',
         help="Approach to be plotted awf, asp, nc or dfa. Can pass multiple",required=True)
 parser.add_argument("--constraint", type=str, action='append',
@@ -37,7 +38,8 @@ parser.add_argument("--avarage", default=False, action='store_true',
     help="When this flag is passed, only average will be computed per instance.Necessary for no-constraint")
 parser.add_argument("--bars", default=False, action='store_true',
     help="When this flag is passed, will print bar for one approach with all times")
-
+parser.add_argument("--y", type=str, default=None,
+        help="Name for the y axis" )
 args = parser.parse_args()
 
 #PARAMS
@@ -50,10 +52,13 @@ group_instances = args.group
 constraints = args.constraint
 avarage = args.avarage
 prefix = args.prefix
+if args.y is None:
+    args.y="-".join(args.stat)
 
 
 assert not 'nc' in approaches or avarage and constraints is None, 'No constraint only with average'
 assert not plot_n_models or not avarage, "Only avarage or models ploted"
+assert not plot_n_models or not group_instances, "Only plot or group"
 
 approaches = ["{}__h-{}".format(a,h) for a,h in list(itertools.product(approaches, horizons))]
 base_path = "results/{}__n-{}/{}__n-{}.ods"
@@ -66,8 +71,6 @@ for f in files:
         print("Error reading file {}".format(f))
         print("Make sure the file exists".format(f))
         sys.exit(1)
-# print(set(dfs[0].iloc[0][:]))
-# print(dfs[0].iloc[0][:])
 n_out_options = len(set(dfs[0].iloc[0][:]))-1
 
 
@@ -100,6 +103,8 @@ def clean_df(df):
         df['instance-group']=df['instance-name'].apply(lambda x: x.split('-0')[0])
         df = df.groupby(['instance-group'], as_index=False).mean()
         df['instance-name'] = df['instance-group']
+        df.drop(['instance-group'], axis=1, inplace=True) 
+
     
     #Order instances by complexity
     def instance_complexity(s):
@@ -115,50 +120,40 @@ def clean_df(df):
     if avarage:
         df['mean'] = df.loc[:, df.columns != 'instance-name'].mean(axis = 1)
         df= df[["instance-name","mean"]]
-    
     return df
 
 cleaned_dfs = [clean_df(df) for df in dfs]
 
-columns = list(set([s.split('-')[0] for s in cleaned_dfs[0].columns[1:]]))
+columns = set([s.split('-')[0] for s in cleaned_dfs[0].columns])
+columns.remove('instance')
+columns = list(columns)
 instances = cleaned_dfs[0]['instance-name']
 n_columns = len(columns)
 n_instances = len(instances)
 x_instances = np.arange(len(instances))  # the label locations
 width = 0.35  # the width of the bars
 
+
 for column in columns:
-    plots_approach = []
     for i, df in enumerate(cleaned_dfs):
-        # pwin = plt.bar(x_instances, wins, width=width_c,color='#1644AE')
-        # pilegal = plt.bar(x_instances, illegal,bottom=wins, width=width_c,color='#FC755A')
+        plots_approach = []
+        for i_out,out in enumerate(out_value):
+            plots_approach.append(plt.bar(x_instances-(width*(i-1)/2), df[column + '-'+out], alpha=1, label='{} ({})'.format(approaches[i],out),width=width-0.5,color=colors[i][i_out]))
+        legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(0, 1-i*(0.15)))    
+        # Add the legend manually to the current Axes.
+        ax = plt.gca().add_artist(legend)
 
-        if args.bars:
-            solve = df[column + '-csolve']
-            ctime = df[column + '-ctime']
-            ground = ctime - solve
-            extra = df[column + '-time'] - ctime
-            p_ground = plt.bar(x_instances-(width*(i-1)/2), df[column + '-ctime'], alpha=1, label=approaches[i]+'-GROUND',width=width-0.5,color=colors[i][0])
-            p_solve =plt.bar(x_instances-(width*(i-1)/2), df[column + '-csolve'], alpha=1, label=approaches[i]+'-SOLVE',width=width-0.5,color=colors[i][1])
-            # p_ground = plt.bar(x_instances-(width*(i-1)/2), ground, alpha=1, label=approaches[i]+'-GROUND',width=width-0.5,color=colors[i][0])
-            # p_solve =plt.bar(x_instances-(width*(i-1)/2), solve, bottom=ground, alpha=1, label=approaches[i]+'-SOLVE',width=width-0.5,color=colors[i][1])
-            # p_prep, = plt.bar(x_instances-(width*(i-1)/2), extra, bottom=ctime, alpha=1, label=approaches[i]+'-PREP',width=width-0.5,color=colors[i][2])
-            plots_approach+=[p_ground,p_solve]
-        else:
-            column_out = column + '-' + out_value
-            p_out = plt.bar(x_instances-(width*(i-1)/2), df[column_out], alpha=1, label=approaches[i],width=width-0.5)
-            plots_approach.append(p_out)
+    #Make unsat instances red
+    if plot_n_models:
+        [i.set_color("red") for idx, i in enumerate(plt.gca().get_xticklabels()) if df[column+'-'+'models'][idx]==0]
 
-    [i.set_color("red") for idx, i in enumerate(plt.gca().get_xticklabels()) if df[column+'-'+'models'][idx]==0]
-
-    plt.legend(handles = plots_approach, loc = i)    
     # Add titles
     plt.title(column.replace('_',' '),  fontsize=12, fontweight=0)
     plt.xticks(x_instances,instances,rotation='vertical')
     plt.xlabel("Instance")
-    plt.ylabel(out_value)
+    plt.ylabel(args.y)
 
-    file_name = 'plots/{}{}-{}.png'.format(prefix,out_value,column)
+    file_name = 'plots/{}{}-{}.png'.format(prefix,"-".join(out_value),column)
     plt.savefig(file_name,dpi=300,bbox_inches='tight')
     print("Saved {}".format(file_name))
     plt.clf()
