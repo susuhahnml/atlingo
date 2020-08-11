@@ -65,7 +65,7 @@ def clingo(root, runspec, instance):
     if "status" in res and res["status"][1] == "OPTIMUM FOUND" and not "optimal" in res:
         res["optimal"] = ("float", float("1"))
     result   = []
-    error    = not "status" in res or ("error" in res and res["error"][1] != "std::bad_alloc")
+    error    = (not "status" in res and not "interrupted" in res) or ("error" in res and res["error"][1] != "std::bad_alloc")
     memout   = "error" in res and res["error"][1] == "std::bad_alloc"
     status   = res["status"][1] if "status" in res else None
     if "models" in res and not "optimal" in res:

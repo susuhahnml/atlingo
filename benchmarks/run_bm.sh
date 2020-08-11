@@ -90,14 +90,18 @@ echo "$G Slurm queue is now empty $NC"
 for f in $(find ./$OUTPUT_DIR/$MACHINE/results/asprilo-benchmark  -type f -name "*runsolver.solver");
 do
 	if grep -q 'fail' $f; then
-		echo "$R Run failed in file $f"
-		cat $f
-		echo "$NC"
-		rm -rf $OUTPUT_DIR
-		exit 1
+		if ! grep -q 'INTERRUPTED' $f; then
+			echo "$R Run failed in file $f$NC"
+			cat $f
+			rm -rf $OUTPUT_DIR
+			exit 1
+		else
+			echo "$B TIMEOUT: $f"
+		fi
+	else
+		#Ignore the rest of the resut and saave only stats
+		echo "$(tail -34 $f)" > $f
 	fi
-	#Ignore the rest of the resut and saave only stats
-	echo "$(tail -34 $f)" > $f
 done
 
 # Get evealuation from runsolver results
