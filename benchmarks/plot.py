@@ -146,28 +146,36 @@ width = 0.35  # the width of the bars
 for column in columns:
     for i, df in enumerate(cleaned_dfs):
         plots_approach = []
-        timed_out = df[column + '-timeout']
+        timed_out = df[column + '-timeout'].copy()
         timed_out.loc[timed_out!=1] = np.nan
-        timed_out.loc[timed_out==1] = 0.1
-        plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors=colors[i][0],color='red',s=3,linewidths=0.9)
+        timed_out.loc[timed_out==1] = 0
+        s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='red',color=colors[i][0],s=4,linewidths=1,zorder=10, clip_on=False)
         for i_out,out in enumerate(out_value):
             col_plt = df[column + '-'+out]
             #Make timeouts 0
-            col_plt.loc[timed_out==0.1]=0
+            col_plt.loc[df[column + '-timeout']==1]=0
             plots_approach.append(plt.bar(x_instances-(width*(i-1)/2), col_plt, alpha=1, label='{} ({})'.format(approaches[i],out),width=width-0.5,color=colors[i][i_out]))
-        legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(0, 1-i*(0.15)))    
+        legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(0, 1-i*(0.10*len(out_value))))    
         # Add the legend manually to the current Axes.
         ax = plt.gca().add_artist(legend)
-
-    #Make unsat instances red
-    if plot_n_models:
-        [i.set_color("red") for idx, i in enumerate(plt.gca().get_xticklabels()) if df[column+'-'+'models'][idx]==0]
-
+    
+    
     # Add titles
+    plt.ylim(bottom=0)
     plt.title(column.replace('_',' '),  fontsize=12, fontweight=0)
     plt.xticks(x_instances,instances,rotation='vertical')
     plt.xlabel("Instance")
     plt.ylabel(args.y)
+    
+    #Change color of instance based on status
+    df=cleaned_dfs[0]
+    if plot_n_models:
+        for idx,i  in enumerate(plt.gca().get_xticklabels()):
+            #{"SATISFIABLE": 1, "UNSATISFIABLE": 0, "UNKNOWN": 2, "OPTIMUM FOUND": 3}
+            if df[column+'-'+'status'][idx]==0:
+                i.set_color("gray")
+            elif df[column+'-'+'status'][idx]==2:
+                i.set_color("grey")
 
     file_name = 'plots/{}{}-{}.png'.format(prefix,"-".join(out_value),column)
     plt.savefig(file_name,dpi=300,bbox_inches='tight')
