@@ -25,13 +25,14 @@ make copy-programs
 #./run_bm.sh dfa 35 1
 #./run_bm.sh dfa 45 1
 
-./run_bm.sh afw 15 0
+./run_bm.sh afw 10 0
 #./run_bm.sh afw 25 0
 
-./run_bm.sh nc 15 0
+./run_bm.sh nc 10 0
 
-./run_bm.sh dfa 15 0
+./run_bm.sh dfa 10 0
 
+make clean
 echo "--------------------" > results/summary.txt
 echo "Summary">> results/summary.txt
 echo "--------------------">> results/summary.txt

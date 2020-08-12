@@ -11,8 +11,9 @@ from pandas_ods_reader import read_ods
 yellow = ['#F3F55F','#E7C803','#BCA300']
 blue= ['#96DBED','#455AE2','#0E1BA8']
 green = ['#A7DAA4','#268C3E','#034D09']
-red = ['#F3AEAE','#FF2D2D','#CC0000']
-colors = [blue,yellow,red,green]
+# red = ['#F3AEAE','#FF2D2D','#CC0000']
+purple = ['#F6CDF0','#F883E7','#C223AB']
+colors = [blue,yellow,purple,green]
 loc = ['lower right','lower left','upper right']
 
 import argparse
@@ -145,8 +146,15 @@ width = 0.35  # the width of the bars
 for column in columns:
     for i, df in enumerate(cleaned_dfs):
         plots_approach = []
+        timed_out = df[column + '-timeout']
+        timed_out.loc[timed_out!=1] = np.nan
+        timed_out.loc[timed_out==1] = 0.1
+        plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors=colors[i][0],color='red',s=3,linewidths=0.9)
         for i_out,out in enumerate(out_value):
-            plots_approach.append(plt.bar(x_instances-(width*(i-1)/2), df[column + '-'+out], alpha=1, label='{} ({})'.format(approaches[i],out),width=width-0.5,color=colors[i][i_out]))
+            col_plt = df[column + '-'+out]
+            #Make timeouts 0
+            col_plt.loc[timed_out==0.1]=0
+            plots_approach.append(plt.bar(x_instances-(width*(i-1)/2), col_plt, alpha=1, label='{} ({})'.format(approaches[i],out),width=width-0.5,color=colors[i][i_out]))
         legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(0, 1-i*(0.15)))    
         # Add the legend manually to the current Axes.
         ax = plt.gca().add_artist(legend)
