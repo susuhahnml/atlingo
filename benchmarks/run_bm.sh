@@ -142,7 +142,7 @@ rm $RUNSCRIPT_PATH
 
 
 echo "$Y bconv..."
-cat $RES_DIR/$NAME.beval | ./bconv -m time,ctime,csolve,ground0,groundN,models,timeout,restarts,conflicts,choices,domain,vars,cons,mem,error,memout > $RES_DIR/$NAME.ods 2>> $RES_DIR/$NAME.error
+cat $RES_DIR/$NAME.beval | ./bconv -m time,ctime,csolve,ground0,groundN,models,timeout,restarts,conflicts,choices,domain,vars,cons,mem,error,memout,status > $RES_DIR/$NAME.ods 2>> $RES_DIR/$NAME.error
 echo "$G Conversion results saved in "
 echo "$B    $RES_DIR/$NAME.ods$NC"
 

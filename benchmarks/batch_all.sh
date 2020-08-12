@@ -18,17 +18,17 @@ make copy-programs
 #./run_bm.sh asp 15 1
 #./run_bm.sh asp 25 1
 #./run_bm.sh asp 35 1
-./run_bm.sh asp 45 1
+#./run_bm.sh asp 45 1
 
 #./run_bm.sh dfa 15 1
 #./run_bm.sh dfa 25 1
 #./run_bm.sh dfa 35 1
 #./run_bm.sh dfa 45 1
 
-./run_bm.sh afw 10 0
+#./run_bm.sh afw 10 0
 #./run_bm.sh afw 25 0
 
-./run_bm.sh nc 10 0
+#./run_bm.sh nc 10 0
 
 ./run_bm.sh dfa 10 0
 

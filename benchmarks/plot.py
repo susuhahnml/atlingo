@@ -35,15 +35,18 @@ parser.add_argument("--plotmodels", default=False, action='store_true',
     help="When this flag is passed, the number of models in plotted")
 parser.add_argument("--group", default=False, action='store_true',
     help="When this flag is passed, instances are grouped")
-parser.add_argument("--avarage", default=False, action='store_true',
+parser.add_argument("--mean", default=False, action='store_true',
     help="When this flag is passed, only average will be computed per instance.Necessary for no-constraint")
 parser.add_argument("--bars", default=False, action='store_true',
     help="When this flag is passed, will print bar for one approach with all times")
 parser.add_argument("--y", type=str, default=None,
         help="Name for the y axis" )
+parser.add_argument("--handle_timeout", action='store_true', default=False,
+        help="If passed the timeouts will be ploted like dots and no value will be added" )
 args = parser.parse_args()
 
 #PARAMS
+handle_timeout = args.handle_timeout
 approaches = args.approach
 horizons = args.horizon
 models = args.models
@@ -51,20 +54,21 @@ out_value = args.stat
 plot_n_models = args.plotmodels
 group_instances = args.group
 constraints = args.constraint
-avarage = args.avarage
+mean = args.mean
 prefix = args.prefix
 if args.y is None:
     args.y="-".join(args.stat)
 
 
-assert not 'nc' in approaches or avarage and constraints is None, 'No constraint only with average'
-assert not plot_n_models or not avarage, "Only avarage or models ploted"
+# assert not 'nc' in approaches or mean and constraints is None, 'No constraint only with average'
+assert not plot_n_models or not mean, "Only mean or models ploted"
 assert not plot_n_models or not group_instances, "Only plot or group"
 
 approaches = ["{}__h-{}".format(a,h) for a,h in list(itertools.product(approaches, horizons))]
 base_path = "results/{}__n-{}/{}__n-{}.ods"
 files = [base_path.format(a,models,a,models) for a in approaches]
 dfs = []
+
 for f in files:
     try:
         dfs.append(read_ods(f,1))
@@ -77,7 +81,6 @@ out_options.remove('')
 out_options=list(out_options)
 n_out_options = len(out_options)
 
-
 def clean_df(df):
     #Drop min max median
     df.drop(df.columns[-3*n_out_options:], axis=1, inplace=True) 
@@ -86,13 +89,10 @@ def clean_df(df):
     cols = df.columns[1:]
     cols = [c.split("/")[-1] for i,c in enumerate(cols) if i%n_out_options==0]
     params = df.iloc[0][1:n_out_options+1]
-    # print(params)
     new_cols = ["{}-{}".format(c,p) for c,p in list(itertools.product(cols, params))]
     new_cols = ["instance-name"] + new_cols
     df.drop(df.index[0], inplace=True) #Remove unused out values
     df.drop(df.tail(9).index,inplace=True) #Remove last computed values
-    # print(df.columns)
-    # print(new_cols)
     df.columns = new_cols
 
     for i in range(1,len(df.columns)):
@@ -121,44 +121,51 @@ def clean_df(df):
     df = df.reset_index(drop=True)
     df.drop(['instance-value'], axis=1, inplace=True) 
 
-    if avarage:
-        new_cols = ["instance-name"]
-        for a in out_options:
-            col_name = 'mean-'+a
-            is_a = [x.split('-')[-1]==a for x in df.columns]
-            df[col_name] = df.loc[:,is_a].mean(axis = 1)
-            new_cols.append(col_name)
-        df= df[new_cols]
+    for a in out_options:
+        col_name = 'mean-'+a
+        is_a = [x.split('-')[-1]==a for x in df.columns]
+        df[col_name] = df.loc[:,is_a].mean(axis = 1)
+
     return df
 
 cleaned_dfs = [clean_df(df) for df in dfs]
-
-columns = set([s.split('-')[0] for s in cleaned_dfs[0].columns])
+all_cols = list(itertools.chain(*[d.columns for d in cleaned_dfs]))
+columns = set([s.split('-')[0] for s in all_cols])
 columns.remove('instance')
+if 'without_constraint' in columns and (not approaches[0][:2]=='nc'):
+    columns.remove('without_constraint')
+
+if mean:
+    columns = ['mean']
+else:
+    columns.remove('mean')
 columns = list(columns)
 instances = cleaned_dfs[0]['instance-name']
 n_columns = len(columns)
 n_instances = len(instances)
 x_instances = np.arange(len(instances))  # the label locations
 width = 0.35  # the width of the bars
-
-
 for column in columns:
+    old_col = column
     for i, df in enumerate(cleaned_dfs):
+        if approaches[i][:2]=="nc":
+            column="mean"
         plots_approach = []
-        timed_out = df[column + '-timeout'].copy()
-        timed_out.loc[timed_out!=1] = np.nan
-        timed_out.loc[timed_out==1] = 0
-        s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='red',color=colors[i][0],s=4,linewidths=1,zorder=10, clip_on=False)
+        if handle_timeout:
+            timed_out = df[column + '-timeout'].copy()
+            timed_out.loc[timed_out!=1] = np.nan
+            timed_out.loc[timed_out==1] = 0
+            s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='red',color=colors[i][0],s=4,linewidths=1,zorder=10, clip_on=False)
         for i_out,out in enumerate(out_value):
             col_plt = df[column + '-'+out]
-            #Make timeouts 0
-            col_plt.loc[df[column + '-timeout']==1]=0
+            if handle_timeout: col_plt.loc[df[column + '-timeout']==1]=0
             plots_approach.append(plt.bar(x_instances-(width*(i-1)/2), col_plt, alpha=1, label='{} ({})'.format(approaches[i],out),width=width-0.5,color=colors[i][i_out]))
-        legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(0, 1-i*(0.10*len(out_value))))    
+        space = 1-0.02-i*(0.07*len(out_value))
+        legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(1, space))    
         # Add the legend manually to the current Axes.
         ax = plt.gca().add_artist(legend)
-    
+        column = old_col
+
     
     # Add titles
     plt.ylim(bottom=0)
@@ -169,15 +176,16 @@ for column in columns:
     
     #Change color of instance based on status
     df=cleaned_dfs[0]
-    if plot_n_models:
+    if not group_instances:
         for idx,i  in enumerate(plt.gca().get_xticklabels()):
             #{"SATISFIABLE": 1, "UNSATISFIABLE": 0, "UNKNOWN": 2, "OPTIMUM FOUND": 3}
             if df[column+'-'+'status'][idx]==0:
                 i.set_color("gray")
-            elif df[column+'-'+'status'][idx]==2:
-                i.set_color("grey")
+            # elif df[column+'-'+'status'][idx]==2:
+            #     i.set_color("grey")
 
-    file_name = 'plots/{}{}-{}.png'.format(prefix,"-".join(out_value),column)
+    # file_name = 'plots/{}{}-{}.png'.format(prefix,"-".join(out_value),column)
+    file_name = 'plots/{}-{}.png'.format(prefix,column)
     plt.savefig(file_name,dpi=300,bbox_inches='tight')
     print("Saved {}".format(file_name))
     plt.clf()
