@@ -1,0 +1,29 @@
+<runscript output="output/afw_tel__h-{H}__n-{N}">
+
+	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
+	
+	<config name="seq-asprilo" template="../programs/seq-asprilo.sh"/>
+  
+	<system name="compute_afw" version="1" measures="clingo" config="seq-asprilo">
+
+		<setting name="horizontal_before_vertical" cmdline="{H} {N} tel horizontally_before_vertically" tag="basic" />
+		<setting name="vertical_before_horizontal" cmdline="{H} {N} tel vertically_before_horizontally" tag="basic" />
+		<setting name="never_both_direction" cmdline="{H} {N} tel never_both_directions" tag="basic" />
+		<!--
+		<setting name="eventually_5xright" cmdline="{H} {N} eventually_r_r_r_r_r" tag="basic" />
+		<setting name="square_release" cmdline="{H} {N} square_release" tag="basic" />
+-->
+    </system>
+
+	<pbsjob name="pbs-gen" partition="short" timeout="1200" runs="1" script_mode="timeout" walltime="00:50:00" cpt="4"/>
+
+	<benchmark name="asprilo-benchmark">
+		<folder path="/home/hahnmartinlu/temporal-automata/atlingo/benchmarks/asprilo_instances/"> </folder> 
+	</benchmark>
+	
+	<project name="temporal-automata" job="pbs-gen">
+		<runtag machine="komputer" benchmark="asprilo-benchmark" tag="basic"/>
+	</project>
+
+</runscript>
+

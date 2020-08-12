@@ -1,0 +1,11 @@
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Example where robots move horizontally and then vertically
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- not &del{
+    &true;; 
+    (
+        * ( ( ? move_horizontally(robot(R)) + ? wait(robot(R))) ;; &true) ;; 
+        * ( ( ? move_vertically(robot(R)) + ? wait(robot(R))) ;; &true) 
+    ) .>?
+    (&true.>* &false)   }, robot(R).

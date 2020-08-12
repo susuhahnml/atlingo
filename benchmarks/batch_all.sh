@@ -5,10 +5,12 @@ source /usr/local/apps/anaconda3/5.3.0/etc/profile.d/conda.sh
 conda activate temporal-automata
 make copy-programs
 
-#./run_bm.sh afw 15 1
-#./run_bm.sh afw 25 1
-#./run_bm.sh afw 35 1
-#./run_bm.sh afw 45 1
+./run_bm.sh afw_del 15 1
+
+#./run_bm.sh afw_tel 15 1
+#./run_bm.sh afw_tel 25 1
+#./run_bm.sh afw_tel 35 1
+#./run_bm.sh afw_tel 45 1
 
 #./run_bm.sh nc 15 1
 #./run_bm.sh nc 25 1
@@ -30,7 +32,7 @@ make copy-programs
 
 #./run_bm.sh nc 10 0
 
-./run_bm.sh dfa 10 0
+# ./run_bm.sh dfa 10 0
 
 make clean
 echo "--------------------" > results/summary.txt

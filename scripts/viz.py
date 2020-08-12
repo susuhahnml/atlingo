@@ -93,7 +93,7 @@ def str_formula(symbol,maps):
         s = "< {} >{}".format(str_formula(args[0],maps),str_formula(args[1],maps))
     elif name == "box":
         s = "[ {} ]{}".format(str_formula(args[0],maps),str_formula(args[1],maps))
-    elif name == "check":
+    elif name == "test":
         s = "({})?".format(str_formula(args[0],maps))
     elif name == "star":
         s = "({})*".format(str_formula(args[0],maps))
@@ -101,6 +101,8 @@ def str_formula(symbol,maps):
         s = " {} + {} ".format(str_formula(args[0],maps),str_formula(args[1],maps))
     elif name == "sequence":
         s = " {} ; {} ".format(str_formula(args[0],maps),str_formula(args[1],maps))
+    else:
+        raise RuntimeError("Invalid symbol {}".format(name))
     return s
 
 
@@ -130,7 +132,7 @@ for i,initial in enumerate(initials):
             shape = 'ellipse'
         if d['type']=='trans':    
             shape = 'square'
-        if d['type']=='check':    
+        if d['type']=='test':    
             shape = 'triangle'
         if d['type']=='bool':    
             shape = 'plain'
@@ -156,7 +158,7 @@ for i,initial in enumerate(initials):
             elif (f.name=='pbf_and'):
                 next_node = {'type':'trans','val':'AND','next':[("",f.arguments[0]),("",f.arguments[1])],'id':next_id}
             elif (f.name=='pbf_if'):
-                next_node = {'type':'check','val':'?','next':[(maps[str(f.arguments[0])],f.arguments[1]),("~"+maps[str(f.arguments[0])],f.arguments[2])],'id':next_id}
+                next_node = {'type':'test','val':'?','next':[(maps[str(f.arguments[0])],f.arguments[1]),("~"+maps[str(f.arguments[0])],f.arguments[2])],'id':next_id}
             elif (f.name=='pbf_state'):    
                 id_state = str_formula(f.arguments[0],maps)
                 next_node = {'type':'state','val':id_state,'next':[("",delta[id_state])],'id':next_id}
