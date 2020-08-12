@@ -93,6 +93,7 @@ do
 		if ! grep -q 'INTERRUPTED' $f; then
 			echo "$R Run failed in file $f$NC"
 			cat $f
+			cat $f > $RES_DIR/$NAME.error
 			rm -rf $OUTPUT_DIR
 			exit 1
 		else
