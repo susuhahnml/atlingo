@@ -34,7 +34,7 @@ make copy-programs
 
 ###### ALL MODELS
 
-./run_bm.sh afw 6 0
+#./run_bm.sh afw 6 0
 
 ./run_bm.sh afw_del 6 0
 
@@ -46,7 +46,7 @@ make copy-programs
 
 ###### PROJECTED MODELS
 
-./run_bm.sh afw 6 0 proj- '--project=show' 
+#./run_bm.sh afw 6 0 proj- '--project=show' 
 
 ./run_bm.sh afw_del 6 0 proj- '--project=show'
 
