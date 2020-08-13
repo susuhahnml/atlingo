@@ -7,52 +7,52 @@ make copy-programs
 
 ###### ONE MODEL
 
-./run_bm.sh afw_del 15 1
-./run_bm.sh afw_del 25 1
-./run_bm.sh afw_del 35 1
+#./run_bm.sh afw_del 15 1
+#./run_bm.sh afw_del 25 1
+#./run_bm.sh afw_del 35 1
 #./run_bm.sh afw_del 45 1
 
-./run_bm.sh afw 15 1
-./run_bm.sh afw 25 1
-./run_bm.sh afw 35 1
+#./run_bm.sh afw 15 1
+#./run_bm.sh afw 25 1
+#./run_bm.sh afw 35 1
 #./run_bm.sh afw 45 1
 
-./run_bm.sh nc 15 1
-./run_bm.sh nc 25 1
-./run_bm.sh nc 35 1
+#./run_bm.sh nc 15 1
+#./run_bm.sh nc 25 1
+#./run_bm.sh nc 35 1
 #./run_bm.sh nc 45 1
 
-./run_bm.sh asp 15 1
-./run_bm.sh asp 25 1
-./run_bm.sh asp 35 1
+#./run_bm.sh asp 15 1
+#./run_bm.sh asp 25 1
+#./run_bm.sh asp 35 1
 #./run_bm.sh asp 45 1
 
-./run_bm.sh dfa 15 1
-./run_bm.sh dfa 25 1
-./run_bm.sh dfa 35 1
+#./run_bm.sh dfa 15 1
+#./run_bm.sh dfa 25 1
+#./run_bm.sh dfa 35 1
 #./run_bm.sh dfa 45 1
 
 ###### ALL MODELS
 
-./run_bm.sh afw 10 0
+./run_bm.sh afw 6 1
 
-./run_bm.sh afw_del 10 0
+./run_bm.sh afw_del 6 1
 
-./run_bm.sh asp 10 0
+./run_bm.sh asp 6 1
 
-./run_bm.sh dfa 10 0
+./run_bm.sh dfa 6 1
 
-./run_bm.sh nc 10 0
+./run_bm.sh nc 6 1
 
 ###### PROJECTED MODELS
 
-./run_bm.sh afw 10 0 proj- '--project=show' 
+./run_bm.sh afw 6 1 proj- '--project=show' 
 
-./run_bm.sh afw_del 10 0 proj- '--project=show'
+./run_bm.sh afw_del 6 1 proj- '--project=show'
 
-./run_bm.sh asp 10 0 proj- '--project=show'
+./run_bm.sh asp 6 1 proj- '--project=show'
 
-./run_bm.sh dfa 10 0 proj- '--project=show'
+./run_bm.sh dfa 6 1 proj- '--project=show'
 
 
 make clean -s
