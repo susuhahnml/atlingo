@@ -34,25 +34,25 @@ make copy-programs
 
 ###### ALL MODELS
 
-./run_bm.sh afw 6 1
+./run_bm.sh afw 6 0
 
-./run_bm.sh afw_del 6 1
+./run_bm.sh afw_del 6 0
 
-./run_bm.sh asp 6 1
+#./run_bm.sh asp 6 0
 
-./run_bm.sh dfa 6 1
+#./run_bm.sh dfa 6 0
 
-./run_bm.sh nc 6 1
+#./run_bm.sh nc 6 0
 
 ###### PROJECTED MODELS
 
-./run_bm.sh afw 6 1 proj- '--project=show' 
+./run_bm.sh afw 6 0 proj- '--project=show' 
 
-./run_bm.sh afw_del 6 1 proj- '--project=show'
+./run_bm.sh afw_del 6 0 proj- '--project=show'
 
-./run_bm.sh asp 6 1 proj- '--project=show'
+#./run_bm.sh asp 6 0 proj- '--project=show'
 
-./run_bm.sh dfa 6 1 proj- '--project=show'
+#./run_bm.sh dfa 6 0 proj- '--project=show'
 
 
 make clean -s
