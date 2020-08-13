@@ -5,7 +5,8 @@ ROOT="$1""/"
 INSTANCE=$2
 HORIZON=$3
 MODELS=$4
-
+CLINGO_ARGS=$5
+: ${CLINGO_ARGS:=''}
 
 PATH_FROM_DFA_TO_ROOT="benchmark/benchmark-tool/"
 PATH_FROM_ROOT_TO_DFA="../../"
@@ -16,5 +17,5 @@ PATH_ENCODING_M_3="$ROOT""$PATH_FROM_ROOT_TO_DFA""env/asprilo/asprilo-abstractio
 PATH_ENCODING_M="$PATH_ENCODING_M_1 ""$PATH_ENCODING_M_2 ""$PATH_ENCODING_M_3"
 
 
-printf "	clingo --stats $INSTANCE $PATH_CONVERT_M_TO_MD $PATH_ENCODING_M -c horizon=$HORIZON	-n $MODELS -q"
-clingo --stats $INSTANCE $PATH_CONVERT_M_TO_MD $PATH_ENCODING_M -c horizon=$HORIZON	-n $MODELS
+printf "	clingo --stats $INSTANCE $PATH_CONVERT_M_TO_MD $PATH_ENCODING_M -c horizon=$HORIZON	-n $MODELS -q $CLINGO_ARGS"
+clingo --stats $INSTANCE $PATH_CONVERT_M_TO_MD $PATH_ENCODING_M -c horizon=$HORIZON	-n $MODELS $CLINGO_ARGS

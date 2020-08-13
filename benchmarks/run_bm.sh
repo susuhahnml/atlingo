@@ -12,9 +12,13 @@ set -e
 APPROACH=$1
 HORIZON=$2
 MODELS=$3
+PREFIX=$4
+CLINGO_ARGS=$5
+: ${CLINGO_ARGS:=''}
+: ${PREFIX:=''}
 
-NAME=${APPROACH}__h-${HORIZON}__n-${MODELS}
 
+NAME=${PREFIX}${APPROACH}__h-${HORIZON}__n-${MODELS}
 
 MACHINE=komputer # Value in <machine name="komputer"
 # set this
@@ -44,7 +48,7 @@ eval $(make clean -q)
 RUNSCRIPT_PATH=$PWD/runscripts/runscript_asprilo_$NAME.xml
 echo "$Y Creating runscript in "
 echo "$B    $RUNSCRIPT_PATH $NC"
-sed 's/{H}/'$HORIZON'/g; s/{N}/'$MODELS'/g' ./runscripts/runscript_asprilo_$APPROACH.xml >  $RUNSCRIPT_PATH
+sed "s/{H}/"$HORIZON"/g; s/{N}/"$MODELS"/g; s/{CLINGO_ARGS}/'"$CLINGO_ARGS"'/g" ./runscripts/runscript_asprilo_$APPROACH.xml >  $RUNSCRIPT_PATH
 
 
 # Results directory
@@ -94,7 +98,6 @@ do
 			echo "$R Run failed in file $f$NC"
 			cat $f
 			cat $f > $RES_DIR/$NAME.error
-			rm -rf $OUTPUT_DIR
 			exit 1
 		else
 			echo "$B TIMEOUT: $f"
@@ -112,7 +115,6 @@ if ! ./beval $RUNSCRIPT_PATH > $RES_DIR/$NAME.beval 2> $RES_DIR/$NAME.error ; th
 	echo "$R Error during evaluation"
 	cat $RES_DIR/$NAME.error
 	echo "$NC"
-	rm -rf $OUTPUT_DIR
 	exit 1
 fi
 
@@ -126,19 +128,14 @@ then
 	echo $LINE_ERR
 	cat $LINE_ERR
 	echo "$NC"
-	rm fault_runsolver.txt
-	rm -rf $OUTPUT_DIR
 	exit 1
 fi
-rm fault_runsolver.txt
-rm -rf $OUTPUT_DIR
 
 echo "$G Evaluation results saved in  "
 echo "$B    $RES_DIR/$NAME.beval$NC"
 
 ################ Clean beval output an generate ods file
 sed -i 's/partition="short" partition="short"/partition="short"/g' $RES_DIR/$NAME.beval
-rm $RUNSCRIPT_PATH
 
 
 echo "$Y bconv..."
