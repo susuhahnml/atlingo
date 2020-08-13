@@ -14,6 +14,7 @@ clean-output:
 clean-dfa:
 	(cd ../../stage_asp_gitlab ; make clean)
 clean:
+	rm -rf fault_runsolver.txt
 	make clean-plots
 	make clean-runscripts
 	make clean-output
