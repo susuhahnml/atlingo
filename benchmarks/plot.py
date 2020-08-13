@@ -11,9 +11,9 @@ from pandas_ods_reader import read_ods
 yellow = ['#F3F55F','#E7C803','#BCA300']
 blue= ['#96DBED','#455AE2','#0E1BA8']
 green = ['#A7DAA4','#268C3E','#034D09']
-# red = ['#F3AEAE','#FF2D2D','#CC0000']
+red = ['#F3AEAE','#FF2D2D','#CC0000']
 purple = ['#F6CDF0','#F883E7','#C223AB']
-colors = [blue,yellow,purple,green]
+colors = [blue,yellow,purple,green,red]
 loc = ['lower right','lower left','upper right']
 
 import argparse
@@ -59,6 +59,11 @@ prefix = args.prefix
 if args.y is None:
     args.y="-".join(args.stat)
 
+if 'nc' in approaches:
+    approaches=set(approaches)
+    approaches.remove('nc')
+    approaches= list(approaches)
+    approaches.append('nc')
 
 # assert not 'nc' in approaches or mean and constraints is None, 'No constraint only with average'
 assert not plot_n_models or not mean, "Only mean or models ploted"
@@ -151,11 +156,11 @@ for column in columns:
         if approaches[i][:2]=="nc":
             column="mean"
         plots_approach = []
-        if handle_timeout:
-            timed_out = df[column + '-timeout'].copy()
-            timed_out.loc[timed_out!=1] = np.nan
-            timed_out.loc[timed_out==1] = 0
-            s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='red',color=colors[i][0],s=4,linewidths=1,zorder=10, clip_on=False)
+        # if handle_timeout:
+        timed_out = df[column + '-timeout'].copy()
+        timed_out.loc[timed_out!=1] = np.nan
+        timed_out.loc[timed_out==1] = 0
+        s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='black',color=colors[i][0],s=4,linewidths=0.5,zorder=10, clip_on=False)
         for i_out,out in enumerate(out_value):
             col_plt = df[column + '-'+out]
             if handle_timeout: col_plt.loc[df[column + '-timeout']==1]=0

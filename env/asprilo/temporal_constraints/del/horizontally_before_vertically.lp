@@ -3,9 +3,8 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- not &del{
-    &true;; 
     (
-        * ( ( ? move_horizontally(robot(R)) + ? wait(robot(R))) ;; &true) ;; 
-        * ( ( ? move_vertically(robot(R)) + ? wait(robot(R))) ;; &true) 
+        * ( &true ;; ( ? move_horizontally(robot(R)) + ? wait(robot(R)))) ;; 
+        * ( &true ;; ( ? move_vertically(robot(R)) + ? wait(robot(R)))) 
     ) .>?
     (&true.>* &false)   }, robot(R).

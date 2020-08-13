@@ -5,7 +5,10 @@ source /usr/local/apps/anaconda3/5.3.0/etc/profile.d/conda.sh
 conda activate temporal-automata
 make copy-programs
 
-#./run_bm.sh afw_del 15 1
+./run_bm.sh afw_del 15 1
+./run_bm.sh afw_del 25 1
+./run_bm.sh afw_del 35 1
+#./run_bm.sh afw_del 45 1
 
 #./run_bm.sh afw_tel 15 1
 #./run_bm.sh afw_tel 25 1
@@ -17,13 +20,12 @@ make copy-programs
 #./run_bm.sh nc 35 1
 #./run_bm.sh nc 45 1
 
-./run_bm.sh asp 15 1
+# ./run_bm.sh asp 15 1
 #./run_bm.sh asp 25 1
 #./run_bm.sh asp 35 1
-./run_bm.sh asp 45 1
+# ./run_bm.sh asp 45 1
 
-make clean -q
-./run_bm.sh dfa 15 1
+# ./run_bm.sh dfa 15 1
 #./run_bm.sh dfa 25 1
 #./run_bm.sh dfa 35 1
 #./run_bm.sh dfa 45 1
@@ -31,7 +33,7 @@ make clean -q
 #./run_bm.sh afw 10 0
 #./run_bm.sh afw 25 0
 
-./run_bm.sh asp 10 0
+# ./run_bm.sh asp 10 0
 
 make clean -q
 ./run_bm.sh dfa 10 0
