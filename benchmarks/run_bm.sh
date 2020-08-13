@@ -41,7 +41,7 @@ echo "$C ---------------------------$NC"
 
 
 echo "$Y Cleaning with make "
-eval $(make clean -q)
+make clean -s
 
 
 # Create the runscript for the arguments
@@ -64,7 +64,7 @@ cd $BT_PATH
 
 
 #Output directory inside benchmark-tool is the value in <runscript output="">
-OUTPUT_DIR=output/$NAME/$PROJECT 
+OUTPUT_DIR=output/${APPROACH}__h-${HORIZON}__n-${MODELS}/$PROJECT 
 echo "$Y Calling ./bgen$NC"
 ./bgen $RUNSCRIPT_PATH
 

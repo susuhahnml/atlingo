@@ -10,7 +10,7 @@ clean-runscripts:
 	rm -rf ./cluster_script__*.sh
 	rm -rf ./runscripts/runscript_asprilo_*__*
 clean-output:
-	rm -rf benckmark-tool/output/*
+	rm -rf benchmark-tool/output/*
 clean-dfa:
 	(cd ../../stage_asp_gitlab ; make clean)
 clean:
