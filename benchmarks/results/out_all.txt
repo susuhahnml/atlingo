@@ -1,0 +1,580 @@
+cp -r programs/compute* benchmark-tool/programs
+cp -r programs/runsolver-3.4.0 benchmark-tool
+cp programs/clingo.py benchmark-tool/src/benchmarktool/resultparser
+
+[36m ---------------------------
+ Starting benchmarks for afw__h-6__n-0
+[36m ---------------------------[m
+[33m Cleaning with make 
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+[33m Creating runscript in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/runscripts/runscript_asprilo_afw__h-6__n-0.xml [m
+[33m Removing old result directory [m
+[33m Moving to benchmarks-tool directory 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool [m
+[33m Calling ./bgen[m
+[33m Running sh start file 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/output/afw__h-6__n-0/temporal-automata/komputer/start.sh [m
+Submitted batch job 575248
+Submitted batch job 575249
+Submitted batch job 575250
+Submitted batch job 575251
+Submitted batch job 575252
+Submitted batch job 575253
+Submitted batch job 575254
+Submitted batch job 575255
+Submitted batch job 575256
+Submitted batch job 575257
+Submitted batch job 575258
+Submitted batch job 575259
+Submitted batch job 575260
+Submitted batch job 575261
+Submitted batch job 575262
+[35m Waiting for all slurm process to finish...
+[32m Slurm queue is now empty [m
+[31m Run failed in file ./output/afw__h-6__n-0/temporal-automata/komputer/results/asprilo-benchmark/compute_afw-1-vertical_before_horizontal/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp/run1/runsolver.solver[m
+( cd ../../../../../../../../../../../ ; cd ../../ ; make translate-run-asprilo INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp CONSTRAINT=vertically_before_horizontally HORIZON=6 MODELS=0 RUN_FILES=-q LOGIC=tel; make stats INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp CONSTRAINT=vertically_before_horizontally LOGIC=tel)
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+[34m Reifying constraint... [m
+gringo formula_to_automaton/tel/theory.lp env/asprilo/temporal_constraints/tel/vertically_before_horizontally.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp --output=reify > ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/reified.lp 
+[32m Reification successfull [m
+[34m Translating.... [m
+clingo ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/reified.lp ./formula_to_automaton/automata_tel.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/automaton.lp
+[32m Translation successfull [m
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+ [34mFinding filtered plans... [m
+rm -f ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-0.txt
+clingo ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/automaton.lp automata_run/run.lp env/asprilo/glue.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp env/asprilo/temporal_constraints/tel/vertically_before_horizontally.extra.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp -q  -c horizon=6 -n 0 --stats | tee ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-0.txt
+clingo version 5.4.0
+Reading from ..._s4_ps1_pr4_u4_o4_l4_N002/automaton.lp ...
+Solving...
+UNSATISFIABLE
+
+Models       : 0
+Calls        : 1
+Time         : 0.038s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.032s
+
+Choices      : 0       
+Conflicts    : 1        (Analyzed: 0)
+Restarts     : 0       
+Problems     : 0        (Average Length: 0.00 Splits: 0)
+Lemmas       : 0        (Deleted: 0)
+  Binary     : 0        (Ratio:   0.00%)
+  Ternary    : 0        (Ratio:   0.00%)
+  Conflict   : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Loop       : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Other      : 0        (Average Length:    0.0 Ratio:   0.00%) 
+Backjumps    : 0        (Average:  0.00 Max:   0 Sum:      0)
+  Executed   : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio:   0.00%)
+  Bounded    : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio: 100.00%)
+
+Rules        : 8925     (Original: 7132)
+Atoms        : 0       
+Bodies       : 5412     (Original: 4447)
+  Count      : 19       (Original: 571)
+Tight        : Yes
+Variables    : 0        (Eliminated:    0 Frozen:    0)
+Constraints  : 0        (Binary:   0.0% Ternary:   0.0% Other:   0.0%)
+
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+tail -32 ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-1.txt
+tail: cannot open './outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-1.txt' for reading: No such file or directory
+makefile:81: recipe for target 'stats' failed
+make: *** [stats] Error 1
+
+[36m ---------------------------
+ Starting benchmarks for afw_del__h-6__n-0
+[36m ---------------------------[m
+[33m Cleaning with make 
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+[33m Creating runscript in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/runscripts/runscript_asprilo_afw_del__h-6__n-0.xml [m
+[33m Removing old result directory [m
+[33m Moving to benchmarks-tool directory 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool [m
+[33m Calling ./bgen[m
+[33m Running sh start file 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/output/afw_del__h-6__n-0/temporal-automata/komputer/start.sh [m
+Submitted batch job 575263
+Submitted batch job 575264
+Submitted batch job 575265
+Submitted batch job 575266
+Submitted batch job 575267
+Submitted batch job 575268
+Submitted batch job 575269
+Submitted batch job 575270
+Submitted batch job 575271
+Submitted batch job 575272
+Submitted batch job 575273
+Submitted batch job 575274
+Submitted batch job 575275
+Submitted batch job 575276
+Submitted batch job 575277
+[35m Waiting for all slurm process to finish...
+[32m Slurm queue is now empty [m
+[31m Run failed in file ./output/afw_del__h-6__n-0/temporal-automata/komputer/results/asprilo-benchmark/compute_afw-1-vertical_before_horizontal/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp/run1/runsolver.solver[m
+( cd ../../../../../../../../../../../ ; cd ../../ ; make translate-run-asprilo INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp CONSTRAINT=vertically_before_horizontally HORIZON=6 MODELS=0 RUN_FILES=-q LOGIC=del; make stats INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp CONSTRAINT=vertically_before_horizontally LOGIC=del)
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+[34m Reifying constraint... [m
+gringo formula_to_automaton/del/theory.lp env/asprilo/temporal_constraints/del/vertically_before_horizontally.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp --output=reify > ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/reified.lp 
+[32m Reification successfull [m
+[34m Translating.... [m
+clingo ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/reified.lp ./formula_to_automaton/automata_del.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/automaton.lp
+[32m Translation successfull [m
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+ [34mFinding filtered plans... [m
+rm -f ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-0.txt
+clingo ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/automaton.lp automata_run/run.lp env/asprilo/glue.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp env/asprilo/temporal_constraints/del/vertically_before_horizontally.extra.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp -q  -c horizon=6 -n 0 --stats | tee ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-0.txt
+clingo version 5.4.0
+Reading from ..._s4_ps1_pr4_u4_o4_l4_N002/automaton.lp ...
+Solving...
+UNSATISFIABLE
+
+Models       : 0
+Calls        : 1
+Time         : 0.065s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.056s
+
+Choices      : 0       
+Conflicts    : 1        (Analyzed: 0)
+Restarts     : 0       
+Problems     : 0        (Average Length: 0.00 Splits: 0)
+Lemmas       : 0        (Deleted: 0)
+  Binary     : 0        (Ratio:   0.00%)
+  Ternary    : 0        (Ratio:   0.00%)
+  Conflict   : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Loop       : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Other      : 0        (Average Length:    0.0 Ratio:   0.00%) 
+Backjumps    : 0        (Average:  0.00 Max:   0 Sum:      0)
+  Executed   : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio:   0.00%)
+  Bounded    : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio: 100.00%)
+
+Rules        : 12305    (Original: 9072)
+Atoms        : 0       
+Bodies       : 7424     (Original: 5903)
+  Count      : 19       (Original: 731)
+Tight        : Yes
+Variables    : 0        (Eliminated:    0 Frozen:    0)
+Constraints  : 0        (Binary:   0.0% Ternary:   0.0% Other:   0.0%)
+
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+tail -32 ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-1.txt
+tail: cannot open './outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-1.txt' for reading: No such file or directory
+makefile:81: recipe for target 'stats' failed
+make: *** [stats] Error 1
+
+[36m ---------------------------
+ Starting benchmarks for asp__h-6__n-0
+[36m ---------------------------[m
+[33m Cleaning with make 
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+[33m Creating runscript in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/runscripts/runscript_asprilo_asp__h-6__n-0.xml [m
+[33m Removing old result directory [m
+[33m Moving to benchmarks-tool directory 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool [m
+[33m Calling ./bgen[m
+[33m Running sh start file 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/output/asp__h-6__n-0/temporal-automata/komputer/start.sh [m
+Submitted batch job 575278
+Submitted batch job 575279
+Submitted batch job 575280
+Submitted batch job 575281
+Submitted batch job 575282
+Submitted batch job 575283
+Submitted batch job 575284
+Submitted batch job 575285
+Submitted batch job 575286
+Submitted batch job 575287
+Submitted batch job 575288
+Submitted batch job 575289
+Submitted batch job 575290
+Submitted batch job 575291
+Submitted batch job 575292
+[35m Waiting for all slurm process to finish...
+[32m Slurm queue is now empty [m
+[33m beval...[m
+[32m Evaluation results saved in  
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/asp__h-6__n-0/asp__h-6__n-0.beval[m
+[33m bconv...
+[32m Conversion results saved in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/asp__h-6__n-0/asp__h-6__n-0.ods[m
+[32m Done asp__h-6__n-0[m
+
+[36m ---------------------------
+ Starting benchmarks for dfa__h-6__n-0
+[36m ---------------------------[m
+[33m Cleaning with make 
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+[33m Creating runscript in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/runscripts/runscript_asprilo_dfa__h-6__n-0.xml [m
+[33m Removing old result directory [m
+[33m Moving to benchmarks-tool directory 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool [m
+[33m Calling ./bgen[m
+[33m Running sh start file 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/output/dfa__h-6__n-0/temporal-automata/komputer/start.sh [m
+Submitted batch job 575293
+Submitted batch job 575294
+Submitted batch job 575295
+Submitted batch job 575296
+Submitted batch job 575297
+Submitted batch job 575298
+Submitted batch job 575299
+Submitted batch job 575300
+Submitted batch job 575301
+Submitted batch job 575302
+Submitted batch job 575303
+Submitted batch job 575304
+Submitted batch job 575305
+Submitted batch job 575306
+Submitted batch job 575307
+[35m Waiting for all slurm process to finish...
+[32m Slurm queue is now empty [m
+[33m beval...[m
+[32m Evaluation results saved in  
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/dfa__h-6__n-0/dfa__h-6__n-0.beval[m
+[33m bconv...
+[32m Conversion results saved in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/dfa__h-6__n-0/dfa__h-6__n-0.ods[m
+[32m Done dfa__h-6__n-0[m
+
+[36m ---------------------------
+ Starting benchmarks for nc__h-6__n-0
+[36m ---------------------------[m
+[33m Cleaning with make 
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+[33m Creating runscript in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/runscripts/runscript_asprilo_nc__h-6__n-0.xml [m
+[33m Removing old result directory [m
+[33m Moving to benchmarks-tool directory 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool [m
+[33m Calling ./bgen[m
+[33m Running sh start file 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/output/nc__h-6__n-0/temporal-automata/komputer/start.sh [m
+Submitted batch job 575308
+Submitted batch job 575309
+Submitted batch job 575310
+Submitted batch job 575311
+Submitted batch job 575312
+[35m Waiting for all slurm process to finish...
+[32m Slurm queue is now empty [m
+[33m beval...[m
+[32m Evaluation results saved in  
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/nc__h-6__n-0/nc__h-6__n-0.beval[m
+[33m bconv...
+[32m Conversion results saved in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/nc__h-6__n-0/nc__h-6__n-0.ods[m
+[32m Done nc__h-6__n-0[m
+
+[36m ---------------------------
+ Starting benchmarks for proj-afw__h-6__n-0
+[36m ---------------------------[m
+[33m Cleaning with make 
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+[33m Creating runscript in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/runscripts/runscript_asprilo_proj-afw__h-6__n-0.xml [m
+[33m Removing old result directory [m
+[33m Moving to benchmarks-tool directory 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool [m
+[33m Calling ./bgen[m
+[33m Running sh start file 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/output/afw__h-6__n-0/temporal-automata/komputer/start.sh [m
+Submitted batch job 575313
+Submitted batch job 575314
+Submitted batch job 575315
+Submitted batch job 575316
+Submitted batch job 575317
+Submitted batch job 575318
+Submitted batch job 575319
+Submitted batch job 575320
+Submitted batch job 575321
+Submitted batch job 575322
+Submitted batch job 575323
+Submitted batch job 575324
+Submitted batch job 575325
+Submitted batch job 575326
+Submitted batch job 575327
+[35m Waiting for all slurm process to finish...
+[32m Slurm queue is now empty [m
+[31m Run failed in file ./output/afw__h-6__n-0/temporal-automata/komputer/results/asprilo-benchmark/compute_afw-1-vertical_before_horizontal/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp/run1/runsolver.solver[m
+( cd ../../../../../../../../../../../ ; cd ../../ ; make translate-run-asprilo INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp CONSTRAINT=vertically_before_horizontally HORIZON=6 MODELS=0 RUN_FILES=-q --project=show LOGIC=tel; make stats INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp CONSTRAINT=vertically_before_horizontally LOGIC=tel)
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+[34m Reifying constraint... [m
+gringo formula_to_automaton/tel/theory.lp env/asprilo/temporal_constraints/tel/vertically_before_horizontally.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp --output=reify > ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/reified.lp 
+[32m Reification successfull [m
+[34m Translating.... [m
+clingo ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/reified.lp ./formula_to_automaton/automata_tel.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/automaton.lp
+[32m Translation successfull [m
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+ [34mFinding filtered plans... [m
+rm -f ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-0.txt
+clingo ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/automaton.lp automata_run/run.lp env/asprilo/glue.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp env/asprilo/temporal_constraints/tel/vertically_before_horizontally.extra.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp -q --project=show -c horizon=6 -n 0 --stats | tee ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-0.txt
+clingo version 5.4.0
+Reading from ..._s4_ps1_pr4_u4_o4_l4_N002/automaton.lp ...
+Solving...
+UNSATISFIABLE
+
+Models       : 0
+Calls        : 1
+Time         : 0.076s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.048s
+
+Choices      : 0       
+Conflicts    : 1        (Analyzed: 0)
+Restarts     : 0       
+Problems     : 0        (Average Length: 0.00 Splits: 0)
+Lemmas       : 0        (Deleted: 0)
+  Binary     : 0        (Ratio:   0.00%)
+  Ternary    : 0        (Ratio:   0.00%)
+  Conflict   : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Loop       : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Other      : 0        (Average Length:    0.0 Ratio:   0.00%) 
+Backjumps    : 0        (Average:  0.00 Max:   0 Sum:      0)
+  Executed   : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio:   0.00%)
+  Bounded    : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio: 100.00%)
+
+Rules        : 8925     (Original: 7132)
+Atoms        : 0       
+Bodies       : 5412     (Original: 4447)
+  Count      : 19       (Original: 571)
+Tight        : Yes
+Variables    : 0        (Eliminated:    0 Frozen:    0)
+Constraints  : 0        (Binary:   0.0% Ternary:   0.0% Other:   0.0%)
+
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+tail -32 ./outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-1.txt
+tail: cannot open './outputs/asprilo/tel/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-1.txt' for reading: No such file or directory
+makefile:81: recipe for target 'stats' failed
+make: *** [stats] Error 1
+
+[36m ---------------------------
+ Starting benchmarks for proj-afw_del__h-6__n-0
+[36m ---------------------------[m
+[33m Cleaning with make 
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+[33m Creating runscript in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/runscripts/runscript_asprilo_proj-afw_del__h-6__n-0.xml [m
+[33m Removing old result directory [m
+[33m Moving to benchmarks-tool directory 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool [m
+[33m Calling ./bgen[m
+[33m Running sh start file 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/output/afw_del__h-6__n-0/temporal-automata/komputer/start.sh [m
+Submitted batch job 575328
+Submitted batch job 575329
+Submitted batch job 575330
+Submitted batch job 575331
+Submitted batch job 575332
+Submitted batch job 575333
+Submitted batch job 575334
+Submitted batch job 575335
+Submitted batch job 575336
+Submitted batch job 575337
+Submitted batch job 575338
+Submitted batch job 575339
+Submitted batch job 575340
+Submitted batch job 575341
+Submitted batch job 575342
+[35m Waiting for all slurm process to finish...
+[32m Slurm queue is now empty [m
+[31m Run failed in file ./output/afw_del__h-6__n-0/temporal-automata/komputer/results/asprilo-benchmark/compute_afw-1-vertical_before_horizontal/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp/run1/runsolver.solver[m
+( cd ../../../../../../../../../../../ ; cd ../../ ; make translate-run-asprilo INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp CONSTRAINT=vertically_before_horizontally HORIZON=6 MODELS=0 RUN_FILES=-q --project=show LOGIC=del; make stats INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp CONSTRAINT=vertically_before_horizontally LOGIC=del)
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+[34m Reifying constraint... [m
+gringo formula_to_automaton/del/theory.lp env/asprilo/temporal_constraints/del/vertically_before_horizontally.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp --output=reify > ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/reified.lp 
+[32m Reification successfull [m
+[34m Translating.... [m
+clingo ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/reified.lp ./formula_to_automaton/automata_del.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/automaton.lp
+[32m Translation successfull [m
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+ [34mFinding filtered plans... [m
+rm -f ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-0.txt
+clingo ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/automaton.lp automata_run/run.lp env/asprilo/glue.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x7_y6_r4/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp env/asprilo/temporal_constraints/del/vertically_before_horizontally.extra.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp -q --project=show -c horizon=6 -n 0 --stats | tee ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-0.txt
+clingo version 5.4.0
+Reading from ..._s4_ps1_pr4_u4_o4_l4_N002/automaton.lp ...
+Solving...
+UNSATISFIABLE
+
+Models       : 0
+Calls        : 1
+Time         : 0.102s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.080s
+
+Choices      : 0       
+Conflicts    : 1        (Analyzed: 0)
+Restarts     : 0       
+Problems     : 0        (Average Length: 0.00 Splits: 0)
+Lemmas       : 0        (Deleted: 0)
+  Binary     : 0        (Ratio:   0.00%)
+  Ternary    : 0        (Ratio:   0.00%)
+  Conflict   : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Loop       : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Other      : 0        (Average Length:    0.0 Ratio:   0.00%) 
+Backjumps    : 0        (Average:  0.00 Max:   0 Sum:      0)
+  Executed   : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio:   0.00%)
+  Bounded    : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio: 100.00%)
+
+Rules        : 12305    (Original: 9072)
+Atoms        : 0       
+Bodies       : 7424     (Original: 5903)
+  Count      : 19       (Original: 731)
+Tight        : Yes
+Variables    : 0        (Eliminated:    0 Frozen:    0)
+Constraints  : 0        (Binary:   0.0% Ternary:   0.0% Other:   0.0%)
+
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+tail -32 ./outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-1.txt
+tail: cannot open './outputs/asprilo/del/vertically_before_horizontally/x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002/plan_h-6_n-1.txt' for reading: No such file or directory
+makefile:81: recipe for target 'stats' failed
+make: *** [stats] Error 1
+
+[36m ---------------------------
+ Starting benchmarks for proj-asp__h-6__n-0
+[36m ---------------------------[m
+[33m Cleaning with make 
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+[33m Creating runscript in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/runscripts/runscript_asprilo_proj-asp__h-6__n-0.xml [m
+[33m Removing old result directory [m
+[33m Moving to benchmarks-tool directory 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool [m
+[33m Calling ./bgen[m
+[33m Running sh start file 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/output/asp__h-6__n-0/temporal-automata/komputer/start.sh [m
+Submitted batch job 575343
+Submitted batch job 575344
+Submitted batch job 575345
+Submitted batch job 575346
+Submitted batch job 575347
+Submitted batch job 575348
+Submitted batch job 575349
+Submitted batch job 575350
+Submitted batch job 575351
+Submitted batch job 575352
+Submitted batch job 575353
+Submitted batch job 575354
+Submitted batch job 575355
+Submitted batch job 575356
+Submitted batch job 575357
+[35m Waiting for all slurm process to finish...
+[32m Slurm queue is now empty [m
+[33m beval...[m
+[32m Evaluation results saved in  
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/proj-asp__h-6__n-0/proj-asp__h-6__n-0.beval[m
+[33m bconv...
+[32m Conversion results saved in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/proj-asp__h-6__n-0/proj-asp__h-6__n-0.ods[m
+[32m Done proj-asp__h-6__n-0[m
+
+[36m ---------------------------
+ Starting benchmarks for proj-dfa__h-6__n-0
+[36m ---------------------------[m
+[33m Cleaning with make 
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+[33m Creating runscript in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/runscripts/runscript_asprilo_proj-dfa__h-6__n-0.xml [m
+[33m Removing old result directory [m
+[33m Moving to benchmarks-tool directory 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool [m
+[33m Calling ./bgen[m
+[33m Running sh start file 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/output/dfa__h-6__n-0/temporal-automata/komputer/start.sh [m
+Submitted batch job 575358
+Submitted batch job 575359
+Submitted batch job 575360
+Submitted batch job 575361
+Submitted batch job 575362
+Submitted batch job 575363
+Submitted batch job 575364
+Submitted batch job 575365
+Submitted batch job 575366
+Submitted batch job 575367
+Submitted batch job 575368
+Submitted batch job 575369
+Submitted batch job 575370
+Submitted batch job 575371
+Submitted batch job 575372
+[35m Waiting for all slurm process to finish...
+[32m Slurm queue is now empty [m
+[33m beval...[m
+[32m Evaluation results saved in  
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/proj-dfa__h-6__n-0/proj-dfa__h-6__n-0.beval[m
+[33m bconv...
+[32m Conversion results saved in 
+[35m    /home/hahnmartinlu/temporal-automata/atlingo/benchmarks/results/proj-dfa__h-6__n-0/proj-dfa__h-6__n-0.ods[m
+[32m Done proj-dfa__h-6__n-0[m
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
+--------------------
+Summary
+--------------------
+Successful:
+  asp__h-25__n-1
+  asp__h-6__n-0
+  proj-afw__h-10__n-1
+  dfa__h-6__n-0
+  nc__h-45__n-1
+  asp__h-35__n-1
+  nc__h-35__n-1
+  afw__h-15__n-1
+  afw__h-35__n-1
+  asp__h-15__n-1
+  proj-afw_del__h-10__n-1
+  proj-asp__h-6__n-0
+  dfa__h-45__n-1
+  dfa__h-15__n-1
+  afw__h-6__n-1
+  proj-dfa__h-10__n-1
+  proj-asp__h-10__n-1
+  afw_del__h-35__n-1
+  afw__h-15__n-0
+  dfa__h-10__n-0
+  afw__h-45__n-1
+  afw_del__h-15__n-1
+  nc__h-15__n-1
+  nc__h-6__n-0
+  afw_del__h-25__n-1
+  proj-dfa__h-6__n-0
+  afw__h-25__n-1
+  nc__h-25__n-1
+  dfa__h-35__n-1
+  dfa__h-25__n-1
+Error:
+  proj-afw_del__h-6__n-0
+  afw__h-6__n-0
+  asp__h-45__n-1
+  proj-afw__h-6__n-0
+  afw_del__h-6__n-0
+/home/hahnmartinlu/temporal-automata/stage_asp_gitlab
+clening all
