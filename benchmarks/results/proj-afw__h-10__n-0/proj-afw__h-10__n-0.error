@@ -1,0 +1,54 @@
+( cd ../../../../../../../../../../../ ; cd ../../ ; make translate-run-asprilo INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x10_y10_r20/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004.lp CONSTRAINT=vertically_before_horizontally HORIZON=10 MODELS=0 RUN_FILES=-q --project=show LOGIC=tel; make stats INSTANCE=benchmarks/benchmark-tool/../asprilo_instances/structured/x10_y10_r20/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004.lp CONSTRAINT=vertically_before_horizontally LOGIC=tel)
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+[34m Reifying constraint... [m
+gringo formula_to_automaton/tel/theory.lp env/asprilo/temporal_constraints/tel/vertically_before_horizontally.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x10_y10_r20/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp --output=reify > ./outputs/asprilo/tel/vertically_before_horizontally/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004/reified.lp 
+[32m Reification successfull [m
+[34m Translating.... [m
+clingo ./outputs/asprilo/tel/vertically_before_horizontally/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004/reified.lp ./formula_to_automaton/automata_tel.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > ./outputs/asprilo/tel/vertically_before_horizontally/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004/automaton.lp
+[32m Translation successfull [m
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[2]: Entering directory '/home/hahnmartinlu/temporal-automata/atlingo'
+ [34mFinding filtered plans... [m
+rm -f ./outputs/asprilo/tel/vertically_before_horizontally/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004/plan_h-10_n-0.txt
+clingo ./outputs/asprilo/tel/vertically_before_horizontally/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004/automaton.lp automata_run/run.lp env/asprilo/glue.lp benchmarks/benchmark-tool/../asprilo_instances/structured/x10_y10_r20/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004.lp env/asprilo/temporal_constraints/tel/vertically_before_horizontally.extra.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp -q --project=show -c horizon=10 -n 0 --stats | tee ./outputs/asprilo/tel/vertically_before_horizontally/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004/plan_h-10_n-0.txt
+clingo version 5.4.0
+Reading from ...ps1_pr20_u20_o20_l20_N004/automaton.lp ...
+Solving...
+UNSATISFIABLE
+
+Models       : 0
+Calls        : 1
+Time         : 0.635s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.564s
+
+Choices      : 0       
+Conflicts    : 1        (Analyzed: 0)
+Restarts     : 0       
+Problems     : 0        (Average Length: 0.00 Splits: 0)
+Lemmas       : 0        (Deleted: 0)
+  Binary     : 0        (Ratio:   0.00%)
+  Ternary    : 0        (Ratio:   0.00%)
+  Conflict   : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Loop       : 0        (Average Length:    0.0 Ratio:   0.00%) 
+  Other      : 0        (Average Length:    0.0 Ratio:   0.00%) 
+Backjumps    : 0        (Average:  0.00 Max:   0 Sum:      0)
+  Executed   : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio:   0.00%)
+  Bounded    : 0        (Average:  0.00 Max:   0 Sum:      0 Ratio: 100.00%)
+
+Rules        : 119834   (Original: 99648)
+Atoms        : 0       
+Bodies       : 74423    (Original: 64017)
+  Count      : 698      (Original: 6240)
+Tight        : Yes
+Variables    : 0        (Eliminated:    0 Frozen:    0)
+Constraints  : 0        (Binary:   0.0% Ternary:   0.0% Other:   0.0%)
+
+make[2]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+make[1]: Leaving directory '/home/hahnmartinlu/temporal-automata/atlingo'
+tail -32 ./outputs/asprilo/tel/vertically_before_horizontally/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004/plan_h-10_n-1.txt
+tail: cannot open './outputs/asprilo/tel/vertically_before_horizontally/x10_y10_n100_r20_s20_ps1_pr20_u20_o20_l20_N004/plan_h-10_n-1.txt' for reading: No such file or directory
+makefile:81: recipe for target 'stats' failed
+make: *** [stats] Error 1
