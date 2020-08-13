@@ -43,6 +43,8 @@ parser.add_argument("--y", type=str, default=None,
         help="Name for the y axis" )
 parser.add_argument("--handle_timeout", action='store_true', default=False,
         help="If passed the timeouts will be ploted like dots and no value will be added" )
+parser.add_argument("--ignore_prefix",type=str, action='append',
+        help="Prefix to ignore in the instances" )
 args = parser.parse_args()
 
 #PARAMS
@@ -56,14 +58,13 @@ group_instances = args.group
 constraints = args.constraint
 mean = args.mean
 prefix = args.prefix
+ignore_prefix = args.ignore_prefix
+if ignore_prefix is None:
+    ignore_prefix = []
 if args.y is None:
     args.y="-".join(args.stat)
 
-if 'nc' in approaches:
-    approaches=set(approaches)
-    approaches.remove('nc')
-    approaches= list(approaches)
-    approaches.append('nc')
+approaches.sort()
 
 # assert not 'nc' in approaches or mean and constraints is None, 'No constraint only with average'
 assert not plot_n_models or not mean, "Only mean or models ploted"
@@ -106,6 +107,9 @@ def clean_df(df):
     ###### Handle rows (INSTANCES)
     
     #Rename instances with shorter name
+    instances = df['instance-name']
+    instances_to_drop = [i for i,c in enumerate(instances) if any([ c.find(i)==0 for i in ignore_prefix])]
+    df.drop(df.index[instances_to_drop], inplace=True)
     df.iloc[:,0]=df.iloc[:,0].apply(lambda x: "{}-{}-{}".format(x.split('/')[0][0],x.split('/')[1] , x[-5:-3]))
 
     if group_instances:
