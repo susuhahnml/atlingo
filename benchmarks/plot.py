@@ -45,6 +45,8 @@ parser.add_argument("--handle_timeout", action='store_true', default=False,
         help="If passed the timeouts will be ploted like dots and no value will be added" )
 parser.add_argument("--ignore_prefix",type=str, action='append',
         help="Prefix to ignore in the instances" )
+parser.add_argument("--ignore_any",type=str, action='append',
+        help="Any to ignore in the instances" )
 args = parser.parse_args()
 
 #PARAMS
@@ -61,6 +63,9 @@ prefix = args.prefix
 ignore_prefix = args.ignore_prefix
 if ignore_prefix is None:
     ignore_prefix = []
+ignore_any = args.ignore_any
+if ignore_any is None:
+    ignore_any = []
 if args.y is None:
     args.y="-".join(args.stat)
 
@@ -110,6 +115,9 @@ def clean_df(df):
     instances = df['instance-name']
     instances_to_drop = [i for i,c in enumerate(instances) if any([ c.find(i)==0 for i in ignore_prefix])]
     df.drop(df.index[instances_to_drop], inplace=True)
+    instances_to_drop = [i for i,c in enumerate(instances) if any([ c.find(i)!=-1 for i in ignore_any])]
+    df.drop(df.index[instances_to_drop], inplace=True)
+
     df.iloc[:,0]=df.iloc[:,0].apply(lambda x: "{}-{}-{}".format(x.split('/')[0][0],x.split('/')[1] , x[-5:-3]))
 
     if group_instances:
