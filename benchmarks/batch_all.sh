@@ -38,27 +38,27 @@ make small-instances
 make medium-instances
 ###### ALL MODELS
 
-./run_bm.sh afw 6 0
+#./run_bm.sh afw 6 0
 
 ./run_bm.sh afw_del 6 0
 
-./run_bm.sh asp 6 0
+#./run_bm.sh asp 6 0
 
-./run_bm.sh dfa 6 0
+#./run_bm.sh dfa 6 0
 
-./run_bm.sh nc 6 0
+#./run_bm.sh nc 6 0
 
 ###### ALL MODELS
 
-./run_bm.sh afw 10 0
+./run_bm.sh afw 7 0
 
-./run_bm.sh afw_del 10 0
+./run_bm.sh afw_del 7 0
 
-./run_bm.sh asp 10 0
+./run_bm.sh asp 7 0
 
-./run_bm.sh dfa 10 0
+./run_bm.sh dfa 7 0
 
-./run_bm.sh nc 10 0
+./run_bm.sh nc 7 0
 
 ###### PROJECTED MODELS
 
