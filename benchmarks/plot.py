@@ -7,6 +7,9 @@ import pandas as pd
 import itertools
 import seaborn as sns
 from pandas_ods_reader import read_ods
+import tikzplotlib
+
+
 
 yellow = ['#F3F55F','#E7C803','#BCA300']
 blue= ['#96DBED','#455AE2','#0E1BA8']
@@ -43,6 +46,10 @@ parser.add_argument("--y", type=str, default=None,
         help="Name for the y axis" )
 parser.add_argument("--handle_timeout", action='store_true', default=False,
         help="If passed the timeouts will be ploted like dots and no value will be added" )
+parser.add_argument("--tikz", action='store_true', default=False,
+        help="If passed tikz file will be saved" )
+parser.add_argument("--table", action='store_true', default=False,
+        help="If passed a csv with information file will be saved" )
 parser.add_argument("--ignore_prefix",type=str, action='append',
         help="Prefix to ignore in the instances" )
 parser.add_argument("--ignore_any",type=str, action='append',
@@ -151,7 +158,7 @@ columns = set([s.split('-')[0] for s in all_cols])
 columns.remove('instance')
 if 'without_constraint' in columns and (not approaches[0][:2]=='nc'):
     columns.remove('without_constraint')
-
+# plt.style.use("ggplot")
 if mean:
     columns = ['mean']
 else:
@@ -163,20 +170,25 @@ n_instances = len(instances)
 x_instances = np.arange(len(instances))  # the label locations
 width = 0.35  # the width of the bars
 for column in columns:
+    reduced_df = pd.DataFrame()
     old_col = column
     for i, df in enumerate(cleaned_dfs):
         if approaches[i][:2]=="nc":
             column="mean"
         plots_approach = []
-        # if handle_timeout:
-        timed_out = df[column + '-timeout'].copy()
-        timed_out.loc[timed_out!=1] = np.nan
-        timed_out.loc[timed_out==1] = 0
-        s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='black',color=colors[i][0],s=4,linewidths=0.5,zorder=10, clip_on=False)
+        if handle_timeout:
+            timed_out = df[column + '-timeout'].copy()
+            timed_out.loc[timed_out!=1] = np.nan
+            timed_out.loc[timed_out==1] = 0
+            s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='black',color=colors[i][0],s=4,linewidths=0.5,zorder=10, clip_on=False)
         for i_out,out in enumerate(out_value):
             col_plt = df[column + '-'+out]
             if handle_timeout: col_plt.loc[df[column + '-timeout']==1]=0
-            plots_approach.append(plt.bar(x_instances-(width*(i-1)/2), col_plt, alpha=1, label='{} ({})'.format(approaches[i],out),width=width-0.5,color=colors[i][i_out]))
+            label = '{} ({})'.format(approaches[i],out)
+            next_plt = plt.bar(x_instances-(width*(i-1)/2), col_plt, alpha=1, label=label,width=width-0.5,color=colors[i][i_out])
+            reduced_df[label] = col_plt
+
+            plots_approach.append(next_plt)
         space = 1-0.02-i*(0.07*len(out_value))
         legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(1, space))    
         # Add the legend manually to the current Axes.
@@ -186,9 +198,9 @@ for column in columns:
     
     # Add titles
     plt.ylim(bottom=0)
-    plt.title(column.replace('_',' '),  fontsize=12, fontweight=0)
+    plt.title(column.replace('_',' ').title(),  fontsize=12, fontweight=0)
     plt.xticks(x_instances,instances,rotation='vertical')
-    plt.xlabel("Instance")
+    plt.xlabel("instance")
     plt.ylabel(args.y)
     
     #Change color of instance based on status
@@ -201,8 +213,33 @@ for column in columns:
             # elif df[column+'-'+'status'][idx]==2:
             #     i.set_color("grey")
 
-    # file_name = 'plots/{}{}-{}.png'.format(prefix,"-".join(out_value),column)
-    file_name = 'plots/{}-{}.png'.format(prefix,column)
-    plt.savefig(file_name,dpi=300,bbox_inches='tight')
-    print("Saved {}".format(file_name))
+    file_name_img = 'plots/img/{}-{}.png'.format(prefix,column)
+    
+    if args.table:
+        file_name_csv = 'plots/tables/{}-{}.csv'.format(prefix,column)
+        file_name_tex_csv = 'plots/tables/{}-{}.tex'.format(prefix,column)
+        reduced_df = reduced_df.rename(index={idx:i for idx,i in enumerate(instances)})
+        reduced_df.to_csv(file_name_csv)
+        tex_table = reduced_df.to_latex()
+        f = open(file_name_tex_csv, "w")
+        f.write(tex_table)
+        f.close()
+        print("Saved {}".format(file_name_csv))
+        print("Saved {}".format(file_name_tex_csv))
+
+    if args.tikz:
+        file_name_tikz = 'plots/tikz/{}-{}.tex'.format(prefix,column)
+        tikz = tikzplotlib.get_tikz_code()
+        tikz = tikz.replace("__"," ")
+        tikz = tikz.replace("legend style={","legend style={font=\\scriptsize,")
+        tikz = tikz.replace("xticklabel style = {","xticklabel style = {font=\\scriptsize,")
+        f = open(file_name_tikz, "w")
+        f.write(tikz)
+        f.close()
+        print("Saved {}".format(file_name_tikz))
+
+
+
+    plt.savefig(file_name_img,dpi=300,bbox_inches='tight')
+    print("Saved {}".format(file_name_img))
     plt.clf()

@@ -23,3 +23,17 @@ plots:
 	python plot.py $(ARGS)
 ods:
 	./compute_all_ods.sh
+clean-instances:
+	rm -rf ./asprilo_instances/structured/*
+small-instances:
+	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x7_y6_r4 ./asprilo_instances/structured
+medium-instances:
+	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y6_r10 ./asprilo_instances/structured
+large-instances:
+	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y9_r20 ./asprilo_instances/structured
+	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y10_r20 ./asprilo_instances/structured
+	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y12_r20 ./asprilo_instances/structured
+all-instances:
+	make medium-instances
+	make small-instances
+	make large-instances
