@@ -1,2 +1,2 @@
-#show move/3.
-#show position/3.
+% #show move/3.
+% #show position/3.

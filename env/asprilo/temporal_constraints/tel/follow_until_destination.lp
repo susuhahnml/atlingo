@@ -1,4 +1,2 @@
-% :- not &tel{ > following(robot(R),robot(R')) >? >* ~ move(robot(R'))}, robot(R),robot(R'),R'=R+1.
-
 % New wrong
-:- not &tel{ > (following(robot(R),robot(R')) >? >* ~ move(robot(R')))}, robot(R),robot(R'),R'=R+1.
+:- not &tel{ > (following(robot(N),robot(N')) >? >* ~ move(robot(N')))}, robot(N),robot(N'),N'=N+1.
