@@ -5,7 +5,9 @@ copy-programs:
 clean-results:
 	rm -rf ./results/*
 clean-plots:
-	rm -rf ./img/*
+	rm -rf ./plots/img/*
+	rm -rf ./plots/tables/*
+	rm -rf ./plots/tikz/*
 clean-runscripts:
 	rm -rf ./cluster_script__*.sh
 	rm -rf ./runscripts/runscript_asprilo_*__*

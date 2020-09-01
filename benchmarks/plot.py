@@ -16,12 +16,15 @@ blue= ['#96DBED','#455AE2','#0E1BA8']
 green = ['#A7DAA4','#268C3E','#034D09']
 red = ['#F3AEAE','#FF2D2D','#CC0000']
 purple = ['#F6CDF0','#F883E7','#C223AB']
-colors = [blue,yellow,purple,green,red]
+colors = [blue,yellow,purple,green,red,blue,yellow,purple,green,red]
+linestyles = ['-', '--', '-.',':']
 loc = ['lower right','lower left','upper right']
 
 import argparse
 
 parser = argparse.ArgumentParser(description='Plot obs files from benchmark tool')
+parser.add_argument("--plot_type", type=str, default='bar',
+        help="Plot type, bar or line" )
 parser.add_argument("--stat", type=str, action='append',
         help="Status: choices,conflicts,cons,csolve,ctime,error,mem,memout,models,ngadded,optimal,restarts,status,time,timeout,vars" )
 parser.add_argument("--approach", type=str, action='append',
@@ -59,6 +62,7 @@ args = parser.parse_args()
 #PARAMS
 handle_timeout = args.handle_timeout
 approaches = args.approach
+n_approaches = len(args.approach)
 horizons = args.horizon
 models = args.models
 out_value = args.stat
@@ -101,6 +105,9 @@ n_out_options = len(out_options)
 
 def clean_df(df):
     #Drop min max median
+    print(df.iloc[0])
+    print("Pa")
+    print(df.iloc[0][1:n_out_options+1])
     df.drop(df.columns[-3*n_out_options:], axis=1, inplace=True) 
     
     #Rename columns
@@ -111,6 +118,10 @@ def clean_df(df):
     new_cols = ["instance-name"] + new_cols
     df.drop(df.index[0], inplace=True) #Remove unused out values
     df.drop(df.tail(9).index,inplace=True) #Remove last computed values
+    # print(df.columns)
+    # print(new_cols)
+    print("Pb")
+    print(params)
     df.columns = new_cols
 
     for i in range(1,len(df.columns)):
@@ -172,6 +183,7 @@ width = 0.35  # the width of the bars
 for column in columns:
     reduced_df = pd.DataFrame()
     old_col = column
+    final_plots = []
     for i, df in enumerate(cleaned_dfs):
         if approaches[i][:2]=="nc":
             column="mean"
@@ -180,22 +192,29 @@ for column in columns:
             timed_out = df[column + '-timeout'].copy()
             timed_out.loc[timed_out!=1] = np.nan
             timed_out.loc[timed_out==1] = 0
-            s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='black',color=colors[i][0],s=4,linewidths=0.5,zorder=10, clip_on=False)
+            s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='black',color=colors[i%n_approaches][0],s=4,linewidths=0.5,zorder=10, clip_on=False)
         for i_out,out in enumerate(out_value):
             col_plt = df[column + '-'+out]
             if handle_timeout: col_plt.loc[df[column + '-timeout']==1]=0
             label = '{} ({})'.format(approaches[i],out)
-            next_plt = plt.bar(x_instances-(width*(i-1)/2), col_plt, alpha=1, label=label,width=width-0.5,color=colors[i][i_out])
+            if args.plot_type=="bar":
+                next_plt = plt.bar(x_instances-(width*(i-1)/2), col_plt, alpha=1, label=label,width=width-0.5,color=colors[i][i_out])
+                plots_approach.append(next_plt)
+            elif args.plot_type=="line":
+                color=colors[int(i/len(horizons))][i_out+1]
+                linestyle = linestyles[i%len(horizons)]
+                next_plt = plt.plot(x_instances, col_plt, alpha=1, label=label,color=color,linestyle=linestyle)
+                plots_approach.append(next_plt[0])
             reduced_df[label] = col_plt
-
-            plots_approach.append(next_plt)
-        space = 1-0.02-i*(0.07*len(out_value))
-        legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(1, space))    
-        # Add the legend manually to the current Axes.
-        ax = plt.gca().add_artist(legend)
+        
+        final_plots += plots_approach
+        # space = 1-0.02-i*(0.07*len(out_value))
+        # legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(1, space))    
+        # # Add the legend manually to the current Axes.
+        # ax = plt.gca().add_artist(legend)
         column = old_col
 
-    
+    plt.legend(handles = final_plots, loc='upper left',bbox_to_anchor=(1, 1))
     # Add titles
     plt.ylim(bottom=0)
     plt.title(column.replace('_',' ').title(),  fontsize=12, fontweight=0)
@@ -233,6 +252,8 @@ for column in columns:
         tikz = tikz.replace("__"," ")
         tikz = tikz.replace("legend style={","legend style={font=\\scriptsize,")
         tikz = tikz.replace("xticklabel style = {","xticklabel style = {font=\\scriptsize,")
+        tikz = tikz.replace("tick pos=both","tick pos=left")
+        tikz = tikz.replace("afw_del","afw del")
         f = open(file_name_tikz, "w")
         f.write(tikz)
         f.close()

@@ -8,64 +8,64 @@ make copy-programs
 ###### ONE MODEL
 make all-instances
 
-#./run_bm.sh afw_del 20 1
+./run_bm.sh afw_del 20 1
 ./run_bm.sh afw_del 25 1
 ./run_bm.sh afw_del 30 1
 ./run_bm.sh afw_del 35 1
 
-#./run_bm.sh afw 20 1
+./run_bm.sh afw 20 1
 ./run_bm.sh afw 25 1
 ./run_bm.sh afw 30 1
 ./run_bm.sh afw 35 1
 
-#./run_bm.sh nc 20 1
+./run_bm.sh nc 20 1
 ./run_bm.sh nc 25 1
 ./run_bm.sh nc 30 1
 ./run_bm.sh nc 35 1
 
-#./run_bm.sh asp 20 1
+./run_bm.sh asp 20 1
 ./run_bm.sh asp 25 1
 ./run_bm.sh asp 30 1
 ./run_bm.sh asp 35 1
 
-#./run_bm.sh dfa 20 1
-./run_bm.sh dfa 25 1
-./run_bm.sh dfa 30 1
-./run_bm.sh dfa 35 1
+# ./run_bm.sh dfa 20 1
+# ./run_bm.sh dfa 25 1
+# ./run_bm.sh dfa 30 1
+# ./run_bm.sh dfa 35 1
 
 make clean-instances
 make small-instances
 # make medium-instances
 ###### ALL MODELS
 
-#./run_bm.sh afw 6 0
-#./run_bm.sh afw 7 0
+./run_bm.sh afw 6 0
+./run_bm.sh afw 7 0
 
-#./run_bm.sh afw_del 6 0
-#./run_bm.sh afw_del 7 0
+./run_bm.sh afw_del 6 0
+./run_bm.sh afw_del 7 0
 
-#./run_bm.sh asp 6 0
-#./run_bm.sh asp 7 0
+./run_bm.sh asp 6 0
+./run_bm.sh asp 7 0
 
-#./run_bm.sh dfa 6 0
-#./run_bm.sh dfa 7 0
+# ./run_bm.sh dfa 6 0
+# ./run_bm.sh dfa 7 0
 
-#./run_bm.sh nc 6 0
-#./run_bm.sh nc 7 0
+./run_bm.sh nc 6 0
+./run_bm.sh nc 7 0
 
 
 ###### PROJECTED MODELS TO VERIFY CORRECTENESS
 
-#./run_bm.sh afw 6 0 proj- '--project=show' 
+./run_bm.sh afw 6 0 proj- '--project=show' 
 #./run_bm.sh afw 7 0 proj- '--project=show' 
 
-#./run_bm.sh afw_del 6 0 proj- '--project=show'
+./run_bm.sh afw_del 6 0 proj- '--project=show'
 #./run_bm.sh afw_del 7 0 proj- '--project=show'
 
-#./run_bm.sh asp 6 0 proj- '--project=show'
+./run_bm.sh asp 6 0 proj- '--project=show'
 #./run_bm.sh asp 7 0 proj- '--project=show'
 
-#./run_bm.sh dfa 6 0 proj- '--project=show'
+# ./run_bm.sh dfa 6 0 proj- '--project=show'
 #./run_bm.sh dfa 7 0 proj- '--project=show'
 
 
