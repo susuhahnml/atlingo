@@ -37,58 +37,49 @@ make clean-instances
 make small-instances
 ###### ALL MODELS
 
-./run_bm.sh afw 6 0
-#./run_bm.sh afw 7 0
-# ./run_bm.sh afw 8 0
+#./run_bm.sh afw 6 0
+./run_bm.sh afw 7 0
+./run_bm.sh afw 8 0
 
-./run_bm.sh afw_del 6 0
-#./run_bm.sh afw_del 7 0
-# ./run_bm.sh afw_del 8 0
+#./run_bm.sh afw_del 6 0
+./run_bm.sh afw_del 7 0
+./run_bm.sh afw_del 8 0
 
-./run_bm.sh asp 6 0
-#./run_bm.sh asp 7 0
-# ./run_bm.sh asp 8 0
+#./run_bm.sh asp 6 0
+./run_bm.sh asp 7 0
+./run_bm.sh asp 8 0
 
-# ./run_bm.sh dfa 6 0
-# ./run_bm.sh dfa 7 0
-
-./run_bm.sh nc 6 0
-#./run_bm.sh nc 7 0
-# ./run_bm.sh nc 8 0
+#./run_bm.sh nc 6 0
+./run_bm.sh nc 7 0
+./run_bm.sh nc 8 0
 
 
 make clean-instances
 make all-grid
 ###### ALL MODELS GRID
 
-# ./run_bm.sh afw 6 0
-./run_bm.sh afw 4 0 grid-
+./run_bm.sh afw 5 0 grid-
 
-# ./run_bm.sh afw_del 6 0
-./run_bm.sh afw_del 4 0 grid-
+./run_bm.sh afw_del 5 0 grid-
 
-# ./run_bm.sh asp 6 0
-./run_bm.sh asp 4 0 grid-
+./run_bm.sh asp 5 0 grid-
 
-# ./run_bm.sh dfa 6 0
-# ./run_bm.sh dfa 6 0 grid-
-# ./run_bm.sh nc 6 0
-./run_bm.sh nc 4 0 grid-
+./run_bm.sh nc 5 0 grid-
 
 
 ###### PROJECTED MODELS TO VERIFY CORRECTENESS
 make clean-instances
 make small-instances
-./run_bm.sh afw 6 0 proj- '--project=show' 
+#./run_bm.sh afw 6 0 proj- '--project=show' 
 #./run_bm.sh afw 7 0 proj- '--project=show' 
 
-./run_bm.sh afw_del 6 0 proj- '--project=show'
+#./run_bm.sh afw_del 6 0 proj- '--project=show'
 #./run_bm.sh afw_del 7 0 proj- '--project=show'
 
-./run_bm.sh asp 6 0 proj- '--project=show'
+#./run_bm.sh asp 6 0 proj- '--project=show'
 #./run_bm.sh asp 7 0 proj- '--project=show'
 
-./run_bm.sh dfa 6 0 proj- '--project=show'
+#./run_bm.sh dfa 6 0 proj- '--project=show'
 #./run_bm.sh dfa 7 0 proj- '--project=show'
 
 

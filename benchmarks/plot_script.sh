@@ -34,3 +34,9 @@ python plot.py --approach afw --approach asp --approach afw_del --prefix="costra
 # Analize scalability of del and tel
 
 python plot.py --approach afw_del --prefix="scale"  --horizon 20 --horizon 25 --horizon 30 --horizon  35  --stat ctime --models 1 --y="time (sec)" --mean --group --plot_type=line  --approach afw  --ignore_timeout 
+
+
+
+
+
+# python plot.py --approach grid-afw --approach grid-afw_del --prefix="time-7-"  --horizon 4  --stat ctime --models 0 --y="time (sec)" --mean  --approach grid-nc --approach grid-asp

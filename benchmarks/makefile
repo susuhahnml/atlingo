@@ -42,6 +42,6 @@ all-instances:
 	make large-instances
 all-grid:
 	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x4_y4_n12_r4 ./asprilo_instances/gridworld
-	# cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x4_y4_n16_r4 ./asprilo_instances/gridworld
-	# cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x5_y5_n20_r5 ./asprilo_instances/gridworld
-	# cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x5_y5_n25_r5 ./asprilo_instances/gridworld
+	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x4_y4_n16_r4 ./asprilo_instances/gridworld
+	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x5_y5_n20_r5 ./asprilo_instances/gridworld
+	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x5_y5_n25_r5 ./asprilo_instances/gridworld
