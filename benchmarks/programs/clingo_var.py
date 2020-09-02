@@ -22,8 +22,6 @@ clingo_re = {
     "roriginal"      : ("float",  re.compile(r"^(c )?Rules[ ]*:[ ]*[0-9]+(\.[0-9]+)?[ ]*\(Original:[ ]*(?P<val>[0-9]+(\.[0-9]+)?)")),
     "rchoices"        : ("float",  re.compile(r"^(c )?  Choice [ ]*:[ ]*(?P<val>[0-9]+)")),
     "atoms"        : ("float",  re.compile(r"^(c )?Atoms[ ]*:[ ]*(?P<val>[0-9]+)")),
-    "aoriginal"      : ("float",  re.compile(r"^(c )?Atoms[ ]*:[ ]*[0-9]+(\.[0-9]+)?[ ]*\(Original:[ ]*(?P<val>[0-9]+(\.[0-9]+)?)")),
-
     "bodies"        : ("float",  re.compile(r"^(c )?Bodies[ ]*:[ ]*(?P<val>[0-9]+)")),
     "equiv"        : ("float",  re.compile(r"^(c )?Equivalences[ ]*:[ ]*(?P<val>[0-9]+)")),
     "vars"        : ("float",  re.compile(r"^(c )?Variables[ ]*:[ ]*(?P<val>[0-9]+)")),

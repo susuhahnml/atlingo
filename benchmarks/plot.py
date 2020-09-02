@@ -119,6 +119,9 @@ def clean_df(df):
     params = df.iloc[0][1:n_out_options+1]
     new_cols = ["{}-{}".format(c,p) for c,p in list(itertools.product(cols, params))]
     new_cols = ["instance-name"] + new_cols
+    # print(new_cols)
+    # print(df.columns)
+    # print(df.iloc[0])
     df.drop(df.index[0], inplace=True) #Remove unused out values
     df.drop(df.tail(9).index,inplace=True) #Remove last computed values
     # print(df.columns)
