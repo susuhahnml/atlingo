@@ -37,23 +37,23 @@ make clean-instances
 make small-instances
 ###### ALL MODELS
 
-# ./run_bm.sh afw 6 0
-./run_bm.sh afw 7 0
+./run_bm.sh afw 6 0
+#./run_bm.sh afw 7 0
 # ./run_bm.sh afw 8 0
 
-# ./run_bm.sh afw_del 6 0
-./run_bm.sh afw_del 7 0
+./run_bm.sh afw_del 6 0
+#./run_bm.sh afw_del 7 0
 # ./run_bm.sh afw_del 8 0
 
-# ./run_bm.sh asp 6 0
-./run_bm.sh asp 7 0
+./run_bm.sh asp 6 0
+#./run_bm.sh asp 7 0
 # ./run_bm.sh asp 8 0
 
 # ./run_bm.sh dfa 6 0
 # ./run_bm.sh dfa 7 0
 
-# ./run_bm.sh nc 6 0
-./run_bm.sh nc 7 0
+./run_bm.sh nc 6 0
+#./run_bm.sh nc 7 0
 # ./run_bm.sh nc 8 0
 
 
@@ -77,17 +77,17 @@ make all-grid
 
 
 ###### PROJECTED MODELS TO VERIFY CORRECTENESS
-
-#./run_bm.sh afw 6 0 proj- '--project=show' 
+make small-instances
+./run_bm.sh afw 6 0 proj- '--project=show' 
 #./run_bm.sh afw 7 0 proj- '--project=show' 
 
-#./run_bm.sh afw_del 6 0 proj- '--project=show'
+./run_bm.sh afw_del 6 0 proj- '--project=show'
 #./run_bm.sh afw_del 7 0 proj- '--project=show'
 
-#./run_bm.sh asp 6 0 proj- '--project=show'
+./run_bm.sh asp 6 0 proj- '--project=show'
 #./run_bm.sh asp 7 0 proj- '--project=show'
 
-# ./run_bm.sh dfa 6 0 proj- '--project=show'
+./run_bm.sh dfa 6 0 proj- '--project=show'
 #./run_bm.sh dfa 7 0 proj- '--project=show'
 
 
