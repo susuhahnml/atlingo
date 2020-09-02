@@ -8,63 +8,59 @@ make copy-programs
 ###### ONE MODEL
 make all-instances
 
-#./run_bm.sh afw_del 20 1
-#./run_bm.sh afw_del 25 1
-#./run_bm.sh afw_del 30 1
-#./run_bm.sh afw_del 35 1
+./run_bm.sh afw_del 20 1
+./run_bm.sh afw_del 25 1
+./run_bm.sh afw_del 30 1
+./run_bm.sh afw_del 35 1
 
-# ./run_bm.sh afw 20 1
-#./run_bm.sh afw 25 1
-#./run_bm.sh afw 30 1
-#./run_bm.sh afw 35 1
+./run_bm.sh afw 20 1
+./run_bm.sh afw 25 1
+./run_bm.sh afw 30 1
+./run_bm.sh afw 35 1
 
-#./run_bm.sh nc 20 1
-#./run_bm.sh nc 25 1
-#./run_bm.sh nc 30 1
-#./run_bm.sh nc 35 1
+./run_bm.sh nc 20 1
+./run_bm.sh nc 25 1
+./run_bm.sh nc 30 1
+./run_bm.sh nc 35 1
 
-#./run_bm.sh asp 20 1
-#./run_bm.sh asp 25 1
-#./run_bm.sh asp 30 1
-#./run_bm.sh asp 35 1
+./run_bm.sh asp 20 1
+./run_bm.sh asp 25 1
+./run_bm.sh asp 30 1
+./run_bm.sh asp 35 1
 
-# ./run_bm.sh dfa 20 1
-# ./run_bm.sh dfa 25 1
-# ./run_bm.sh dfa 30 1
-# ./run_bm.sh dfa 35 1
 
 make clean-instances
 make small-instances
 ###### ALL MODELS
 
 #./run_bm.sh afw 6 0
-./run_bm.sh afw 7 0
-./run_bm.sh afw 8 0
+#./run_bm.sh afw 7 0
+#./run_bm.sh afw 8 0
 
 #./run_bm.sh afw_del 6 0
-./run_bm.sh afw_del 7 0
-./run_bm.sh afw_del 8 0
+#./run_bm.sh afw_del 7 0
+#./run_bm.sh afw_del 8 0
 
 #./run_bm.sh asp 6 0
-./run_bm.sh asp 7 0
-./run_bm.sh asp 8 0
+#./run_bm.sh asp 7 0
+#./run_bm.sh asp 8 0
 
 #./run_bm.sh nc 6 0
-./run_bm.sh nc 7 0
-./run_bm.sh nc 8 0
+#./run_bm.sh nc 7 0
+#./run_bm.sh nc 8 0
 
 
 make clean-instances
 make all-grid
 ###### ALL MODELS GRID
 
-./run_bm.sh afw 5 0 grid-
+#./run_bm.sh afw 5 0 grid-
 
-./run_bm.sh afw_del 5 0 grid-
+#./run_bm.sh afw_del 5 0 grid-
 
-./run_bm.sh asp 5 0 grid-
+#./run_bm.sh asp 5 0 grid-
 
-./run_bm.sh nc 5 0 grid-
+#./run_bm.sh nc 5 0 grid-
 
 
 ###### PROJECTED MODELS TO VERIFY CORRECTENESS
