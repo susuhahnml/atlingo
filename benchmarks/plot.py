@@ -11,14 +11,13 @@ import tikzplotlib
 
 
 
-yellow = ['#F3F55F','#E7C803','#BCA300']
-blue= ['#96DBED','#455AE2','#0E1BA8']
-green = ['#A7DAA4','#268C3E','#034D09']
-red = ['#F3AEAE','#FF2D2D','#CC0000']
-purple = ['#F6CDF0','#F883E7','#C223AB']
-colors = [blue,yellow,purple,green,red,blue,yellow,purple,green,red]
+yellow = '#ffff00'
+blue= '#009BFF'
+green = '#009B7F'
+red = '#FF7F00'
+purple = '#9B9BC8'
+colors = [blue,green,purple,red,yellow]
 linestyles = ['-', '--', '-.',':']
-loc = ['lower right','lower left','upper right']
 
 import argparse
 
@@ -191,26 +190,25 @@ for column in columns:
     old_col = column
     final_plots = []
     for i, df in enumerate(cleaned_dfs):
-        if approaches[i][:2]=="nc":
+        if "nc" in approaches[i]:
             column="mean"
         plots_approach = []
         if handle_timeout:
             timed_out = df[column + '-timeout'].copy()
-            timed_out.loc[timed_out==0] = np.nan
-            timed_out.loc[timed_out>0] = 0
-            # timed_out.loc[timed_out!=1] = np.nan
-            # timed_out.loc[timed_out==1] = 0
-            s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='black',color=colors[i%n_approaches][0],s=4,linewidths=0.5,zorder=10, clip_on=False)
+            # print(timed_out.iterrows()) 
+            for i_o, t_o in enumerate(timed_out):
+                if t_o >0:
+                    plt.axvline(x_instances[i_o]-(width*(i-1)/2), color=yellow, linestyle='dashed', linewidth=0.7)
         for i_out,out in enumerate(out_value):
             col_plt = df[column + '-'+out]
             if zero_timeout: col_plt.loc[df[column + '-timeout']==1]=0
             # if mean: col_plt.loc[df[column + '-timeout']>0]=0
             label = '{} ({})'.format(approaches[i],out) if len(out_value)>1 else approaches[i]
             if args.plot_type=="bar":
-                next_plt = plt.bar(x_instances-(width*(i-1)/2), col_plt, alpha=1, label=label,width=width-0.5,color=colors[i][i_out])
+                next_plt = plt.bar(x_instances-(width*(i-1)/2), col_plt, label=label,width=width-0.5,color=colors[i],alpha=(i_out+1)/len(out_value))
                 plots_approach.append(next_plt)
             elif args.plot_type=="line":
-                color=colors[int(i/len(horizons))][i_out+1]
+                color=colors[int(i/len(horizons))]
                 linestyle = linestyles[i%len(horizons)]
                 next_plt = plt.plot(x_instances, col_plt, alpha=1, label=label,color=color,linestyle=linestyle)
                 plots_approach.append(next_plt[0])
@@ -247,8 +245,8 @@ for column in columns:
         file_name_csv = 'plots/tables/{}-{}.csv'.format(prefix,column)
         file_name_tex_csv = 'plots/tables/{}-{}.tex'.format(prefix,column)
         reduced_df = reduced_df.rename(index={idx:i for idx,i in enumerate(instances)})
-        reduced_df.to_csv(file_name_csv)
-        tex_table = reduced_df.to_latex()
+        reduced_df.to_csv(file_name_csv,float_format='%.0f')
+        tex_table = reduced_df.to_latex(float_format='%.0f')
         f = open(file_name_tex_csv, "w")
         f.write(tex_table)
         f.close()
@@ -262,7 +260,8 @@ for column in columns:
         tikz = tikz.replace("legend style={","legend style={font=\\scriptsize,")
         tikz = tikz.replace("xticklabel style = {","xticklabel style = {font=\\scriptsize,")
         tikz = tikz.replace("tick pos=both","tick pos=left")
-        tikz = tikz.replace("afw_del","afw del")
+        tikz = tikz.replace("afw ","afw ltl")
+        tikz = tikz.replace("afw_del","afw ldl")
         f = open(file_name_tikz, "w")
         f.write(tikz)
         f.close()

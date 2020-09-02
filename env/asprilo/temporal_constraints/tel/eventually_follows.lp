@@ -3,4 +3,4 @@
 % % for two steps
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- not &tel{ >? (following(robot(R),robot(R')) & > following(robot(R),robot(R')) & > > following(robot(R),robot(R')))}, robot(R),robot(R'),R!=R'.
+:- not &tel{ >? (following(robot(R),robot(R')) & > following(robot(R),robot(R')) )}, robot(R),robot(R'),R!=R'.

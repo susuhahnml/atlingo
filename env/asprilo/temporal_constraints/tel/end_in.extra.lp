@@ -1,2 +1,2 @@
-% #show move/3.
-% #show position/3.
+#include "../right_left_up_down.lp".
+#include "../wait.lp".
