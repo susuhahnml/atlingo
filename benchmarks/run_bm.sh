@@ -95,10 +95,11 @@ for f in $(find ./$OUTPUT_DIR/$MACHINE/results/asprilo-benchmark  -type f -name 
 do
 	if grep -q 'fail' $f; then
 		if ! grep -q 'INTERRUPTED' $f; then
-			echo "$R Found word failed in file $f$NC"
+			# echo "$R Found word failed in file $f$NC"
 			# cat $f
-			cat $f > $RES_DIR/$NAME.error
+			# cat $f > $RES_DIR/$NAME.error
 			# exit 1
+			echo ""
 		else
 			echo "$B TIMEOUT: $f"
 		fi
