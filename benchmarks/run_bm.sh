@@ -94,13 +94,11 @@ echo "$G Slurm queue is now empty $NC"
 for f in $(find ./$OUTPUT_DIR/$MACHINE/results/asprilo-benchmark  -type f -name "*runsolver.solver");
 do
 	if grep -q 'fail' $f; then
-		if ! grep -q 'INTERRUPTED' $f; then
+		if grep -q 'INTERRUPTED' $f; then
 			# echo "$R Found word failed in file $f$NC"
 			# cat $f
 			# cat $f > $RES_DIR/$NAME.error
 			# exit 1
-			echo ""
-		else
 			echo "$B TIMEOUT: $f"
 		fi
 	else
