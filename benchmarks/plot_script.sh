@@ -58,3 +58,8 @@ python plot.py --approach afw_del --prefix="scale"  --horizon 20 --horizon 25 --
 
 
 # python plot.py --approach grid-afw --approach grid-afw_del --prefix="time-7"  --horizon 4  --stat ctime --models 0 --y="time (sec)" --mean  --approach grid-nc --approach grid-asp
+
+
+
+
+python plot.py --approach afw_del --prefix="scale"  --horizon 30  --stat ctime --models 1 --y="time (sec)" --mean --group --approach afw 
