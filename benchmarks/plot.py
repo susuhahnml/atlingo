@@ -47,8 +47,10 @@ parser.add_argument("--bars", default=False, action='store_true',
     help="When this flag is passed, will print bar for one approach with all times")
 parser.add_argument("--y", type=str, default=None,
         help="Name for the y axis" )
-parser.add_argument("--handle_timeout", action='store_true', default=False,
-        help="If passed the timeouts will be ploted like dots and no value will be added" )
+parser.add_argument("--ignore_timeout", action='store_true', default=False,
+        help="If passed the timeouts will not be ploted like dots" )
+parser.add_argument("--zero_timeout", action='store_true', default=False,
+        help="If passed the timeouts will be ploted with 0" )
 parser.add_argument("--tikz", action='store_true', default=False,
         help="If passed tikz file will be saved" )
 parser.add_argument("--table", action='store_true', default=False,
@@ -60,7 +62,8 @@ parser.add_argument("--ignore_any",type=str, action='append',
 args = parser.parse_args()
 
 #PARAMS
-handle_timeout = args.handle_timeout
+handle_timeout = not args.ignore_timeout
+zero_timeout = args.zero_timeout
 approaches = args.approach
 n_approaches = len(args.approach)
 horizons = args.horizon
@@ -105,9 +108,9 @@ n_out_options = len(out_options)
 
 def clean_df(df):
     #Drop min max median
-    print(df.iloc[0])
-    print("Pa")
-    print(df.iloc[0][1:n_out_options+1])
+    # print(df.iloc[0])
+    # print("Pa")
+    # print(df.iloc[0][1:n_out_options+1])
     df.drop(df.columns[-3*n_out_options:], axis=1, inplace=True) 
     
     #Rename columns
@@ -120,8 +123,8 @@ def clean_df(df):
     df.drop(df.tail(9).index,inplace=True) #Remove last computed values
     # print(df.columns)
     # print(new_cols)
-    print("Pb")
-    print(params)
+    # print("Pb")
+    # print(params)
     df.columns = new_cols
 
     for i in range(1,len(df.columns)):
@@ -190,13 +193,16 @@ for column in columns:
         plots_approach = []
         if handle_timeout:
             timed_out = df[column + '-timeout'].copy()
-            timed_out.loc[timed_out!=1] = np.nan
-            timed_out.loc[timed_out==1] = 0
+            timed_out.loc[timed_out==0] = np.nan
+            timed_out.loc[timed_out>0] = 0
+            # timed_out.loc[timed_out!=1] = np.nan
+            # timed_out.loc[timed_out==1] = 0
             s = plt.scatter(x_instances-(width*(i-1)/2),timed_out,edgecolors='black',color=colors[i%n_approaches][0],s=4,linewidths=0.5,zorder=10, clip_on=False)
         for i_out,out in enumerate(out_value):
             col_plt = df[column + '-'+out]
-            if handle_timeout: col_plt.loc[df[column + '-timeout']==1]=0
-            label = '{} ({})'.format(approaches[i],out)
+            if zero_timeout: col_plt.loc[df[column + '-timeout']==1]=0
+            # if mean: col_plt.loc[df[column + '-timeout']>0]=0
+            label = '{} ({})'.format(approaches[i],out) if len(out_value)>1 else approaches[i]
             if args.plot_type=="bar":
                 next_plt = plt.bar(x_instances-(width*(i-1)/2), col_plt, alpha=1, label=label,width=width-0.5,color=colors[i][i_out])
                 plots_approach.append(next_plt)
