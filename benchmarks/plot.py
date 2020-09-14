@@ -13,7 +13,7 @@ import tikzplotlib
 
 yellow = '#ffff00'
 blue= '#009BFF'
-green = '#009B7F'
+green = '#009B33'
 red = '#FF7F00'
 purple = '#9B9BC8'
 colors = [blue,green,purple,red,yellow]
@@ -193,12 +193,13 @@ for column in columns:
         if "nc" in approaches[i]:
             column="mean"
         plots_approach = []
+        to_plt = None
         if handle_timeout:
             timed_out = df[column + '-timeout'].copy()
             # print(timed_out.iterrows()) 
             for i_o, t_o in enumerate(timed_out):
                 if t_o >0:
-                    plt.axvline(x_instances[i_o]-(width*(i-1)/2), color=yellow, linestyle='dashed', linewidth=0.7)
+                    to_plt = plt.axvline(x_instances[i_o]-(width*(i-1)/2), color='gray', linestyle='dashed', linewidth=0.7,label="Timeout")
         for i_out,out in enumerate(out_value):
             col_plt = df[column + '-'+out]
             if zero_timeout: col_plt.loc[df[column + '-timeout']==1]=0
@@ -220,7 +221,7 @@ for column in columns:
         # # Add the legend manually to the current Axes.
         # ax = plt.gca().add_artist(legend)
         column = old_col
-
+    if not to_plt is None: final_plots.append(to_plt)
     plt.legend(handles = final_plots, loc='upper left',bbox_to_anchor=(1, 1))
     # Add titles
     plt.ylim(bottom=0)
@@ -260,7 +261,7 @@ for column in columns:
         tikz = tikz.replace("legend style={","legend style={font=\\scriptsize,")
         tikz = tikz.replace("xticklabel style = {","xticklabel style = {font=\\scriptsize,")
         tikz = tikz.replace("tick pos=both","tick pos=left")
-        tikz = tikz.replace("afw ","afw ltl")
+        tikz = tikz.replace("afw ","afw ltl ")
         tikz = tikz.replace("afw_del","afw ldl")
         f = open(file_name_tikz, "w")
         f.write(tikz)
