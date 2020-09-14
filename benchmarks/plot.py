@@ -21,7 +21,7 @@ linestyles = ['-', '--', '-.',':']
 
 import argparse
 
-parser = argparse.ArgumentParser(description='Plot obs files from benchmark tool')
+parser = argparse.ArgumentParser(description='Plot obs files from benchmark tool',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--plot_type", type=str, default='bar',
         help="Plot type, bar or line" )
 parser.add_argument("--stat", type=str, action='append',
