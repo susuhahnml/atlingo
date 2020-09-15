@@ -1,6 +1,53 @@
-# ASP encodings to translate temporal logics into Alternating Automatons 
+# Translating temporal/dynamic formulas into Alternating Automata using ASP
 
-This project contains the encodings to transform temporal logic formulas into alternating automata which allow validation and generation of traces.
+This project contains the ASP encodings to transform temporal logic formulas into alternating automata which allow validation and generation of traces.
+
+## Dependencies 
+
+Update git-submodules. We use `https` instead of `sh` to facilitate the installation in the cluster.
+
+```shell
+$ git submodule update --init --recursive
+```
+
+Install [clingo](https://potassco.org/doc/start/) preferably using `conda`.
+We use version `5.4.0`
+
+```shell
+$ conda install -c potassco clingo
+```
+
+For the tests, plotting and visualization of automata we require an installation of python version `3.7.3` and the following dependencies that can be installed using `pip`:
+```shell
+$ pip install networkx
+$ pip install pygraphviz
+$ pip install tikzplotlib
+```
+
+The installation can be checked my running the tests.
+
+```
+$ make tests -B
+```
+
+The successfully output will look like:
+****
+```
+Running 'del' tests.......
+----------------------------------------------------------------------
+Ran 4 tests in 8.119s
+
+OK
+Running 'tel' tests........
+----------------------------------------------------------------------
+Ran 5 tests in 6.402s
+
+OK
+```
+
+
+## Workflow 
+
 We work with two different types of formulas:
 - **TEL** (Linear Temporal Logic over finite traces) LTLf
 -  **DEL** (Linear Dynamic Logic over finite traces) LDLf
@@ -202,21 +249,7 @@ $ make viz-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 
 ## Benchmarks
 
-
-Benchmarks
-
-```shell
-$ cd benchmarks/benchmark-tool/runsolver-3.4.0/runsolver/src
-$ make clean
-$ make 
-```
-```shell
-cd benchmarks/benchmark-tool
-./bgen runscripts/runscript_asprilo_nc.xm
-python2 asprilo_NO-CONSTARINT_benchmark/clingo-seq-job/komputer/start.py
-
-./beval runscripts/runscript_asprilo_nc.xml >results/ benchmark_evaluated.xml
-(temporal-automata) hahnmartinlu@zuse:~/temporal-automata/atlingo/benchmarks/benchmark-tool$ ./bconv -m time,models,choices,conflicts  results/benchmark_evaluated.xml > results/results_nc.ods
+For detailed information on how the benchmarking works check the [benchmarks-readme](./benchmarks/README.md).
 
 
 
