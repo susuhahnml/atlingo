@@ -33,6 +33,7 @@ def solve(const=[], files=[],inline_data=[]):
         ctl.load(f)
     for d in inline_data:
         ctl.add("base", [], d)
+    ctl.add("base",[],"#show holds_map/2.")
     ctl.ground([("base", [])], context=Context())
     ctl.solve(on_model= lambda m: r.append(parse_model(m)))
     return sorted(r)
@@ -127,10 +128,10 @@ class TestMain(TestCase):
 
         ######### Examples using asprilo env starting actions in timepoint 1.
         
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="env/asprilo/glue.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="env/asprilo/glue.lp")
         self.assert_sat(result)
 
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="env/asprilo/glue.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="env/asprilo/glue.lp")
         self.assert_unsat(result)
 
         ######### Examples using simple env starting actions in timepoint 0.

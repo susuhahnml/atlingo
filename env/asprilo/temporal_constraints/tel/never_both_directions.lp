@@ -1,6 +1,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % Robots can only move up or down and left or right
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#include "../right_left_up_down.lp".
 
-:- not &tel{ (>* (~ move(robot(R), RIGHT))) |  (>* (~ move(robot(R), LEFT))) }, RIGHT=(1,0), LEFT=(-1,0), robot(R).
-:- not &tel{ (>* (~ move(robot(R), UP))) |  (>* (~ move(robot(R), DOWN))) }, UP=(0,-1), DOWN=(0,1), robot(R).
+:- not &tel{ (>* (~ move(robot(N), R))) |  (>* (~ move(robot(N), L))) }, right(R), left(L), robot(N).
+:- not &tel{ (>* (~ move(robot(N), U))) |  (>* (~ move(robot(N), D))) }, up(U), down(D), robot(N).
