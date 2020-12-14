@@ -148,19 +148,22 @@ def remove_zero_in(g):
         g.remove_nodes_from(to_remove)
         to_remove= [n for n in g.nodes() if len(g.in_edges([n])) == 0]
 
-# def remove_zero_in(g):
-#     for n in g.nodes():
-#         if n.attr['type']!='state':
-#             continue
-#         labels = []
-#         for e in g.out_edges(n):
-#             print(e)
-#             print(labels)
-#             label = e.attr['label']
-#             if label in labels:
-#                 G.delete_edge(e[0],e[1])
-#             else:
-#                 labels.append(label)
+def remove_duplicated_labels(g):
+    print("Removing duplicated")
+    for n in g.nodes():
+        if n.attr['type']!='state':
+            continue
+        labels = []
+        for i_e, e in enumerate(g.out_edges(n)):
+            label = e.attr['label']
+            next_node = g.get_node(e[1])
+            same_label_tuples = [l for l in labels if l[0]==label]
+            if len(same_label_tuples)>0:
+                t = same_label_tuples[0]
+                if next_node.attr['label']==t[1].attr['label']:
+                    g.delete_edge(e[0],e[1])
+            else:
+                labels.append((label,next_node))
 
 
 
@@ -314,7 +317,8 @@ for i,initial in enumerate(initials):
             node = remove_test(G,G_min,n,n_next,pi,prop_used,counters,"{{{}}}".format(",".join([maps[str(p)] for p in pi])))
             G_min.get_edge(n,node).attr['label']=prop_set_to_str(prop_used,maps)
     remove_zero_in(G_min)
-    # remove_duplicated_labels(G_min)
+    remove_duplicated_labels(G_min)
+    remove_zero_in(G_min)
 
     G_min.draw(name_min,prog='dot')  
     G.draw(name,prog='dot')  
