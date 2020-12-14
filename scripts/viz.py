@@ -108,55 +108,107 @@ def str_formula(symbol,maps):
         raise RuntimeError("Invalid symbol {}".format(name))
     return s
 
-
+def prop_set_to_str(prop_ids,maps):
+    s = ""
+    for p in prop_ids:
+        if p<0:
+            s+= "~"
+            p=-1*p
+        s+=maps[str(p)]
+        s+="\n"
+    return s
 def add_node(g, d):
     #Define shape
     if d['type']=='state':    
         shape = 'ellipse'
     if d['type']=='trans':    
-        shape = 'square'
+        shape = 'diamond'
     if d['type']=='test':    
-        shape = 'triangle'
+        shape = 'circle'
     if d['type']=='bool':    
         shape = 'plain'
     #Define color an create node
     if d['val']=='true':
-        g.add_node(d['id'],shape=shape,label=d['val'],fontcolor='#7BAA16',type=d['type'])
+        g.add_node(d['id'],shape=shape,label=d['val'],fontcolor='#7BAA16',type=d['type'],fontsize=12)
     elif d['val']=='false':
-        g.add_node(d['id'],shape=shape,label=d['val'],fontcolor='#AA1616',type=d['type'])
+        g.add_node(d['id'],shape=shape,label=d['val'],fontcolor='#AA1616',type=d['type'],fontsize=12)
     elif d['type']=='state':
         g.add_node(d['id'],shape=shape,label=d['val'],fillcolor='#00305E20',style='filled',type=d['type'])
     elif d['type']=='trans':
-        g.add_node(d['id'],shape=shape,label=d['val'],type=d['type'],fillcolor='#FFFFFF')
+        g.add_node(d['id'],shape=shape,label=d['val'],type=d['type'],fillcolor='#FFFFFF',fontsize=10)
     elif d['type']=='test':
-        g.add_node(d['id'],shape=shape,label=d['val'],type=d['type'],fillcolor='#FFFFFF')
+        g.add_node(d['id'],shape=shape,label="",type=d['type'],fillcolor='#FFFFFF',fontsize=1,width=.1)
     else:
         raise RuntimeError("Invalid type "+d['type'])
+    return g.get_node(d['id'])
+
+def remove_zero_in(g):
+    to_remove= [n for n in g.nodes() if len(g.in_edges([n])) == 0]
+    while len(to_remove)>0:
+        g.remove_nodes_from(to_remove)
+        to_remove= [n for n in g.nodes() if len(g.in_edges([n])) == 0]
+
+# def remove_zero_in(g):
+#     for n in g.nodes():
+#         if n.attr['type']!='state':
+#             continue
+#         labels = []
+#         for e in g.out_edges(n):
+#             print(e)
+#             print(labels)
+#             label = e.attr['label']
+#             if label in labels:
+#                 G.delete_edge(e[0],e[1])
+#             else:
+#                 labels.append(label)
 
 
 
 def remove_test(g_old, g_new, n_from_id, n_to_rem, pi, prop_used, counters,l):
-        print(counters)
-        print(l)
         # G_min.draw('{}/img_a_{}_min-{}.png'.format(base_path,i,n),prog='dot')
         # pdb.set_trace()
         if(n_to_rem.attr['type']=='bool'):
-            print('Bool')
-            add_node(g_new, {'type':'bool','val':n_to_rem.attr['label'],'next':[],'id':counters['next_id']})
+            node = add_node(g_new, {'type':'bool','val':n_to_rem.attr['label'],'next':[],'id':counters['next_id']})
             g_new.add_edge(n_from_id,counters['next_id'],label=l)
             counters['next_id']+=1
+            return node
         elif(n_to_rem.attr['type']=='state'):
             g_new.add_edge(n_from_id,n_to_rem,label=l)
+            return n_to_rem
         elif(n_to_rem.attr['type']=='trans'):
-            print(n_to_rem.attr['label'])
             current_id=counters['next_id']
-            add_node(g_new, {'type':'trans','val':n_to_rem.attr['label'],'next':[],'id':counters['next_id']})
             n_l = g_old.out_neighbors(n_to_rem)[0]
             n_r = g_old.out_neighbors(n_to_rem)[1]
-            g_new.add_edge(n_from_id,current_id,label=l)
             counters['next_id']+=1
-            remove_test(g_old,g_new,current_id,n_l,pi,prop_used,counters,"")
-            remove_test(g_old,g_new,current_id,n_r,pi,prop_used,counters,"")
+            node_l = remove_test(g_old,g_new,current_id,n_l,pi,prop_used,counters,"")
+            node_r = remove_test(g_old,g_new,current_id,n_r,pi,prop_used,counters,"")
+            l_false, l_true = node_l.attr['label']=='false', node_l.attr['label']=='true'
+            r_false, r_true = node_r.attr['label']=='false', node_r.attr['label']=='true'
+            if n_to_rem.attr['label']=='AND':
+                if(l_false):
+                    node = node_l
+                elif(r_false):
+                    node = node_r
+                elif(l_true):
+                    node = node_r
+                elif(r_true):
+                    node = node_l
+                else:
+                    node = add_node(g_new, {'type':'trans','val':n_to_rem.attr['label'],'next':[],'id':current_id})
+            if n_to_rem.attr['label']=='OR':
+                if(l_false):
+                    node = node_r
+                elif(r_false):
+                    node = node_l
+                elif(l_true):
+                    node = node_l
+                elif(r_true):
+                    node = node_r
+                else:
+                    node = add_node(g_new, {'type':'trans','val':n_to_rem.attr['label'],'next':[],'id':current_id})
+            g_new.add_edge(n_from_id,node,label=l)
+            
+            return node
         elif(n_to_rem.attr['type']=='test'):
             e_l = g_old.out_edges(n_to_rem)[0]
             id_l = int(e_l.attr['prop_id'])
@@ -167,11 +219,11 @@ def remove_test(g_old, g_new, n_from_id, n_to_rem, pi, prop_used, counters,l):
             in_edge = e_l if id_l>id_r else e_r
             not_path = id_prop in pi
             if not_path:
-                chossen_e = not_edge
-            else:
                 chossen_e = in_edge
+            else:
+                chossen_e = not_edge
             prop_used.add(int(chossen_e.attr['prop_id']))
-            remove_test(g_old,g_new,n_from_id,chossen_e[1],pi,prop_used,counters,l)
+            return remove_test(g_old,g_new,n_from_id,chossen_e[1],pi,prop_used,counters,l)
         else:
             raise RuntimeError("Invalid type")
 
@@ -191,6 +243,8 @@ with ctl.solve(yield_=True) as handle:
 # Create automaton
 for i,initial in enumerate(initials):
     G=pgv.AGraph(ranksep='0.5',directed=True)
+    G.edge_attr.update(fontsize=10,splines=True,weight=1.,arrowsize=.4)
+    G.node_attr.update(fontsize=20)
     pending_nodes = [{'type':'state','val':initial,'next':[(0,"",delta[initial])],'id':0}]
     counters = {'next_id': 0}
     idx = 0
@@ -237,6 +291,8 @@ for i,initial in enumerate(initials):
     edges = G.edges()
     
     G_min=pgv.AGraph(ranksep='0.5',directed=True)
+    G_min.edge_attr.update(fontsize=10,splines=True,weight=1.,arrowsize=.4)
+    G_min.node_attr.update(fontsize=20)
     name_min = '{}/img_a_{}_min.png'.format(base_path,i)
     state_nodes = [n for n in G.nodes() if n.attr['type']=='state']
     pis = []
@@ -252,16 +308,15 @@ for i,initial in enumerate(initials):
     counters = {'next_id':max_id+1}
     for n in state_nodes:
         
-        print("Node: \n id:{}, label:{}\n".format(n,n.attr['label']))
         n_next = G.out_neighbors(n)[0]
         for p_idx, pi in enumerate(pis):
-            print("For pi={}".format(pi))
             prop_used = set()
-            remove_test(G,G_min,n,n_next,pi,prop_used,counters,"{{{}}}".format(",".join([maps[str(p)] for p in pi])))
-            G_min.out_edges(n)[p_idx].attr['label']=prop_used
-            # g_new.add_edge(n,counters['next_id'],label=l)
-
+            node = remove_test(G,G_min,n,n_next,pi,prop_used,counters,"{{{}}}".format(",".join([maps[str(p)] for p in pi])))
+            G_min.get_edge(n,node).attr['label']=prop_set_to_str(prop_used,maps)
+    remove_zero_in(G_min)
+    # remove_duplicated_labels(G_min)
 
     G_min.draw(name_min,prog='dot')  
     G.draw(name,prog='dot')  
-    print("Automaton {} saved in {}".format(i,name))
+    print("\nAutomaton {} saved in {}".format(i,name))
+    print("\nAutomaton minimized {} saved in {}".format(i,name_min))
