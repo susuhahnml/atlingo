@@ -351,5 +351,13 @@ class TestMain(TestCase):
     def test_special(self):
         self.maxDiff=None
 
-        result = run_generate(":- not &del{ ?X .>* (* &true .>? ~X) },f(X).f(p).",horizon=2)
-        
+        # Star (Box) with need for nnf
+
+        result = run_check(":-not &del{ (? ((* &true) .>* q)) .>* p}.",trace="",horizon=2)
+        self.assert_sat(result)
+        result = run_check(":-not &del{ (? ((* &true) .>* q)) .>* p}.",trace="q(0).q(1).",horizon=2)
+        self.assert_sat(result)
+        result = run_check(":-not &del{ (? ((* &true) .>* q)) .>* p}.",trace="q(0).q(1).q(2).",horizon=2)
+        self.assert_unsat(result)
+        result = run_check(":-not &del{ (? ((* &true) .>* q)) .>* p}.",trace="q(0).q(1).q(2).p(0).",horizon=2)
+        self.assert_sat(result)

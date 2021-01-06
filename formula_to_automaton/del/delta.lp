@@ -67,8 +67,9 @@ delta(diamond(star(P),F),pbf_or(BF,B)) :-
 %Box
 delta(box(test(F1),F2),pbf_or(BF1,BF2)) :- 
     state(box(test(F1),F2)), 
-    delta(neg(F1),BF1), 
-    delta(F2,BF2).
+    delta(F1',BF1), 
+    delta(F2,BF2),
+    nnf(neg(F1),F1').
 
 delta(box(top,F),pbf_if(LAST,pbf_true,pbf_state(F))) :- 
     state(box(top,F)),

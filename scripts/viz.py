@@ -143,10 +143,11 @@ def add_node(g, d):
     return g.get_node(d['id'])
 
 def remove_zero_in(g):
-    to_remove= [n for n in g.nodes() if len(g.in_edges([n])) == 0]
+    to_remove= [n for n in g.nodes() if len(g.in_edges([n])) == 0 and n!='0']
     while len(to_remove)>0:
+        # print([n.attr['id'] for n in to_remove])
         g.remove_nodes_from(to_remove)
-        to_remove= [n for n in g.nodes() if len(g.in_edges([n])) == 0]
+        to_remove= [n for n in g.nodes() if len(g.in_edges([n])) == 0 and n!='0']
 
 def remove_duplicated_labels(g):
     print("Removing duplicated")
