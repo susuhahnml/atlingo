@@ -135,16 +135,15 @@ nnf(neg(prop(ID)),neg(prop(ID))) :- closure(neg(prop(ID))).
 nnf(neg(diamond(X,Z)),box(X,Z')) :- closure(neg(diamond(X,Z))),nnf(neg(Z),Z').
 nnf(neg(box(X,Z)),diamond(X,Z')) :- closure(neg(box(X,Z))),nnf(neg(Z),Z').
 
-%Replace negations by theit nnf in the closure
-nnf_closure(X'):-closure(neg(X)),nnf(neg(X),X').
-nnf_closure(prop(ID)) :- closure(prop(ID)).
-nnf_closure(bottom) :- closure(bottom).
-nnf_closure(top) :- closure(top).
-nnf_closure(diamond(X,Z)) :- closure(diamond(X,Z)).
-nnf_closure(box(X,Z)) :- closure(box(X,Z)).
+nnf(top,top).
+nnf(botom,bottom).
+nnf(prop(ID),prop(ID)) :- closure(prop(ID)).
+nnf(diamond(X,Z),diamond(X,Z)) :- closure(diamond(X,Z)).
+nnf(box(X,Z),box(X,Z)) :- closure(box(X,Z)).
+
 
 %State predicate
-state(F) :- nnf_closure(F).
+state(X') :- closure(X),nnf(X,X').
 
 #show map_id_to_predicate/2.
 #show prop_id/1.
