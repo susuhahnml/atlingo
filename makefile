@@ -99,3 +99,23 @@ translate-run-asprilo:
 
 viz-asprilo:
 	sed -n "4,5p" $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt | viz
+
+
+######################  ELEVATOR ########################
+
+run-elevator:
+
+	@ make run CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=elevator RUN_FILES="env/elevator/encoding.lp $(RUN_FILES)" MODELS=$(MODELS)
+
+translate-elevator:
+
+	@ make translate CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=elevator
+
+translate-run-elevator:
+
+	@ make translate-elevator CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=elevator
+	
+	@ make run-elevator CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=elevator MODELS=$(MODELS)
+
+viz-elevator:
+	sed -n "4,5p" $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt | viz
