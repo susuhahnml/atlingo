@@ -106,10 +106,14 @@ dynamic_formula(diamond(FL,FR)) :- map_id_to_predicate(_,diamond(FL,FR)).
 dynamic_formula(box(FL,FR)) :- map_id_to_predicate(_,box(FL,FR)).
 
 %Generate Fisher-Lander closure using nested predicates
-
 closure(F) :- dynamic_formula(F).
 
+closure(X) :- closure(neg(X)).
 closure(neg(prop(ID))) :- closure(prop(ID)).
+closure(neg(bottom)) :- closure(bottom).
+closure(neg(top)) :- closure(top).
+closure(neg(diamond(X,Z))) :- closure(diamond(X,Z)).
+closure(neg(box(X,Z))) :- closure(box(X,Z)).
 
 closure(diamond(X,Z)) :- closure(diamond(choice(X,Y),Z)).
 closure(diamond(Y,Z)) :- closure(diamond(choice(X,Y),Z)).
@@ -123,8 +127,23 @@ closure(box(X,box(Y,Z))) :- closure(box(sequence(X,Y),Z)).
 closure(box(X,box(star(X),Z))) :- closure(box(star(X),Z)).
 closure(Z) :- closure(box(_,Z)).
 
+%Negation normal form for formulas in the closure
+nnf(neg(neg(X)),X):-closure(neg(X)).
+nnf(neg(bottom),top).
+nnf(neg(top),bottom).
+nnf(neg(prop(ID)),neg(prop(ID))) :- closure(neg(prop(ID))).
+nnf(neg(diamond(X,Z)),box(X,Z')) :- closure(neg(diamond(X,Z))),nnf(neg(Z),Z').
+nnf(neg(box(X,Z)),diamond(X,Z')) :- closure(neg(box(X,Z))),nnf(neg(Z),Z').
+
+nnf(top,top).
+nnf(botom,bottom).
+nnf(prop(ID),prop(ID)) :- closure(prop(ID)).
+nnf(diamond(X,Z),diamond(X,Z)) :- closure(diamond(X,Z)).
+nnf(box(X,Z),box(X,Z)) :- closure(box(X,Z)).
+
+
 %State predicate
-state(F) :- closure(F).
+state(X') :- closure(X),nnf(X,X').
 
 #show map_id_to_predicate/2.
 #show prop_id/1.
