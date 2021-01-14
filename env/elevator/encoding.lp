@@ -1,7 +1,7 @@
 #const horizon=7.
 time(0..horizon).
 
-{wait(T); up(T) ; down(T); serve(T)}=1 :- time(T).
+{wait(T); up(T) ; down(T); serve(T)}=1 :- time(T+1),time(T).
 :- up(T),   at(X,T), not floor(X+1), time(T).
 :- down(T), at(X,T), not floor(X-1), time(T).
 
