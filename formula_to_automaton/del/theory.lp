@@ -5,7 +5,7 @@
 
 #theory del {
     formula_body  {
-        &   : 7, unary;         % prefix for keywords
+        &   : 7, unary;         % prefix for Boolean constants
         ~   : 5, unary;         % negation
         ?   : 4, unary;         % test
         *   : 3, unary;         % kleene star
