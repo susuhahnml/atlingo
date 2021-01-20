@@ -110,7 +110,7 @@ make asprilo-small-instances
 
 make clean -s
 
-./print_summary.sh asprilo
+# ./print_summary.sh asprilo
 
 cd ..
 make clean -s
