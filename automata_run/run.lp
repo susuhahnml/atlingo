@@ -27,7 +27,8 @@ node_run_unfold(BD,T+1,node_run(state_id(ID),T,P)) :-
 % If boolean formula directly to one node
 node_run(state_id(ID),T,P) :- node_run_unfold(pbf_state(ID),T,P).
 node_run(true,T,P) :- node_run_unfold(pbf_true,T,P).
-node_run(false,T,P) :- node_run_unfold(pbf_false,T,P).
+% node_run(false,T,P) :- node_run_unfold(pbf_false,T,P).
+:- node_run_unfold(pbf_false,T,P).
 
 % If boolean formula is AND both nodes are in run
 node_run_unfold(B1,T,P) :- node_run_unfold(pbf_and(B1,B2),T,P).
@@ -66,7 +67,7 @@ accepting(node_run(true,T,P)) :- node_run(true,T,P).
 
 %The the root node must be accepting
 :- not accepting(node_run(_,0,root)).
-:- node_run(false,N,P).
+% :- node_run(false,N,P).
 
 
 % #show run_node_at(N,T):node_run(N,T,_).

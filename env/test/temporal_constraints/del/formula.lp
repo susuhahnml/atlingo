@@ -1,2 +1,2 @@
 % :- not &del{ ?a .>* (* &true .>? ~a) }.
-:-not &del{ (? ((* &true) .>* q)) .>* p}.
+:- not &del{ ?a .>* b }.
