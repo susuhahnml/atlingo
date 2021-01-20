@@ -1,15 +1,15 @@
-<runscript output="output/asp__h-{H}__n-{N}">
+<runscript output="output/asprilo/asp__h-{H}__n-{N}">
 
 	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
 	
 	<config name="seq-asprilo" template="../programs/seq-asprilo.sh"/>
   
-	<system name="compute_dfa" version="1" measures="clingo" config="seq-asprilo">
+	<system name="asprilo_compute_dfa" version="1" measures="clingo" config="seq-asprilo">
 
 		<setting name="horizontal_before_vertical" cmdline="{H} {N} 7 constraints/constraints/horizontally_before_vertically.lp constraints/predicates_needed/move_h_v.lp {CLINGO_ARGS}" tag="basic" />
+		<!--
 		<setting name="vertical_before_horizontal" cmdline="{H} {N} 7 constraints/constraints/vertically_before_horizontally.lp constraints/predicates_needed/move_h_v.lp {CLINGO_ARGS}" tag="basic" />
 		<setting name="never_both_direction" cmdline="{H} {N} 7 constraints/constraints/never_both_direction.lp constraints/predicates_needed/empty.lp {CLINGO_ARGS}" tag="basic" />
-		<!--
 		<setting name="eventually_5xright" cmdline="{H} {N} 7 constraints/constraints/eventually_r_r_r_r_r.lp constraints/predicates_needed/move_r.lp" tag="basic" />
 		<setting name="square_release" cmdline="{H} {N} 7 constraints/constraints/square_release.lp constraints/predicates_needed/looping_starts.lp" tag="basic" />
 -->

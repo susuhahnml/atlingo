@@ -1,15 +1,15 @@
-<runscript output="output/afw__h-{H}__n-{N}">
+<runscript output="output/asprilo/afw__h-{H}__n-{N}">
 
 	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
 	
 	<config name="seq-asprilo" template="../programs/seq-asprilo.sh"/>
   
-	<system name="compute_afw" version="1" measures="clingo" config="seq-asprilo">
+	<system name="asprilo_compute_afw" version="1" measures="clingo" config="seq-asprilo">
 
 		<setting name="horizontal_before_vertical" cmdline="{H} {N} tel horizontally_before_vertically {CLINGO_ARGS}" tag="basic" />
+		<!--
 		<setting name="vertical_before_horizontal" cmdline="{H} {N} tel vertically_before_horizontally {CLINGO_ARGS}" tag="basic" />
 		<setting name="never_both_direction" cmdline="{H} {N} tel never_both_directions {CLINGO_ARGS}" tag="basic" />
-		<!--
 		<setting name="eventually_5xright" cmdline="{H} {N} tel eventually_r_r_r_r_r" tag="basic" />
 		<setting name="square_release" cmdline="{H} {N} tel square_release" tag="basic" />
 -->

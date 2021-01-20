@@ -16,7 +16,7 @@ We use the following scripts to automatize the jobs for the benchmarks in the cl
 - Checks output for errors, if an error was found then shows the output with the internal error.
 - Calls `./bgen` to generate the .ods file with all results.
 - Cleans output
-- All results are saved in [./results](./results)
+- All results are saved in [./results](./results) inside the folder corresponding to the environment
 
 ##### [./batch_all.sh](./batch_all.sh) 
 - Cleans environment.

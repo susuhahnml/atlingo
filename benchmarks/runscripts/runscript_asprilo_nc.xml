@@ -1,10 +1,10 @@
-<runscript output="output/nc__h-{H}__n-{N}">
+<runscript output="output/asprilo/nc__h-{H}__n-{N}">
 
 	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
 	
 	<config name="seq-asprilo" template="../programs/seq-asprilo.sh"/>
   
-	<system name="compute_nc" version="1" measures="clingo" config="seq-asprilo">
+	<system name="asprilo_compute_nc" version="1" measures="clingo" config="seq-asprilo">
 
 		<setting name="without_constraint" cmdline="{H} {N} {CLINGO_ARGS}" tag="basic" />
 

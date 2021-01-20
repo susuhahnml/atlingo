@@ -9,10 +9,11 @@ NC=`tput sgr0`
 set -e
 #export PATH="$HOME/temporal-automata/stage_asp_gitlab/tools/MONA/Front:$PATH"
 
-APPROACH=$1
-HORIZON=$2
-MODELS=$3
-PREFIX=$4
+ENV=$1
+APPROACH=$2
+HORIZON=$3
+MODELS=$4
+PREFIX=$5
 CLINGO_ARGS=$5
 : ${CLINGO_ARGS:=''}
 : ${PREFIX:=''}
@@ -45,15 +46,16 @@ make clean -s
 
 
 # Create the runscript for the arguments
-RUNSCRIPT_PATH=$PWD/runscripts/runscript_asprilo_$NAME.xml
+RUNSCRIPT_PATH=$PWD/runscripts/runscript_${ENV}_$NAME.xml
 echo "$Y Creating runscript in "
 echo "$B    $RUNSCRIPT_PATH $NC"
-sed "s/{H}/"$HORIZON"/g; s/{N}/"$MODELS"/g; s/{CLINGO_ARGS}/'"$CLINGO_ARGS"'/g" ./runscripts/runscript_asprilo_$APPROACH.xml >  $RUNSCRIPT_PATH
+sed "s/{H}/"$HORIZON"/g; s/{N}/"$MODELS"/g; s/{CLINGO_ARGS}/'"$CLINGO_ARGS"'/g" ./runscripts/runscript_${ENV}_$APPROACH.xml >  $RUNSCRIPT_PATH
 
 
 # Results directory
 echo "$Y Removing old result directory $NC"
-RES_DIR=$dir/results/$NAME
+mkdir -p $dir/results/$ENV
+RES_DIR=$dir/results/$ENV/$NAME
 rm -rf $RES_DIR
 mkdir -p $RES_DIR
 
@@ -64,7 +66,7 @@ cd $BT_PATH
 
 
 #Output directory inside benchmark-tool is the value in <runscript output="">
-OUTPUT_DIR=output/${APPROACH}__h-${HORIZON}__n-${MODELS}/$PROJECT 
+OUTPUT_DIR=output/$ENV/${APPROACH}__h-${HORIZON}__n-${MODELS}/$PROJECT 
 echo "$Y Calling ./bgen$NC"
 ./bgen $RUNSCRIPT_PATH
 
@@ -91,7 +93,7 @@ echo "$G Slurm queue is now empty $NC"
 
 
 # Clean outputs in runsuolver.solver and check errors
-for f in $(find ./$OUTPUT_DIR/$MACHINE/results/asprilo-benchmark  -type f -name "*runsolver.solver");
+for f in $(find ./$OUTPUT_DIR/$MACHINE/results/$ENV-benchmark  -type f -name "*runsolver.solver");
 do
 	if grep -q 'fail' $f; then
 		if grep -q 'INTERRUPTED' $f; then

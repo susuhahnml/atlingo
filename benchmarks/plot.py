@@ -58,6 +58,8 @@ parser.add_argument("--ignore_prefix",type=str, action='append',
         help="Prefix to ignore in the instances" )
 parser.add_argument("--ignore_any",type=str, action='append',
         help="Any to ignore in the instances" )
+parser.add_argument("--env",type=str, default='asprilo',
+        help="Name of environment, asprilo or elevator" )
 args = parser.parse_args()
 
 #PARAMS
@@ -74,6 +76,7 @@ constraints = args.constraint
 mean = args.mean
 prefix = args.prefix
 ignore_prefix = args.ignore_prefix
+env = args.env
 if ignore_prefix is None:
     ignore_prefix = []
 ignore_any = args.ignore_any
@@ -89,7 +92,7 @@ assert not plot_n_models or not mean, "Only mean or models ploted"
 assert not plot_n_models or not group_instances, "Only plot or group"
 
 approaches = ["{}__h-{}".format(a,h) for a,h in list(itertools.product(approaches, horizons))]
-base_path = "results/{}__n-{}/{}__n-{}.ods"
+base_path = "results/"+env+"/{}__n-{}/{}__n-{}.ods"
 files = [base_path.format(a,models,a,models) for a in approaches]
 dfs = []
 
