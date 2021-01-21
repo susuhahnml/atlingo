@@ -1,0 +1,14 @@
+<result>
+	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
+	<config name="seq-elevator" template="../programs/seq-elevator.sh"/>
+	<system name="elevator_compute_nc" version="1" measures="clingo" config="seq-elevator">
+		<setting name="without_constraint" cmdline="8 1 ''" tag="basic" pbstemplate="templates/single.pbs"/>
+	</system>
+	<pbsjob name="pbs-gen" timeout="1200" runs="1" script_mode="timeout" walltime="3000" cpt="4" partition="short"/>
+	<benchmark name="elevator-benchmark">
+	</benchmark>
+	<project name="temporal-automata" job="pbs-gen">
+		<runspec machine="komputer" system="elevator_compute_nc" version="1" benchmark="elevator-benchmark" setting="without_constraint">
+		</runspec>
+	</project>
+</result>
