@@ -1,0 +1,17 @@
+#!/bin/bash
+
+
+ROOT="$1""/"
+INSTANCE=$2
+HORIZON=$3
+MODELS=$4
+CLINGO_ARGS=$5
+: ${CLINGO_ARGS:=''}
+
+PATH_FROM_ATLINGO_TO_ROOT="benchmark/benchmark-tool/"
+PATH_FROM_ROOT_TO_ATLINGO="../../"
+PATH_ENCODING="$ROOT""$PATH_FROM_ROOT_TO_ATLINGO""env/elevator/encoding.lp"
+
+
+printf "	clingo --stats $INSTANCE $PATH_ENCODING -c horizon=$HORIZON	-n $MODELS -q $CLINGO_ARGS"
+clingo --stats $INSTANCE $PATH_ENCODING -c horizon=$HORIZON	-n $MODELS -q $CLINGO_ARGS

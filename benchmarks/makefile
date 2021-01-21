@@ -32,8 +32,10 @@ asprilo-clean-instances:
 	rm -rf ./instances/asprilo/structured/*
 	rm -rf ./instances/asprilo/gridworld/*
 asprilo-small-instances:
+	mkdir -p ./instances/asprilo/structured
 	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x7_y6_r4 ./instances/asprilo/structured
 asprilo-medium-instances:
+	mkdir -p ./instances/asprilo/structured
 	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y6_r10 ./instances/asprilo/structured
 asprilo-large-instances:
 	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y9_r20 ./instances/asprilo/structured
@@ -44,6 +46,7 @@ asprilo-all-instances:
 	make small-instances
 	make large-instances
 asprilo-all-grid:
+	mkdir -p ./instances/asprilo/gridworld
 	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x4_y4_n12_r4 ./instances/asprilo/gridworld
 	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x4_y4_n16_r4 ./instances/asprilo/gridworld
 	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x5_y5_n20_r5 ./instances/asprilo/gridworld
