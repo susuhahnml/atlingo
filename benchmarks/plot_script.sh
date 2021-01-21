@@ -10,4 +10,4 @@ python plot.py --approach grid-afw  --approach grid-afw_del --approach grid-asp 
 python plot.py --approach grid-afw  --approach grid-afw_del --approach grid-asp --approach grid-nc --prefix="grid-choices-5"  --horizon 5 --models 0 --table --stat choices --mean  --ignore_prefix structured/x10 
 
 
-python plot.py --approach afw_del  --approach nc --prefix="elevator-choices"  --horizon 8 --models 1 --table --stat choices --mean --env elevator
+python plot.py --approach afw_del  --approach nc --prefix="elevator-choices" --models 1 --table --stat models --stat choices --stat cons --env elevator

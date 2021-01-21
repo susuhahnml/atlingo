@@ -17,7 +17,7 @@ green = '#009B33'
 red = '#FF7F00'
 purple = '#9B9BC8'
 colors = [blue,green,purple,red,yellow]
-linestyles = ['-', '--', '-.',':']
+linestyles = ['-', '--', '-.',':','-']
 
 import argparse
 
@@ -252,8 +252,17 @@ for column in columns:
         file_name_csv = 'plots/tables/{}-{}.csv'.format(prefix,column)
         file_name_tex_csv = 'plots/tables/{}-{}.tex'.format(prefix,column)
         reduced_df = reduced_df.rename(index={idx:i for idx,i in enumerate(instances)})
-        reduced_df.to_csv(file_name_csv,float_format='%.0f')
-        tex_table = reduced_df.to_latex(float_format='%.0f')
+        table_df = pd.DataFrame()
+        
+        # ELEVATOR
+        for s in reduced_df.columns:
+            s_split=s.split("__")
+            if(s_split[0]=='nc'):
+                continue
+            table_df[s_split[1]]=reduced_df[s].astype(int).apply(str)+'/'+reduced_df['nc__'+s_split[1]].astype(int).apply(str)
+
+        table_df.to_csv(file_name_csv,float_format='%.0f')
+        tex_table = table_df.to_latex(float_format='%.0f')
         f = open(file_name_tex_csv, "w")
         f.write(tex_table)
         f.close()
