@@ -8,3 +8,6 @@ python plot.py --approach afw_del --prefix="scale"  --horizon 20 --horizon 25 --
 python plot.py --approach grid-afw  --approach grid-afw_del --approach grid-asp --approach grid-nc --prefix="grid-conflicts-5"  --horizon 5 --models 0 --table --stat conflicts --mean
 
 python plot.py --approach grid-afw  --approach grid-afw_del --approach grid-asp --approach grid-nc --prefix="grid-choices-5"  --horizon 5 --models 0 --table --stat choices --mean  --ignore_prefix structured/x10 
+
+
+python plot.py --approach afw_del  --approach nc --prefix="elevator-choices"  --horizon 8 --models 1 --table --stat choices --mean --env elevator

@@ -144,7 +144,8 @@ def clean_df(df):
     instances_to_drop = [i for i,c in enumerate(instances) if any([ c.find(i)!=-1 for i in ignore_any])]
     df.drop(df.index[instances_to_drop], inplace=True)
 
-    df.iloc[:,0]=df.iloc[:,0].apply(lambda x: "{}-{}-{}".format(x.split('/')[0][0],x.split('/')[1] , x[-5:-3]))
+    #ASPRILO
+    # df.iloc[:,0]=df.iloc[:,0].apply(lambda x: "{}-{}-{}".format(x.split('/')[0][0],x.split('/')[1] , x[-5:-3]))
 
     if group_instances:
         df['instance-group']=df['instance-name'].apply(lambda x: x.split('-0')[0])
@@ -155,10 +156,12 @@ def clean_df(df):
     
     #Order instances by complexity
     def instance_complexity(s):
-        s = s.split('-')[1]
-        s = s.split('_')
-        x,y,r = (int(s[0][1:]),int(s[1][1:]),int(s[2][1:]))
-        return x*y + r
+        #ASPRILO
+        # s = s.split('-')[1]
+        # s = s.split('_')
+        # x,y,r = (int(s[0][1:]),int(s[1][1:]),int(s[2][1:]))
+        # return x*y + r
+        return 0
     df['instance-value'] = df['instance-name'].apply(instance_complexity)
     df = df.sort_values(by=['instance-value'], ascending=True)
     df = df.reset_index(drop=True)
