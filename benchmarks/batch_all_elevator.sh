@@ -24,11 +24,18 @@ make copy-programs
 
 
 # For 7 floors
-# ./run_bm.sh elevator afw_del 11 0
-# ./run_bm.sh elevator afw_del 12 0
-# ./run_bm.sh elevator afw_del 13 0
-# ./run_bm.sh elevator afw_del 14 0
-# ./run_bm.sh elevator afw_del 15 0
+./run_bm.sh elevator afw_del 11 0
+./run_bm.sh elevator afw_del 12 0
+./run_bm.sh elevator afw_del 13 0
+./run_bm.sh elevator afw_del 14 0
+./run_bm.sh elevator afw_del 15 0
+
+# For 7 floors
+./run_bm.sh elevator afw_del 14 0
+./run_bm.sh elevator afw_del 15 0
+./run_bm.sh elevator afw_del 16 0
+./run_bm.sh elevator afw_del 17 0
+./run_bm.sh elevator afw_del 18 0
 
 
 
