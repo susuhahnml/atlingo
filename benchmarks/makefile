@@ -1,5 +1,5 @@
 copy-programs:
-	cp -r programs/compute* benchmark-tool/programs
+	cp -r programs/* benchmark-tool/programs
 	cp -r programs/runsolver-3.4.0 benchmark-tool
 	cp programs/clingo.py benchmark-tool/src/benchmarktool/resultparser
 clean-results:
