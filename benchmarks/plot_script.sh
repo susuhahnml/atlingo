@@ -1,13 +1,33 @@
-python plot.py --approach afw --approach asp --approach afw_del --prefix="time-7"  --horizon 7  --stat ctime --models 0 --y="time (sec)" --mean --ignore_prefix structured/x10  --approach nc --tikz
+# python plot.py --approach afw --approach asp --approach afw_del --prefix="time-7"  --horizon 7  --stat ctime --models 0 --y="time (sec)" --mean --ignore_prefix structured/x10  --approach nc --tikz
 
-python plot.py --approach afw --approach asp --approach afw_del --prefix="rules-bodies-20"  --horizon 20  --stat rules --models 1 --approach nc  --stat bodies --mean --tikz --group
-
-
-python plot.py --approach afw_del --prefix="scale"  --horizon 20 --horizon 25 --horizon 30 --horizon  35  --stat ctime --models 1 --y="time (sec)" --mean --group --plot_type=line  --approach afw  --tikz
-
-python plot.py --approach grid-afw  --approach grid-afw_del --approach grid-asp --approach grid-nc --prefix="grid-conflicts-5"  --horizon 5 --models 0 --table --stat conflicts --mean
-
-python plot.py --approach grid-afw  --approach grid-afw_del --approach grid-asp --approach grid-nc --prefix="grid-choices-5"  --horizon 5 --models 0 --table --stat choices --mean  --ignore_prefix structured/x10 
+# python plot.py --approach afw --approach asp --approach afw_del --prefix="rules-bodies-20"  --horizon 20  --stat rules --models 1 --approach nc  --stat bodies --mean --tikz --group
 
 
-python plot.py --approach afw_del  --approach nc --prefix="elevator-choices" --models 1 --table --stat models --stat choices --stat cons --env elevator
+# python plot.py --approach afw_del --prefix="scale"  --horizon 20 --horizon 25 --horizon 30 --horizon  35  --stat ctime --models 1 --y="time (sec)" --mean --group --plot_type=line  --approach afw  --tikz
+
+# python plot.py --approach grid-afw  --approach grid-afw_del --approach grid-asp --approach grid-nc --prefix="grid-conflicts-5"  --horizon 5 --models 0 --table --stat conflicts --mean
+
+# python plot.py --approach grid-afw  --approach grid-afw_del --approach grid-asp --approach grid-nc --prefix="grid-choices-5"  --horizon 5 --models 0 --table --stat choices --mean  --ignore_prefix structured/x10 
+
+
+
+# python plot.py --approach nc --approach afw_del --prefix="elevator-5-models" --models 0 --table --stat models --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9
+
+# python plot.py --approach nc --approach afw_del --prefix="elevator-5-choices" --models 0 --table --stat choices --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9
+
+# python plot.py --approach nc --approach afw_del --prefix="elevator-5-cons" --models 0 --table --stat cons --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9
+
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-7-models" --models 0 --table --stat models --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --plot_type=line 
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-7-choices" --models 0 --table --stat choices --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line 
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-7-cons" --models 0 --table --stat cons --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line 
+
+
+
+# python plot.py --approach nc --approach afw_del --prefix="elevator-9-models" --models 0 --table --stat models --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7
+
+# python plot.py --approach nc --approach afw_del --prefix="elevator-9-choices" --models 0 --table --stat choices --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7
+
+# python plot.py --approach nc --approach afw_del --prefix="elevator-9-cons" --models 0 --table --stat cons --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7
