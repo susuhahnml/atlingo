@@ -146,7 +146,7 @@ nnf(box(X,Z),box(X,Z)) :- closure(box(X,Z)).
 
 
 %State predicate
-state_all(X') :- closure(X), nnf(X,X').
+state(X') :- closure(X), nnf(X,X').
 
 #show map_id_to_predicate/2.
 #show prop_id/1.
