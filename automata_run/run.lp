@@ -20,10 +20,10 @@ node(ID,0) :- initial_state(ID).
 
 1{select_case(Case,S,T):case(Case,S)}1:-node(S,T),S!=true,T<=horizon.
 
-:-select_case(Case,S,T), delta(Case,in,A,S,_), not in_trace_at(A,T).
-:-select_case(Case,S,T), delta(Case,out,A,S,_), in_trace_at(A,T).
+:-select_case(Case,S,T), delta(S,(Case,in,A),_), not in_trace_at(A,T).
+:-select_case(Case,S,T), delta(S,(Case,out,A),_), in_trace_at(A,T).
 
-node(S',T+1):-select_case(Case,S,T), delta(Case,_,_,S,S').
+node(S',T+1):-select_case(Case,S,T), delta(S,(Case,_,_),S').
 
 :- node(false,_).
 
