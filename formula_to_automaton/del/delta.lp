@@ -1,97 +1,135 @@
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Delta:
-% %     Defines the translation function
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+case(Case,S):-delta(Case,Opt,A,S,S').
+%-----------------   Prop
 
-% %-------------------- Positive boolean formulas shape ------------
-% %
-% %       pbf_state(ID): Positive boolean formula refering to state with id ID
-% %       pbf_true: true (__last accepting state)
-% %       pbf_false: false (invalid state)
-% %       pbf_and(B1,B2): B1 and B2 
-% %       pbf_or(B1,B2): B1 or B2 
-% %       pbf_if(V,B1,B2): if V is true choose B1 if not choose B2 
+delta(0,out,A,prop(A),false):-state(prop(A)).
+delta(1,in,A,prop(A),true):-state(prop(A)).
 
+%-----------------   Neg
+delta(0,in,A,neg(prop(A)),false):-state(neg(prop(A))).
+delta(1,out,A,neg(prop(A)),true):-state(neg(prop(A))).
 
-% %-------------------- Transition function ------------------------
-% %
-% %       delta(S,B): The delta transition from state S is the
-% %                    positive boolean formula B
+%-----------------   Boolean
+delta(0,in,true,bottom,false):-state(bottom).
+delta(0,in,true,top,true):-state(top).
 
-%Prop
-delta(prop(A),pbf_if(A,pbf_true,pbf_false)) :- 
-    state(prop(A)).
+%-----------------   Diamond
 
-%Neg
-delta(neg(prop(A)),pbf_if(A,pbf_false,pbf_true)) :- 
-    state(neg(prop(A))).
+%--- diamond(test(F1),F2)
 
-%Boolean
-delta(top,pbf_true) :- 
-    state(top).
-
-delta(bottom,pbf_false) :- 
-    state(top).
-
-%Diamond
-delta(diamond(test(F1),F2),pbf_and(BF1,BF2)) :- 
+% Conditions from F1
+delta((CaseF1,CaseF2),OptF1,A,diamond(test(F1),F2),S') :- 
     state(diamond(test(F1),F2)), 
-    delta(F1,BF1), 
-    delta(F2,BF2).
+    delta(CaseF1,OptF1,A,F1,S'),
+    case(CaseF2,F2).
 
-delta(diamond(top,F),pbf_if(LAST,pbf_false,pbf_state(F))) :- 
+% Conditions from F2
+delta((CaseF1,CaseF2),OptF2,A,diamond(test(F1),F2),S') :- 
+    state(diamond(test(F1),F2)), 
+    delta(CaseF2,OptF2,A,F2,S'),
+    case(CaseF1,F1).
+
+%--- diamond(top,F)
+
+%If last then false
+delta(0,in,LAST,diamond(top,F),false) :- 
     state(diamond(top,F)),
     last_id(LAST).
 
-delta(diamond(choice(P1,P2),F),pbf_or(BF1,BF2)) :- 
-    state(diamond(choice(P1,P2),F)),
-    delta(diamond(P1,F),BF1), 
-    delta(diamond(P2,F),BF2).
+%If not last then F
+delta(1,out,LAST,diamond(top,F),F) :- 
+    state(diamond(top,F)),
+    last_id(LAST).
 
-delta(diamond(sequence(P1,P2),F),B) :- 
+%--- diamond(sequence(P1,P2),F)
+delta(Case,Opt,A,diamond(sequence(P1,P2),F),S'):-
     state(diamond(sequence(P1,P2),F)),
-    delta(diamond(P1,diamond(P2,F)),B).
+    delta(Case,Opt,A,diamond(P1,diamond(P2,F)),S').
 
-delta(diamond(star(test(P)),F),B) :- 
-    state(diamond(star(test(P)),F)), 
-    delta(F,B).
+%--- diamond(choice(P1,P2),F)
+delta((0,CaseP1),OptP1,A,diamond(choice(P1,P2),F),S'):-
+    state(diamond(choice(P1,P2),F)),
+    delta(CaseP1,OptP1,A,diamond(P1,F),S').
 
+delta((1,CaseP2),OptP2,A,diamond(choice(P1,P2),F),S'):-
+    state(diamond(choice(P1,P2),F)),
+    delta(CaseP2,OptP2,A,diamond(P2,F),S').
+
+%--- diamond(star(P1),F)
 is_test(test(P)):-state(diamond(star(test(P)),F)).
-delta(diamond(star(P),F),pbf_or(BF,B)) :- 
-    state(diamond(star(P),F)),
-    delta(diamond(P,diamond(star(P),F)),B),
-    delta(F,BF),
-    not is_test(P).
 
+delta(Case,Opt,A,diamond(star(test(P)),F),S') :- 
+    state(diamond(star(test(P)),F)), 
+    delta(Case,Opt,A,F,S').
 
-%Box
-delta(box(test(F1),F2),pbf_or(BF1,BF2)) :- 
-    state(box(test(F1),F2)), 
-    delta(F1',BF1), 
-    delta(F2,BF2),
+delta((0,CaseP),OptP,A,diamond(star(P),F),S') :- 
+    state(diamond(star(P),F)), 
+    not is_test(P),
+    delta(CaseP,OptP,A,diamond(P,diamond(star(P),F)),S').
+
+delta((1,CaseF),OptF,A,diamond(star(P),F),S') :- 
+    state(diamond(star(P),F)), 
+    not is_test(P),
+    delta(CaseF,OptF,A,F,S').
+
+%-----------------   Box
+
+%--- box(test(F1),F2)
+
+% Conditions from neg F1
+delta((0,CaseF1),Opt,A,box(test(F1),F2),S') :- 
+    state(box(test(F1),F2)),
+    delta(CaseF1,Opt,A,F1',S'), 
     nnf(neg(F1),F1').
 
-delta(box(top,F),pbf_if(LAST,pbf_true,pbf_state(F))) :- 
+% Conditions from F2
+delta((1,CaseF2),Opt,A,box(test(F1),F2),S') :- 
+    state(box(test(F1),F2)),
+    delta(CaseF2,Opt,A,F2,S').
+
+%--- box(top,F)
+
+%If last then true
+delta(0,in,LAST,box(top,F),true) :- 
     state(box(top,F)),
     last_id(LAST).
 
-delta(box(choice(P1,P2),F),pbf_and(BF1,BF2)) :- 
-    state(box(choice(P1,P2),F)),
-    delta(box(P1,F),BF1), 
-    delta(box(P2,F),BF2).
+%If not last then F
+delta(1,out,LAST,box(top,F),F) :- 
+    state(box(top,F)),
+    last_id(LAST).
 
-delta(box(sequence(P1,P2),F),B) :- 
+%--- box(sequence(P1,P2),F)
+delta(Case,Opt,A,box(sequence(P1,P2),F),S'):-
     state(box(sequence(P1,P2),F)),
-    delta(box(P1,box(P2,F)),B).
+    delta(Case,Opt,A,box(P1,box(P2,F)),S').
 
-delta(box(star(test(P)),F),B) :- 
-    state(box(star(test(P)),F)), 
-    delta(F,B).
 
+%--- box(choice(P1,P2),F)
+delta((CaseP1,CaseP2),OptP1,A,box(choice(P1,P2),F),S'):-
+    state(box(choice(P1,P2),F)),
+    delta(CaseP1,OptP1,A,box(P1,F),S'),
+    case(CaseP2,box(P2,F)).
+
+delta((CaseP1,CaseP2),OptP2,A,box(choice(P1,P2),F),S'):-
+    state(box(choice(P1,P2),F)),
+    delta(CaseP2,OptP2,A,box(P2,F),S'),
+    case(CaseP1,box(P1,F)).
+
+%--- box(star(P1),F)
 is_test(test(P)):-state(box(star(test(P)),F)).
 
-delta(box(star(P),F),pbf_and(BF,B)) :- 
-    state(box(star(P),F)),
-    delta(box(P,box(star(P),F)),B),
-    delta(F,BF),
-    not is_test(P).
+delta(Case,Opt,A,box(star(test(P)),F),S') :- 
+    state(box(star(test(P)),F)), 
+    delta(Case,Opt,A,F,S').
+
+delta((CaseP,CaseF),OptP,A,box(star(P),F),S') :- 
+    state(box(star(P),F)), 
+    not is_test(P),
+    delta(CaseP,OptP,A,box(P,box(star(P),F)),S'),
+    case(CaseF,F).
+
+delta((CaseP,CaseF),OptF,A,box(star(P),F),S') :- 
+    state(box(star(P),F)), 
+    not is_test(P),
+    delta(CaseF,OptF,A,F,S'),
+    case(CaseP,box(P,box(star(P),F))).
