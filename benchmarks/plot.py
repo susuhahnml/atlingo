@@ -17,7 +17,7 @@ green = '#009B33'
 red = '#FF7F00'
 purple = '#9B9BC8'
 colors = [blue,green,purple,red,yellow]
-linestyles = ['-', '--', '-.',':']
+linestyles = ['-', '--', '-.',':','-']
 
 import argparse
 
@@ -58,6 +58,8 @@ parser.add_argument("--ignore_prefix",type=str, action='append',
         help="Prefix to ignore in the instances" )
 parser.add_argument("--ignore_any",type=str, action='append',
         help="Any to ignore in the instances" )
+parser.add_argument("--env",type=str, default='asprilo',
+        help="Name of environment, asprilo or elevator" )
 args = parser.parse_args()
 
 #PARAMS
@@ -74,6 +76,7 @@ constraints = args.constraint
 mean = args.mean
 prefix = args.prefix
 ignore_prefix = args.ignore_prefix
+env = args.env
 if ignore_prefix is None:
     ignore_prefix = []
 ignore_any = args.ignore_any
@@ -89,7 +92,7 @@ assert not plot_n_models or not mean, "Only mean or models ploted"
 assert not plot_n_models or not group_instances, "Only plot or group"
 
 approaches = ["{}__h-{}".format(a,h) for a,h in list(itertools.product(approaches, horizons))]
-base_path = "results/{}__n-{}/{}__n-{}.ods"
+base_path = "results/"+env+"/{}__n-{}/{}__n-{}.ods"
 files = [base_path.format(a,models,a,models) for a in approaches]
 dfs = []
 
@@ -141,7 +144,8 @@ def clean_df(df):
     instances_to_drop = [i for i,c in enumerate(instances) if any([ c.find(i)!=-1 for i in ignore_any])]
     df.drop(df.index[instances_to_drop], inplace=True)
 
-    df.iloc[:,0]=df.iloc[:,0].apply(lambda x: "{}-{}-{}".format(x.split('/')[0][0],x.split('/')[1] , x[-5:-3]))
+    #ASPRILO
+    # df.iloc[:,0]=df.iloc[:,0].apply(lambda x: "{}-{}-{}".format(x.split('/')[0][0],x.split('/')[1] , x[-5:-3]))
 
     if group_instances:
         df['instance-group']=df['instance-name'].apply(lambda x: x.split('-0')[0])
@@ -152,10 +156,12 @@ def clean_df(df):
     
     #Order instances by complexity
     def instance_complexity(s):
-        s = s.split('-')[1]
-        s = s.split('_')
-        x,y,r = (int(s[0][1:]),int(s[1][1:]),int(s[2][1:]))
-        return x*y + r
+        #ASPRILO
+        # s = s.split('-')[1]
+        # s = s.split('_')
+        # x,y,r = (int(s[0][1:]),int(s[1][1:]),int(s[2][1:]))
+        # return x*y + r
+        return 0
     df['instance-value'] = df['instance-name'].apply(instance_complexity)
     df = df.sort_values(by=['instance-value'], ascending=True)
     df = df.reset_index(drop=True)
@@ -246,8 +252,17 @@ for column in columns:
         file_name_csv = 'plots/tables/{}-{}.csv'.format(prefix,column)
         file_name_tex_csv = 'plots/tables/{}-{}.tex'.format(prefix,column)
         reduced_df = reduced_df.rename(index={idx:i for idx,i in enumerate(instances)})
-        reduced_df.to_csv(file_name_csv,float_format='%.0f')
-        tex_table = reduced_df.to_latex(float_format='%.0f')
+        table_df = pd.DataFrame()
+        
+        # ELEVATOR
+        for s in reduced_df.columns:
+            s_split=s.split("__")
+            if(s_split[0]=='nc'):
+                continue
+            table_df[s_split[1]]=reduced_df[s].astype(int).apply(str)+'/'+reduced_df['nc__'+s_split[1]].astype(int).apply(str)
+
+        table_df.to_csv(file_name_csv,float_format='%.0f')
+        tex_table = table_df.to_latex(float_format='%.0f')
         f = open(file_name_tex_csv, "w")
         f.write(tex_table)
         f.close()

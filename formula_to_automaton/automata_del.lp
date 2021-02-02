@@ -30,6 +30,7 @@
 
 #include "id_map.lp".
 
+% #include "del/reachable.lp".
 
 #show state/1.
 #show delta/2.

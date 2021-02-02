@@ -48,26 +48,24 @@ node_run_unfold(B2,T,P) :-
         not in_trace_at(V,T-1).
 
 
+
 % %-------------------- Accepting runs ------------------------
 
-degree(node_run(B,T,P),A) :-  
-        #count{1,B',T':node_run(B',T',node_run(B,T,P))}=A, 
-        node_run(B,T,P).
 
-%Every node with degree A is accepted if all its children are accepted
-accepting(node_run(state_id(ID),T,P)) :-  
-        #count{1,B,T':accepting(node_run(B,T',node_run(state_id(ID),T,P)))}=A,
-        A>=1,
-        A==A',
-        degree(node_run(state_id(ID),T,P),A'),
-        node_run(state_id(ID),T,P).
+% is_state_node(node_run(state_id(ID),T,P)):-node_run(state_id(ID),T,P).
 
-% Accepted runs are those hitting true
-accepting(node_run(true,T,P)) :- node_run(true,T,P).
+% % Every state-node is accepted if all its children are accepted
+% accepting(P) :-  
+%         #count{1,B:accepting(node_run(B,T,P));-1,C:node_run(C,T,P)}>=0,
+%         is_state_node(P).
 
-%The the root node must be accepting
-:- not accepting(node_run(_,0,root)).
-% :- node_run(false,N,P).
+
+% % Accepted runs are those hitting true
+% accepting(node_run(true,T,P)) :- node_run(true,T,P).
+
+% %The the root node must be accepting
+% :- not accepting(node_run(_,0,root)).
+
 
 
 % #show run_node_at(N,T):node_run(N,T,_).
