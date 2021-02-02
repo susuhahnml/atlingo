@@ -1,4 +1,3 @@
-case_all(Case,S):-delta_all(S,(Case,Opt,A),S').
 %-----------------   Prop
 
 delta_all(prop(A),(0,out,A),false):-state_all(prop(A)).
@@ -20,13 +19,13 @@ delta_all(top,(0,in,true),true):-state_all(top).
 delta_all(diamond(test(F1),F2),((CaseF1,CaseF2),OptF1,A),S') :- 
     state_all(diamond(test(F1),F2)), 
     delta_all(F1,(CaseF1,OptF1,A),S'),
-    case_all(CaseF2,F2).
+    delta_all(F2,(CaseF2,_,_),_).
 
 % Conditions from F2
 delta_all(diamond(test(F1),F2),((CaseF1,CaseF2),OptF2,A),S') :- 
     state_all(diamond(test(F1),F2)), 
     delta_all(F2,(CaseF2,OptF2,A),S'),
-    case_all(CaseF1,F1).
+    delta_all(F1,(CaseF1,_,_),_).
 
 %--- diamond(top,F)
 
@@ -108,12 +107,12 @@ delta_all(box(sequence(P1,P2),F),(Case,Opt,A),S'):-
 delta_all(box(choice(P1,P2),F),((CaseP1,CaseP2),OptP1,A),S'):-
     state_all(box(choice(P1,P2),F)),
     delta_all(box(P1,F),(CaseP1,OptP1,A),S'),
-    case_all(CaseP2,box(P2,F)).
+    delta_all(box(P2,F),(CaseP2,_,_),_).
 
 delta_all(box(choice(P1,P2),F),((CaseP1,CaseP2),OptP2,A),S'):-
     state_all(box(choice(P1,P2),F)),
     delta_all(box(P2,F),(CaseP2,OptP2,A),S'),
-    case_all(CaseP1,box(P1,F)).
+    delta_all(box(P1,F),(CaseP1,_,_),_).
 
 %--- box(star(P1),F)
 is_test(test(P)):-state_all(box(star(test(P)),F)).
@@ -126,13 +125,13 @@ delta_all(box(star(P),F),((CaseP,CaseF),OptP,A),S') :-
     state_all(box(star(P),F)), 
     not is_test(P),
     delta_all(box(P,box(star(P),F)),(CaseP,OptP,A),S'),
-    case_all(CaseF,F).
+    delta_all(F,(CaseF,_,_),_).
 
 delta_all(box(star(P),F),((CaseP,CaseF),OptF,A),S') :- 
     state_all(box(star(P),F)), 
     not is_test(P),
     delta_all(F,(CaseF,OptF,A),S'),
-    case_all(CaseP,box(P,box(star(P),F))).
+    delta_all(box(P,box(star(P),F)),(CaseP,_,_),_).
 
 
 
@@ -143,7 +142,6 @@ reachable(S'):-delta_all(S,_,S'),reachable(S).
 
 state(S):-state_all(S),reachable(S).
 delta(S,C,false):-delta_all(S,C,false), reachable(S).
-case(Case,S):-case_all(Case,S),reachable(S).
 
 % -------------------- Reduce A & false to false
 false_case(Case,S):-delta_all(S,(Case,Opt,A),false).

@@ -15,15 +15,18 @@
 % %                     false - branch reached fals => invalid run
 
 %Strat in root state
+
+
 node(ID,0) :- initial_state(ID).
 
+possible_case(Case,S):-delta(S,(Case,_,_),_).
+1{select_case(Case,S,T):possible_case(Case,S)}1 :- node(S,T),S!=true,T<=horizon.
 
-1{select_case(Case,S,T):case(Case,S)}1:-node(S,T),S!=true,T<=horizon.
+node(S',T+1) :- select_case(Case,S,T), delta(S,(Case,_,_),S').
 
-:-select_case(Case,S,T), delta(S,(Case,in,A),_), not in_trace_at(A,T).
-:-select_case(Case,S,T), delta(S,(Case,out,A),_), in_trace_at(A,T).
+:- select_case(Case,S,T), delta(S,(Case,in,A),_), not in_trace_at(A,T).
+:- select_case(Case,S,T), delta(S,(Case,out,A),_), in_trace_at(A,T).
 
-node(S',T+1):-select_case(Case,S,T), delta(S,(Case,_,_),S').
 
 :- node(false,_).
 

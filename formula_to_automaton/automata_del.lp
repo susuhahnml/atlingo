@@ -35,7 +35,6 @@
 % #show nnf/2.
 #show state/1.
 #show delta/3.
-#show case/2.
 #show initial_state/1.
 #show prop_id/1.
 
