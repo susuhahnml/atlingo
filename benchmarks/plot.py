@@ -17,7 +17,7 @@ green = '#009B33'
 red = '#FF7F00'
 purple = '#9B9BC8'
 colors = [blue,green,purple,red,yellow]
-linestyles = ['-', '--', '-.',':','-']
+linestyles = ['-', '--', '-.',':','-','-', '--', '-.',':','-','-', '--', '-.',':','-']
 
 import argparse
 

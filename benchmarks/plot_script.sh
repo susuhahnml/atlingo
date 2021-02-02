@@ -18,11 +18,12 @@
 # python plot.py --approach nc --approach afw_del --prefix="elevator-5-cons" --models 0 --table --stat cons --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9
 
 
-python plot.py --approach nc --approach afw_del --prefix="elevator-7-models" --models 0 --table --stat models --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --plot_type=line 
+python plot.py --approach nc --approach afw_del --prefix="elevator-models" --models 0 --table --stat models --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line 
 
-python plot.py --approach nc --approach afw_del --prefix="elevator-7-choices" --models 0 --table --stat choices --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line 
+python plot.py --approach nc --approach afw_del --prefix="elevator-choices" --models 0 --table --stat choices --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line 
 
-python plot.py --approach nc --approach afw_del --prefix="elevator-7-cons" --models 0 --table --stat cons --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line 
+python plot.py --approach nc --approach afw_del --prefix="elevator-cons" --models 0 --table --stat cons --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line 
+
 
 
 

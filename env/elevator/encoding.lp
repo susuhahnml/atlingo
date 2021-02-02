@@ -14,4 +14,3 @@ called(X,T+1):- called(X,T), time(T), not served(X, T).
 :- at(X,T), serve(T), not called(X,T).
 
 :- called(X,T), not time(T).
-#show served/2.
