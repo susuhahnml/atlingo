@@ -135,14 +135,55 @@ delta_all(box(star(P),F),((CaseP,CaseF),OptF,A),S') :-
 
 
 
-% -------------------- Clean up top down 
+% ----------------------------------------------------- 
+% Clean up
+% ----------------------------------------------------- 
 
+
+
+
+% -------------------- Keep only reachable states
 reachable(F):-initial_state(F).
 reachable(S'):-delta_all(S,_,S'),reachable(S).
 
 state(S):-state_all(S),reachable(S).
-delta(S,C,false):-delta_all(S,C,false), reachable(S).
+delta_1(S,(Case,Opt,A),S'):-delta_all(S,(Case,Opt,A),S'), not false_case(Case,S), reachable(S).
 
 % -------------------- Reduce A & false to false
-false_case(Case,S):-delta_all(S,(Case,Opt,A),false).
-delta(S,(Case,Opt,A),S'):-delta_all(S,(Case,Opt,A),S'),not false_case(Case,S), reachable(S).
+false_case(Case,S):-delta_all(S,(Case,Opt,A),false),reachable(S).
+delta_1(S,C,false):-delta_all(S,C,false), reachable(S).
+delta_1(S,(Case,Opt,A),false):-delta_all(S,(Case,Opt,A),S'), false_case(Case,S), reachable(S).
+
+% -------------------- Remove cases contained in others
+% Case1 removes Case2
+drop_delta(Case1,S,Case2):-
+    false_case(Case1,S),
+    false_case(Case2,S), 
+    Case1!=Case2,
+    #count{Opt,A:delta_1(S,(Case1,Opt,A),false),not delta_1(S,(Case2,Opt,A),false)}=0.
+
+drop_delta(Case2,S):-
+    drop_delta(Case1,S,Case2),
+    drop_delta(Case2,S,Case1),
+    Case1>Case2.
+
+drop_delta(Case2,S):-
+    drop_delta(Case1,S,Case2),
+    not drop_delta(Case2,S,Case1).
+
+delta_2(S,(Case,Opt,A),S'):-delta_1(S,(Case,Opt,A),S'), not drop_delta(Case,S).
+
+% -------------------- Remove cases for irelevat atoms using binary resolution 
+
+drop_delta_atom(Case1,A,S) :-
+    delta_2(S,(Case1,OptA,A),S'),
+    delta_2(S,(Case2,NotOptA,A),S'),
+    OptA!=NotOptA,
+    #count{OptB,B:delta_2(S,(Case2,OptB,B),S'),not delta_2(S,(Case1,OptB,B),S'),B!=A}=0,
+    #count{OptB,B:not delta_2(S,(Case2,OptB,B),S'), delta_2(S,(Case1,OptB,B),S'),B!=A}=0.
+
+% -------------------- Remove contradicting cases in A and out A
+drop_delta_2(Case,S):- delta_2(S,(Case,Opt,A),S'),delta_2(S,(Case,NotOpt,A),S''),NotOpt!=Opt.
+
+
+delta(S,(Case,Opt,A),S'):-delta_2(S,(Case,Opt,A),S'), not drop_delta_atom(Case,A,S), not drop_delta_2(Case,S).

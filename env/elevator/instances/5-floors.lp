@@ -1,4 +1,4 @@
-#const n=5.
+#const n=9.
 floor(1..n).
 
 at((n+1)/2,0). 
