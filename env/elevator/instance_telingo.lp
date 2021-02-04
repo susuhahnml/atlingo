@@ -1,16 +1,7 @@
+length((3*n+1)/2).
+&tel{X+r> z}:- length(X).
+called(0).
+called(n-1).
+at((n-1)/2).
 #program always.
-
-floor(1..5).
-
-#program initial.
-
-at(1).
-called(5).
-end''''''.
-
-#show up/0.
-#show down/0.
-#show wait/0.
-#show serve/0.
-#show called/1.
-#show at/1.
+floor(0..n-1).

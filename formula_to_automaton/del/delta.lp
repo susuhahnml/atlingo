@@ -155,6 +155,8 @@ delta_1(S,C,false):-delta_all(S,C,false), reachable(S).
 delta_1(S,(Case,Opt,A),false):-delta_all(S,(Case,Opt,A),S'), false_case(Case,S), reachable(S).
 
 % -------------------- Remove cases contained in others
+% delta(S,C,S'):-delta_1(S,C,S').
+
 % Case1 removes Case2
 drop_delta(Case1,S,Case2):-
     false_case(Case1,S),
@@ -174,6 +176,7 @@ drop_delta(Case2,S):-
 delta_2(S,(Case,Opt,A),S'):-delta_1(S,(Case,Opt,A),S'), not drop_delta(Case,S).
 
 % -------------------- Remove cases for irelevat atoms using binary resolution 
+% delta(S,C,S'):-delta_2(S,C,S').
 
 drop_delta_atom(Case1,A,S) :-
     delta_2(S,(Case1,OptA,A),S'),

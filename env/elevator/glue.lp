@@ -7,6 +7,7 @@ in_trace_at(I,T) :- up(T),id_map(I,("up")).
 in_trace_at(I,T) :- down(T),id_map(I,("down")).
 in_trace_at(I,T) :- serve(T),id_map(I,("serve")).
 in_trace_at(I,T) :- wait(T),id_map(I,("wait")).
+in_trace_at(I,T) :- ready(T),id_map(I,("ready")).
 
 
 #show holds_map/2.
