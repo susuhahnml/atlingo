@@ -50,14 +50,14 @@ delta(ID ,pbf_if(ID_LAST,pbf_false,pbf_state(ID_L))) :-
         theory_function(ID,ID_O,ID_T),
         theory_string(ID_O,">"),
         theory_tuple(ID_T,0,ID_L),
-        last_id(ID_LAST).
+        prop(ID_LAST,"last").
 
 %----- Weak Next >:
 delta(ID ,pbf_if(ID_LAST,pbf_true,pbf_state(ID_L))) :- 
         theory_function(ID,ID_O,ID_T),
         theory_string(ID_O,">:"),
         theory_tuple(ID_T,0,ID_L),
-        last_id(ID_LAST).
+        prop(ID_LAST,"last").
 
 
 %----- And &
@@ -86,7 +86,7 @@ delta(ID ,pbf_or(PBF_R,pbf_and(PBF_L,pbf_if(ID_LAST,pbf_false,pbf_state(ID))))):
         theory_tuple(ID_T,1,ID_R),
         delta(ID_L,PBF_L),
         delta(ID_R,PBF_R),
-        last_id(ID_LAST).
+        prop(ID_LAST,"last").
 
 
 %----- Release >*
@@ -97,7 +97,7 @@ delta(ID ,pbf_and(PBF_R,pbf_or(PBF_L,pbf_if(ID_LAST,pbf_true,pbf_state(ID))))):-
         theory_tuple(ID_T,1,ID_R),
         delta(ID_L,PBF_L),
         delta(ID_R,PBF_R),
-        last_id(ID_LAST).
+        prop(ID_LAST,"last").
 
 %----- Eventually >?
 delta(ID ,pbf_or(PBF_L,pbf_if(ID_LAST,pbf_false,pbf_state(ID)))):-
@@ -106,7 +106,7 @@ delta(ID ,pbf_or(PBF_L,pbf_if(ID_LAST,pbf_false,pbf_state(ID)))):-
         theory_tuple(ID_T,0,ID_L),
         not theory_tuple(ID_T,1,_),
         delta(ID_L,PBF_L),
-        last_id(ID_LAST).
+        prop(ID_LAST,"last").
 
 %----- Allways >*
 delta(ID ,pbf_and(PBF_L,pbf_if(ID_LAST,pbf_true,pbf_state(ID)))):-
@@ -115,4 +115,4 @@ delta(ID ,pbf_and(PBF_L,pbf_if(ID_LAST,pbf_true,pbf_state(ID)))):-
         theory_tuple(ID_T,0,ID_L),
         not theory_tuple(ID_T,1,_),
         delta(ID_L,PBF_L),
-        last_id(ID_LAST).
+        prop(ID_LAST,"last").

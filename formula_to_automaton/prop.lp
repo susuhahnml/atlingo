@@ -54,3 +54,8 @@ prop_id(ID) :- pos_prop_id(ID),
                theory_atom(ID_A,ID_O,ID_E),
                theory_element(ID_E,ID_T,_),
                theory_tuple(ID_T,0,ID).
+
+prop(ID,PROP):-id_map(ID,PROP), prop_id(ID).
+prop(ID,PROP):-id_map(ID,PROP), last_id(ID).
+
+#show prop/2.

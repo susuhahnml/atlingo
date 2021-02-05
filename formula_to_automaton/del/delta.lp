@@ -29,7 +29,7 @@ delta_all(diamond(test(F1),F2),((CaseF1,CaseF2),OptF2,A),S') :-
 %If not last then F
 delta_all(diamond(top,F),(1,out,LAST),F) :- 
     state_all(diamond(top,F)),
-    last_id(LAST).
+    prop(LAST,"last").
 
 %--- diamond(sequence(P1,P2),F)
 delta_all(diamond(sequence(P1,P2),F),(Case,Opt,A),S'):-
@@ -82,12 +82,12 @@ delta_all(box(test(F1),F2),((1,CaseF2),Opt,A),S') :-
 %If last then true
 delta_all(box(top,F),(0,in,LAST),true) :- 
     state_all(box(top,F)),
-    last_id(LAST).
+    prop(LAST,"last").
 
 %If not last then F
 delta_all(box(top,F),(1,out,LAST),F) :- 
     state_all(box(top,F)),
-    last_id(LAST).
+    prop(LAST,"last").
 
 %--- box(sequence(P1,P2),F)
 delta_all(box(sequence(P1,P2),F),(Case,Opt,A),S'):-
@@ -132,12 +132,14 @@ delta_all(box(star(P),F),((CaseP,CaseF),OptF,A),S') :-
 % ----------------------------------------------------- 
 
 
-% -------------------- Keep only reachable states
-reachable(F):-initial_state(F).
-reachable(S'):-delta_all(S,_,S'),reachable(S).
+% -------------------- Keep only reachable states and deltas
+reachable(F) :- initial_state(ID), state_id(ID,F).
+reachable(S') :- delta_all(S,_,S'), reachable(S).
 
-state(S):-state_all(S),reachable(S).
-delta_2(S,(Case,Opt,A),S'):-delta_all(S,(Case,Opt,A),S'), reachable(S).
+state(ID,S) :- state_all(S), reachable(S), state_id(ID,S).
+
+delta_2(ID,(Case,Opt,A),ID') :- delta_all(S,(Case,Opt,A),S'), state(ID,S), state(ID',S').
+delta_2(ID,(Case,Opt,A),true) :- delta_all(S,(Case,Opt,A),true), state(ID,S).
 
 % -------------------- Remove cases for irelevat atoms using binary resolution 
 % delta(S,C,S'):-delta_2(S,C,S').
@@ -154,3 +156,9 @@ drop_delta_2(Case,S):- delta_2(S,(Case,Opt,A),S'),delta_2(S,(Case,NotOpt,A),S'')
 
 
 delta(S,(Case,Opt,A),S'):-delta_2(S,(Case,Opt,A),S'), not drop_delta_atom(Case,A,S), not drop_delta_2(Case,S).
+
+#show delta_2/3.
+#show state_id/2.
+% #show delta_2/3.
+#show delta_all/3.
+% #show theory_id_to_predicate/2.

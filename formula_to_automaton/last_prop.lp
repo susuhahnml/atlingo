@@ -11,6 +11,4 @@ last_id(MID+1):- #max{ID:used_id(ID)}=MID.
 % Define theory_string for last
 theory_string(ID,"last"):-last_id(ID).
 
-#show last_id/1. %DONT REMOVE
-
 
