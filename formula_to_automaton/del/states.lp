@@ -1,24 +1,21 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % States:
 % %     Computes all states for automaton using 
-% %     fisher lander closure
+% %     fisher lander closure and negation normal form
+% %     state_full USES PREDICATES 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %-------------------- Initial state --------------------------
-initial_state(STATE_ID) :- theory_atom(ID_A,ID_O,ID_E),
+initial_state_full(F) :- theory_atom(ID_A,ID_O,ID_E),
                     theory_string(ID_O,"del"),
                     theory_element(ID_E,ID_T,_),
                     theory_tuple(ID_T,0,ID),
-                    theory_id_to_predicate(ID,F),
-                    state_id(STATE_ID,F).
+                    theory_id_to_predicate(ID,F).
 
 %-------------------- Fish lander closure to define states ------
-%
-% 
-%%%%%% Transforming theory ids into nested predicate
 
-%%%%%%%%%% Formulas
+%%%%%% Transforming theory ids into nested predicate
 
 % Proposition
 theory_id_to_predicate(ID,prop(ID)) :- 
@@ -145,9 +142,4 @@ nnf(box(X,Z),box(X,Z)) :- closure(box(X,Z)).
 
 
 %State predicate
-state_all(X') :- closure(X), nnf(X,X').
-state_id(LAST+1+N,X) :- state_all(X),  #count{1,X': state_all(X'), X<X'}=N, prop(LAST,"last").
-
-% #show closure/1.
-% #show initial_state/1.
-% #show state_all/1.
+state_full(X') :- closure(X), nnf(X,X').

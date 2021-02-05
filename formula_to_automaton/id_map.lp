@@ -1,7 +1,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % Id map:
-% %     Maps ids used in reified formula and automaton
-% %     into predicates
+% %     Maps ids used in reified formula and  into predicates
+% %     to visualize propositions
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 id_map(ID,(P)):-
@@ -94,6 +94,3 @@ id_map(ID,(P,MAP_0,MAP_1,MAP_2,MAP_3)):-
     id_map(ID_1,MAP_1),
     id_map(ID_2,MAP_2),
     id_map(ID_3,MAP_3).
-
-
-#show id_map/2. %DONT REMOVE

@@ -4,7 +4,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-#include "./trace.lp". %Define last time step of the trace 
+#include "./trace.lp". %Last holds in horizon and true holds in all time steps
 
 
 node(ID,0) :- initial_state(ID).
@@ -18,14 +18,8 @@ node(S',T+1) :- select_case(Case,S,T), delta(S,(Case,_,_),S').
 :- select_case(Case,S,T), delta(S,(Case,out,A),_), in_trace_at(A,T).
 
 
-% :- node(false,_).
-
 in_trace_at(true,0..horizon).
 
-
-% #show run_node_at(N,T):node_run(N,T,_).
-% #show id_map/2.
-% #show holds/2.
 #show holds_map/2.
 % #show node/2.
 % #show select_case/3.

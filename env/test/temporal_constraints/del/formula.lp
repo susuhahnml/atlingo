@@ -6,4 +6,5 @@
 % :- not &del{ &true }.
 % :- not &del{ ?a ;..>* b }.
 % :- not &del{ &false }.
-:- not &del{ &true .>? p}.
+% :- not &del{ &true .>? p}.
+:- not &del{ &true .>? move(robot(1),(1,0))}.

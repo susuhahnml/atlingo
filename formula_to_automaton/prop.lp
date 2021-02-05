@@ -1,27 +1,20 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % Propositional atoms:
 % %     Gets the ids for all atomic propositions in the formula
+% %     used to generate the alphabet
+% %    
+% %     prop(ID,PROP)
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %TEL Operators
-operator("~").
-operator(">").
-operator(">:").
-operator(">?").
-operator(">*").
-operator("&").
-operator("|").
-operator(">?").
+operator("~"). operator(">"). operator(">:").
+operator(">?"). operator(">*"). operator("&").
+operator("|"). operator(">?").
 
 %DEL Operators
-operator(";;").
-operator("+").
-operator("?").
-operator("*").
-operator("~").
-operator("&").
-operator(".>?").
-operator(".>*").
+operator(";;"). operator("+"). operator("?").
+operator("*"). operator("~"). operator("&").
+operator(".>?"). operator(".>*").
 
 reserved_words("holds").
 reserved_words("trace").
@@ -38,9 +31,6 @@ pos_prop_id(ID) :- theory_string(ID,P),
                    not operator(P), 
                    not reserved_words(P).
 
-% Find max arity of a tuple
-% tuple_max(MAX) :- #max{D:theory_tuple(_,D,_)}=MAX.
-
 % Remove arguments of atoms from the prop: 
 % Example: Remove robot(1) when only appearing in move(robot(1)).
 prop_id(ID) :- pos_prop_id(ID), 
@@ -55,7 +45,16 @@ prop_id(ID) :- pos_prop_id(ID),
                theory_element(ID_E,ID_T,_),
                theory_tuple(ID_T,0,ID).
 
-prop(ID,PROP):-id_map(ID,PROP), prop_id(ID).
-prop(ID,PROP):-id_map(ID,PROP), last_id(ID).
+% Creates special proposition "last"
+used_id(ID) :- theory_string(ID,S), S!="last".
+used_id(ID) :- theory_function(ID,IDS,_), theory_string(IDS,S), S!= "last".
+last_id(MID+1):- #max{ID:used_id(ID)}=MID.
 
-#show prop/2.
+
+% Mappings from ids to readable format
+#include "id_map.lp".
+
+
+prop(ID,PROP):-id_map(ID,PROP), prop_id(ID).
+prop(ID,"last"):- last_id(ID).
+
