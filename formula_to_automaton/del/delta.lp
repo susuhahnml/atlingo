@@ -1,14 +1,11 @@
 %-----------------   Prop
 
-delta_all(prop(A),(0,out,A),false):-state_all(prop(A)).
-delta_all(prop(A),(1,in,A),true):-state_all(prop(A)).
+delta_all(prop(A),(0,in,A),true):-state_all(prop(A)).
 
 %-----------------   Neg
-delta_all(neg(prop(A)),(0,in,A),false):-state_all(neg(prop(A))).
-delta_all(neg(prop(A)),(1,out,A),true):-state_all(neg(prop(A))).
+delta_all(neg(prop(A)),(0,out,A),true):-state_all(neg(prop(A))).
 
 %-----------------   Boolean
-delta_all(bottom,(0,in,true),false):-state_all(bottom).
 delta_all(top,(0,in,true),true):-state_all(top).
 
 %-----------------   Diamond
@@ -28,11 +25,6 @@ delta_all(diamond(test(F1),F2),((CaseF1,CaseF2),OptF2,A),S') :-
     delta_all(F1,(CaseF1,_,_),_).
 
 %--- diamond(top,F)
-
-%If last then false
-delta_all(diamond(top,F),(0,in,LAST),false) :- 
-    state_all(diamond(top,F)),
-    last_id(LAST).
 
 %If not last then F
 delta_all(diamond(top,F),(1,out,LAST),F) :- 
@@ -140,50 +132,22 @@ delta_all(box(star(P),F),((CaseP,CaseF),OptF,A),S') :-
 % ----------------------------------------------------- 
 
 
-
-
 % -------------------- Keep only reachable states
 reachable(F):-initial_state(F).
 reachable(S'):-delta_all(S,_,S'),reachable(S).
 
 state(S):-state_all(S),reachable(S).
-delta_1(S,(Case,Opt,A),S'):-delta_all(S,(Case,Opt,A),S'), not false_case(Case,S), reachable(S).
-
-% -------------------- Reduce A & false to false
-false_case(Case,S):-delta_all(S,(Case,Opt,A),false),reachable(S).
-delta_1(S,C,false):-delta_all(S,C,false), reachable(S).
-delta_1(S,(Case,Opt,A),false):-delta_all(S,(Case,Opt,A),S'), false_case(Case,S), reachable(S).
-
-% -------------------- Remove cases contained in others
-% delta(S,C,S'):-delta_1(S,C,S').
-
-% Case1 removes Case2
-drop_delta(Case1,S,Case2):-
-    false_case(Case1,S),
-    false_case(Case2,S), 
-    Case1!=Case2,
-    #count{Opt,A:delta_1(S,(Case1,Opt,A),false),not delta_1(S,(Case2,Opt,A),false)}=0.
-
-drop_delta(Case2,S):-
-    drop_delta(Case1,S,Case2),
-    drop_delta(Case2,S,Case1),
-    Case1>Case2.
-
-drop_delta(Case2,S):-
-    drop_delta(Case1,S,Case2),
-    not drop_delta(Case2,S,Case1).
-
-delta_2(S,(Case,Opt,A),S'):-delta_1(S,(Case,Opt,A),S'), not drop_delta(Case,S).
+delta_2(S,(Case,Opt,A),S'):-delta_all(S,(Case,Opt,A),S'), reachable(S).
 
 % -------------------- Remove cases for irelevat atoms using binary resolution 
 % delta(S,C,S'):-delta_2(S,C,S').
 
-drop_delta_atom(Case1,A,S) :-
-    delta_2(S,(Case1,OptA,A),S'),
-    delta_2(S,(Case2,NotOptA,A),S'),
-    OptA!=NotOptA,
-    #count{OptB,B:delta_2(S,(Case2,OptB,B),S'),not delta_2(S,(Case1,OptB,B),S'),B!=A}=0,
-    #count{OptB,B:not delta_2(S,(Case2,OptB,B),S'), delta_2(S,(Case1,OptB,B),S'),B!=A}=0.
+% drop_delta_atom(Case1,A,S) :-
+%     delta_2(S,(Case1,OptA,A),S'),
+%     delta_2(S,(Case2,NotOptA,A),S'),
+%     OptA!=NotOptA,
+%     #count{OptB,B:delta_2(S,(Case2,OptB,B),S'),not delta_2(S,(Case1,OptB,B),S'),B!=A}=0,
+%     #count{OptB,B:not delta_2(S,(Case2,OptB,B),S'), delta_2(S,(Case1,OptB,B),S'),B!=A}=0.
 
 % -------------------- Remove contradicting cases in A and out A
 drop_delta_2(Case,S):- delta_2(S,(Case,Opt,A),S'),delta_2(S,(Case,NotOpt,A),S''),NotOpt!=Opt.
