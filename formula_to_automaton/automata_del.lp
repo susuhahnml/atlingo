@@ -29,7 +29,7 @@
 
 
 % %------------------ Clean up ------------------------
-#include "del/clean.lp".
+#include "./clean.lp".
 
 
 #show state/2.

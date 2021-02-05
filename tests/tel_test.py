@@ -107,10 +107,7 @@ class TestMain(TestCase):
         result = run_check(":- not &tel{ p }. :- not &tel{ q }.",trace="q(0).p(0).",horizon=2)
         self.assert_sat(result)
 
-
-    def test_check(self):
-        self.maxDiff=None
-        
+    def test_asprilo(self):
         ######### Examples using asprilo env starting actions in timepoint 1.
 
         result = run_check(":- not &tel{ > move(robot(1),(1,0)) & > > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).move(robot(1),(1,0),1).",horizon=2,mapping="./env/asprilo/glue.lp")
@@ -119,6 +116,10 @@ class TestMain(TestCase):
         result = run_check(":- not &tel{ > move(robot(1),(1,0)) & > > move(robot(1),(1,0)) }.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="./env/asprilo/glue.lp")
         self.assert_unsat(result)
 
+
+    def test_check(self):
+        self.maxDiff=None
+        
         ######### Examples using simple env starting actions in timepoint 0.
 
         # Boolean constats
@@ -194,9 +195,6 @@ class TestMain(TestCase):
         
         result = run_check(":-not &tel{ > p}.",trace="",horizon=0)
         self.assert_unsat(result)   
-
-        result = run_check(":-not &tel{ > p}.",trace="p(1).",horizon=2)
-        self.assert_sat(result)
 
 
 
