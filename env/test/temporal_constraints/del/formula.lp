@@ -7,4 +7,4 @@
 % :- not &del{ ?a ;..>* b }.
 % :- not &del{ &false }.
 % :- not &del{ &true .>? p}.
-:- not &del{ &true .>? move(robot(1),(1,0))}.
+:- not &del{  ? (* &true .>* b) ;; &true .>? a }.

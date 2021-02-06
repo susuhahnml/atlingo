@@ -18,6 +18,9 @@ make copy-programs
 ./run_bm.sh elevator afw_del 16 0
 ./run_bm.sh elevator afw_del 17 0
 ./run_bm.sh elevator afw_del 18 0
+./run_bm.sh elevator afw_del 19 0
+./run_bm.sh elevator afw_del 20 0
+./run_bm.sh elevator afw_del 21 0
 
 
 ./run_bm.sh elevator nc 8 0
@@ -31,6 +34,9 @@ make copy-programs
 ./run_bm.sh elevator nc 16 0
 ./run_bm.sh elevator nc 17 0
 ./run_bm.sh elevator nc 18 0
+./run_bm.sh elevator nc 19 0
+./run_bm.sh elevator nc 20 0
+./run_bm.sh elevator nc 21 0
 
 
 make clean -s
