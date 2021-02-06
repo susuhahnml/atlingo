@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "src/bconv.py", line 43, in <module>
+    res.genOffice(out, opts.projects, opts.measures)
+  File "/home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/src/benchmarktool/result/result.py", line 60, in genOffice
+    sheet.finish()
+  File "/home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/src/benchmarktool/result/soffice.py", line 21, in finish
+    self.instSheet.finish()
+  File "/home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/src/benchmarktool/result/soffice.py", line 431, in finish
+    column.calcSummary(self.resultOffset - 2, [])
+  File "/home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/src/benchmarktool/result/soffice.py", line 581, in calcSummary
+    column.summary.calc(n, column.content, minimum, maximum, median)
+  File "/home/hahnmartinlu/temporal-automata/atlingo/benchmarks/benchmark-tool/src/benchmarktool/result/soffice.py", line 495, in calc
+    self.dev = math.sqrt(self.sqsum / self.count - self.avg * self.avg)
+ValueError: math domain error
