@@ -17,14 +17,35 @@
 
 # python plot.py --approach nc --approach afw_del --prefix="elevator-5-cons" --models 0 --table --stat cons --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9
 
+# 5 floors
+python plot.py --approach nc --approach afw_del --prefix="elevator-models-5" --models 0 --table --stat models --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9 --ignore_any=11
 
-python plot.py --approach nc --approach afw_del --prefix="elevator-models" --models 0 --table --stat models --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line 
+python plot.py --approach nc --approach afw_del --prefix="elevator-choices-5" --models 0 --table --stat choices --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9 --ignore_any=11
 
-python plot.py --approach nc --approach afw_del --prefix="elevator-choices" --models 0 --table --stat choices --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line 
+python plot.py --approach nc --approach afw_del --prefix="elevator-cons-5" --models 0 --table --stat cons --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9 --ignore_any=11
 
-python plot.py --approach nc --approach afw_del --prefix="elevator-cons" --models 0 --table --stat cons --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line 
+# 7 floors
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-models-7" --models 0 --table --stat models --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line --ignore_any=5 --ignore_any=9 --ignore_any=11
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-choices-7" --models 0 --table --stat choices --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line --ignore_any=5 --ignore_any=9 --ignore_any=11
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-cons-7" --models 0 --table --stat cons --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line --ignore_any=5 --ignore_any=9 --ignore_any=11
+
+# 9 floors
+python plot.py --approach nc --approach afw_del --prefix="elevator-models-9" --models 0 --table --stat models --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=11
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-choices-9" --models 0 --table --stat choices --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=11
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-cons-9" --models 0 --table --stat cons --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=11
 
 
+# 11 floors
+python plot.py --approach nc --approach afw_del --prefix="elevator-models-11" --models 0 --table --stat models --env elevator --horizon 17 --horizon 18 --horizon 19 --horizon 20 --horizon 21 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=9
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-choices-11" --models 0 --table --stat choices --env elevator --horizon 17 --horizon 18 --horizon 19 --horizon 20 --horizon 21 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=9
+
+python plot.py --approach nc --approach afw_del --prefix="elevator-cons-11" --models 0 --table --stat cons --env elevator --horizon 17 --horizon 18 --horizon 19 --horizon 20 --horizon 21 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=9
 
 
 # python plot.py --approach nc --approach afw_del --prefix="elevator-9-models" --models 0 --table --stat models --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7
