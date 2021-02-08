@@ -3,4 +3,4 @@
 % %     Generates possible traces
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-{in_trace_at(ID,0..horizon)} :- prop_id(ID).
+{in_trace_at(ID,0..horizon)} :- prop(ID,PROP), PROP!="last".

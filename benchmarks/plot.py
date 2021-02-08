@@ -17,7 +17,7 @@ green = '#009B33'
 red = '#FF7F00'
 purple = '#9B9BC8'
 colors = [blue,green,purple,red,yellow]
-linestyles = ['-', '--', '-.',':','-']
+linestyles = ['-', '--', '-.',':','-','-', '--', '-.',':','-','-', '--', '-.',':','-']
 
 import argparse
 
@@ -259,7 +259,7 @@ for column in columns:
             s_split=s.split("__")
             if(s_split[0]=='nc'):
                 continue
-            table_df[s_split[1]]=reduced_df[s].astype(int).apply(str)+'/'+reduced_df['nc__'+s_split[1]].astype(int).apply(str)
+            table_df[s_split[1]]=reduced_df['nc__'+s_split[1]].astype(int).apply(str)+'/'+reduced_df[s].astype(int).apply(str)
 
         table_df.to_csv(file_name_csv,float_format='%.0f')
         tex_table = table_df.to_latex(float_format='%.0f')

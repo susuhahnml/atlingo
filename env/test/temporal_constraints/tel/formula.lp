@@ -1,2 +1,1 @@
-% :- not &tel{ >* (a | (> a)) }.
-:- not &tel{ >* >? ((a & (> b)) | (~ a & (>: ~ b)) ) }.
+:- not &tel{ &false >* p}.

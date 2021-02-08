@@ -3,13 +3,13 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % One rule for each type of predicate used in the formula
-in_trace_at(I,T) :- up(T),id_map(I,("up")).
-in_trace_at(I,T) :- down(T),id_map(I,("down")).
-in_trace_at(I,T) :- serve(T),id_map(I,("serve")).
-in_trace_at(I,T) :- wait(T),id_map(I,("wait")).
+in_trace_at(ID,T) :- up(T),prop(ID,("up")).
+in_trace_at(ID,T) :- down(T),prop(ID,("down")).
+in_trace_at(ID,T) :- serve(T),prop(ID,("serve")).
+in_trace_at(ID,T) :- wait(T),prop(ID,("wait")).
+in_trace_at(ID,T) :- ready(T),prop(ID,("ready")).
 
 
-#show holds_map/2.
 % #show called/2.
 % #show served/2.
 % #show serve/1.

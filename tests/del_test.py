@@ -126,14 +126,6 @@ class TestMain(TestCase):
     def test_check(self):
         self.maxDiff=None
 
-        ######### Examples using asprilo env starting actions in timepoint 1.
-        
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="env/asprilo/glue.lp")
-        self.assert_sat(result)
-
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="env/asprilo/glue.lp")
-        self.assert_unsat(result)
-
         ######### Examples using simple env starting actions in timepoint 0.
 
         # Boolean constats
@@ -339,7 +331,16 @@ class TestMain(TestCase):
         result = run_check(":-not &del{ * (?q) .>* p}.",trace="p(0).",horizon=2)
         self.assert_sat(result)
 
+    def test_asprilo(self):
 
+        ######### Examples using asprilo env starting actions in timepoint 1.
+        
+    
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="env/asprilo/glue.lp")
+        self.assert_sat(result)
+
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="env/asprilo/glue.lp")
+        self.assert_unsat(result)
 
     def test_multiple(self):
         self.maxDiff=None

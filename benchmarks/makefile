@@ -4,6 +4,8 @@ copy-programs:
 	cp programs/clingo.py benchmark-tool/src/benchmarktool/resultparser
 clean-results:
 	rm -rf ./results/*
+clean-ods:
+	rm -rf ./results/elevator/*.ods
 clean-plots:
 	rm -rf ./plots/img/*
 	rm -rf ./plots/tables/*

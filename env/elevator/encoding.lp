@@ -11,7 +11,6 @@ at(X, T+1)  :- at(X,T), not up(T), not down(T), time(T).
 served(X, T) :- at(X,T), serve(T).
 called(X,T+1):- called(X,T), time(T), not served(X, T).
 
-:- at(X,T), serve(T), not called(X,T).
+ready(T) :- called(X,T), at(X,T).
 
 :- called(X,T), not time(T).
-#show served/2.
