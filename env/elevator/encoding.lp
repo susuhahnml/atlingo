@@ -14,3 +14,13 @@ called(X,T+1):- called(X,T), time(T), not served(X, T).
 ready(T) :- called(X,T), at(X,T).
 
 :- called(X,T), not time(T).
+
+% #show called/2.
+% #show time/1.
+#show serve/1.
+% #show served/2.
+% #show at/2.
+#show up/1.
+#show wait/1.
+#show down/1.
+% #show prop/2.

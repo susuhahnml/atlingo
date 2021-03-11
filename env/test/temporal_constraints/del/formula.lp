@@ -6,5 +6,5 @@
 % :- not &del{ &true }.
 % :- not &del{ ?a ;..>* b }.
 % :- not &del{ &false }.
-% :- not &del{ &true .>? p}.
-:- not &del{  ? (* &true .>* b) ;; &true .>? a }.
+:- not &del{ &true .>? p}.
+% :- not &del{  ? (* &true .>* b) ;; &true .>? a }.
