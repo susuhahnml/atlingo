@@ -9,6 +9,9 @@ $(eval LOGIC ?= tel)
 $(eval MODELS ?= 1)
 $(eval NAME_INSTANCE = $(basename $(notdir $(INSTANCE))))
 $(eval PATH_OUT = ./outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE))
+$(eval PATH_TELINGO_OUT = outputs/$(APP)/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/telingo)
+$(eval PATH_TO_TELINGO = benchmarks/telingo)
+$(eval PATH_FROM_TELINGO = ../..)
 $(eval PATH_INPUT = env/$(APP)/temporal_constraints/$(LOGIC)/$(CONSTRAINT))
 ZSH_RESULT:=$(shell mkdir -p $(PATH_OUT))
 $(eval EXTRA = $(PATH_INPUT).extra.lp)
@@ -81,6 +84,18 @@ tests:
 stats:
 	tail -32 $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
 
+######################  TELINGO ########################
+
+translate-telingo:
+
+
+	rm -f ./$(PATH_TELINGO_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
+	(cd benchmarks/telingo ; python telingo/program_observer.py $(HORIZON) $(PATH_FROM_TELINGO)/$(PATH_TELINGO_OUT)_translation.lp $(PATH_FROM_TELINGO)/env/$(APP)/telingo_choices.lp  $(PATH_FROM_TELINGO)/$(PATH_INPUT).lp)
+
+translate-run-telingo:
+	@ make translate-telingo CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=$(APP)
+	clingo ./$(PATH_TELINGO_OUT)_translation.lp  $(INSTANCE) $(RUN_FILES) -n $(MODELS) -c horizon=$(HORIZON) --stats | tee $(PATH_OUT)/telingo_plan_h-$(HORIZON)_n-$(MODELS).txt
+
 ######################  ASPRILO ########################
 
 run-asprilo:
@@ -105,7 +120,7 @@ viz-asprilo:
 
 run-elevator:
 
-	@ make run CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=elevator RUN_FILES="env/elevator/encoding.lp $(RUN_FILES)" MODELS=$(MODELS)
+	@ make run CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) APP=elevator RUN_FILES="env/elevator/encoding.lp $(RUN_FILES)" MODELS=$(MODELS) 
 
 translate-elevator:
 

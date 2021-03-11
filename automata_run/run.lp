@@ -19,6 +19,7 @@ node(S',T+1) :- select_case(Case,S,T), delta(S,(Case,_,_),S'), S'!=true.
 
 
 #show holds_map/2.
+% #show in_trace_at/2.
 % #show node/2.
 % #show select_case/3.
 % #show select_case/3.
