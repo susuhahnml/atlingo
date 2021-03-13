@@ -4,6 +4,23 @@ import clingo
 # from subprocess import Popen, PIPE
 import subprocess
 import itertools
+from pyutils.ldlf import LDLfFormula
+from benchmarks.ltlf2dfa.ltlf2dfa.ltlf import (
+    LTLfAtomic,
+    LTLfAnd,
+    LTLfEquivalence,
+    LTLfOr,
+    LTLfNot,
+    LTLfImplies,
+    LTLfEventually,
+    LTLfAlways,
+    LTLfUntil,
+    LTLfRelease,
+    LTLfNext,
+    LTLfWeakNext,
+    LTLfTrue,
+    LTLfFalse,
+)
 
 
 logic = 'del'
@@ -362,3 +379,37 @@ class TestMain(TestCase):
         self.assert_unsat(result)
         result = run_check(":-not &del{ (? ((* &true) .>* q)) .>* p}.",trace="q(0).q(1).q(2).p(0).",horizon=2)
         self.assert_sat(result)
+
+
+    def test_ldlf(self):
+        formulas = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")
+        self.assertEqual(formulas[0]._rep,"<(&skip)>(b)")
+
+        formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a ;; * (? a + ?b ;; &true) .>? b}.")
+        self.assertEqual(formulas[0]._rep,"<((a)?;;((((a)?+(b)?);;(&skip))*))>(b)")
+        formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a(X) .>* &true}, p(X). p(1). p(2).")
+        self.assertEqual(len(formulas),2)
+        self.assertEqual(formulas[0]._rep,"[(a(1))?] &true ")
+        self.assertEqual(formulas[1]._rep,"[(a(2))?] &true ")
+
+
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")[0]
+        ltlf_formula = LDLfFormula.to_ltlf(formula)
+        
+        b = LTLfAtomic('b')
+        next_b = LTLfNext(b)
+        self.assertEqual(ltlf_formula,next_b)
+
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ? a ;; &true .>? b}.")[0]
+        ltlf_formula = LDLfFormula.to_ltlf(formula)
+        a = LTLfAtomic('a')
+        a_0 = LTLfAtomic('aux_0')
+        a_1 = LTLfAtomic('aux_1')
+
+        self.assertEqual(ltlf_formula,LTLfAnd([a_0,LTLfEquivalence([a_0,LTLfAnd([a,next_b])])]))
+
+
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
+        ltlf_formula = LDLfFormula.to_ltlf(formula)
+        self.assertEqual(str(ltlf_formula),"((aux_0 & (aux_0 <-> (b | aux_1))) & (aux_1 <-> (a & X(aux_0))))")
+        
