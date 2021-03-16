@@ -109,13 +109,13 @@ translate-telingo:
 	@if [ "$(APP)" = "telingo" ]; then echo ""; else  echo "$(R)Inconsistency APP should be telingo$(NC)"; fi
 
 	rm -f ./$(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
-	(cd benchmarks/telingo ; python telingo/program_observer.py $(HORIZON) $(PATH_FROM_TELINGO)/$(PATH_OUT)_translation.lp $(PATH_FROM_TELINGO)/env/$(ENV_APP)/telingo_choices.lp  $(PATH_FROM_TELINGO)/$(PATH_INPUT).lp)
+	(cd benchmarks/telingo ; python telingo/program_observer.py $(HORIZON) $(PATH_FROM_TELINGO)/$(PATH_OUT)/translation.lp $(PATH_FROM_TELINGO)/env/$(ENV_APP)/telingo_choices.lp  $(PATH_FROM_TELINGO)/$(PATH_INPUT).lp)
 	@printf "$(G) Translation of telingo successfull $(NC)\n";
 
 translate-run-telingo:
 
 	@ make translate-telingo CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP)
-	clingo ./$(PATH_OUT)_translation.lp  $(INSTANCE) $(RUN_FILES) -n $(MODELS) -c horizon=$(HORIZON) --stats | tee $(PATH_OUT)/telingo_plan_h-$(HORIZON)_n-$(MODELS).txt
+	clingo ./$(PATH_OUT)/translation.lp  $(INSTANCE) $(RUN_ENV_FILES_$(ENV_APP)) -n $(MODELS) -c horizon=$(HORIZON) --stats | tee $(PATH_OUT)/telingo_plan_h-$(HORIZON)_n-$(MODELS).txt
 
 
 ######################  DFA ########################
