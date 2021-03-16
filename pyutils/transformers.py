@@ -6,7 +6,6 @@ from pyutils.ldlf import (
 )
 from ltlf2dfa.base import MonaProgram
 from ltlf2dfa.ltlf2dfa import createMonafile, invoke_mona, output2dot
-from dotpy.parser.parser import MyParser
 from pyutils.automata import NFA
 from pyutils.ldlf import LDLfFormula
 import sys

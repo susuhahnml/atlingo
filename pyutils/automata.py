@@ -1,6 +1,5 @@
 import json
 import re
-from dotpy.parser.parser import MyParser
 from graphviz import Digraph, Source
 
 class State():
