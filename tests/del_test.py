@@ -5,7 +5,7 @@ import clingo
 # from subprocess import Popen, PIPE
 import subprocess
 import itertools
-from pyutils.transformers import ldlf2ltlf, ltlf2nfa,ldlflp2nfalp
+from pyutils.transformers import ldlf2ltlf, ltlf2nfa,ldlflp2nfalp,nfa2lp
 from pyutils.ldlf import LDLfFormula
 from ltlf2dfa.ltlf import (
     LTLfAtomic,
@@ -63,7 +63,7 @@ def parse_model(m):
 def solve(const=[], files=[],inline_data=[]):
     r = []
     imax  = 20
-    ctl = clingo.Control(['0']+const, message_limit=0)
+    ctl = clingo.Control(['0','--project']+const, message_limit=0)
     ctl.add("base", [], "")
     for f in files:
         ctl.load(f)
@@ -99,7 +99,7 @@ def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file=
 
 def comapre_app(constraint,horizon=3):
     ldlflp2nfalp("outputs/test/dfa/del/formula_test/empty/automaton.lp",ldl_inline=constraint)
-    files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/nfa_run.lp","./automata_run/trace_generator.lp"]
+    files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
     m_nfa = solve(["-c horizon={}".format(horizon)],files)
     translate(constraint,"formula_test.lp")
 
@@ -108,6 +108,7 @@ def comapre_app(constraint,horizon=3):
     return (m_nfa,m_afw)
 
 class TestCase(unittest.TestCase):
+    longMessage = True
     def assert_base(self,base_model,result):
         for r in result:
             for a in base_model:
@@ -131,8 +132,8 @@ class TestMain(TestCase):
         self.maxDiff=None
         
         result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=1)
-        base_model = [(0,'("q",1)'),(0,'"p"'),(1,'"p"'),(1,'"last"')]
-        expected_models = [base_model, base_model+[(1,'("q",1)')]]
+        base_model = [(0,'"q(1)"'),(0,'"p"'),(1,'"p"'),(1,'"last"')]
+        expected_models = [base_model, base_model+[(1,'"q(1)"')]]
         self.assert_all(expected_models,result)
         self.assert_base(base_model,result)
 
@@ -143,7 +144,7 @@ class TestMain(TestCase):
 
 
         result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=3)
-        base_model = [(0,'("q",1)'),(0,'"p"'),(1,'"p"'),(3,'"last"')]
+        base_model = [(0,'"q(1)"'),(0,'"p"'),(1,'"p"'),(3,'"last"')]
         self.assert_base(base_model,result)
 
         result = run_generate(":- not &del{ * ( ?p ;; &true ) .>? ?q .>? ~ p}.",horizon=1)
@@ -431,50 +432,78 @@ class TestMain(TestCase):
         b = LTLfAtomic('b')
         next_b = LTLfNext(b)
         # self.assertEqual(ltlf_formula,LTLfAnd([a_0,LTLfAlways(LTLfEquivalence([a_0,next_b]))]))
+        self.assertEqual(ltlf_formula,next_b)
 
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ? a ;; &true .>? b}.")[0]
         ltlf_formula = ldlf2ltlf(formula)
         # a = LTLfAtomic('a')
         # a_1 = LTLfAtomic('aux_1')
 
-        # self.assertEqual(str(ltlf_formula),"((aux_1 & G((aux_1 <-> (a & aux_0)))) & G((aux_0 <-> X(b))))")
+        self.assertEqual(str(ltlf_formula),"(aux_0 & G((aux_0 <-> (a & X(b)))))")
 
 
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
         ltlf_formula = ldlf2ltlf(formula)
-        # self.assertEqual(str(ltlf_formula),"(((aux_0 & G((aux_0 <-> (b | aux_2)))) & G((aux_2 <-> (a & aux_1)))) & G((aux_1 <-> X(aux_0))))")
+        self.assertEqual(str(ltlf_formula),"((aux_0 & G((aux_0 <-> (b | aux_1)))) & G((aux_1 <-> (a & X(aux_0)))))")
 
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ &true }.")[0]
+        ltlf_formula = ldlf2ltlf(formula)
 
+    def test_translation(self):
+
+        self.longMessage = True
         constraints = [
-            #  ":- not &del{ &true .>? b}.",
-             ":- not &del{ *(? a(1) ;; &true) .>? b}."
+            ":- not &del{ &true }.",
+            ":- not &del{ &false }.",
+            # Atoms
+            ":- not &del{ p }.",
+            # Step (Diamond)
+            ":-not &del{ &true .>? p}.",
+            # Step (Box)
+            ":-not &del{ &true .>* p}.",
+            # Test construct (Diamond)
+            ":-not &del{ ?q .>? p}.",
+            # Test construct (Box)
+            ":-not &del{ ?q .>* p}.",
+            # Sequence (Diamond)
+            ":-not &del{ ?q ;; &true .>? p}.",
+            ":-not &del{ ?q ;; ?p .>? &true}.",
+            # Sequence (Box)
+            ":-not &del{ ?q ;; &true .>* p}.",
+            ":-not &del{ ?q ;; ?p .>* &true}.",
+            # Choice (Diamond)
+            ":-not &del{ ?q + &true .>? p}.",
+            ":-not &del{ ?q + ?p .>? &true}.",
+            # Choice (Box)
+            ":-not &del{ ?q + &true .>* p}.",
+            ":-not &del{ ?q + ?p .>* &true}.",
+            # Star (Diamond)
+            ":-not &del{ * (?q ;; &true) .>? p}.",
+            ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.",
+            # Star (Box)
+            ":-not &del{ * (?q ;; &true) .>* p}.",
+            ":-not &del{ * (?q) .>* ?p .>? &true .>? q}.",
+            # Star (Box)
+            ":-not &del{ ?q .>? &true .>* &false}."
         ]
-        
         for cons in constraints:
-            for h in range(1,2):
-                print(h)
+            for h in range(1,4):
+                print("Testing {} with h = {}".format(cons,h))
                 m_nfa,m_afw = comapre_app(cons,h)
-                print(m_nfa)
-                print(m_afw)
-                self.assertListEqual(m_nfa,m_afw)
+                self.assertListEqual(m_nfa,m_afw,cons)
 
 
-# [[(0, '"a(1)"'), (0, '"b"'), (1, '"b"'), (1, '"last"')],
-#  [(0, '"a(1)"'), (0, '"b"'), (1, '"last"')],
-# [(0, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
-# [(0, '"b"'), (1, '"b"'), (1, '"last"')], 
-# [(0, '"b"'), (1, '"last"')]
-# ]
+    def test_until(self):
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
+        ltlf_formula = ldlf2ltlf(formula)
+        nfa = ltlf2nfa(ltlf_formula)
+        nfa2lp(nfa,"outputs/test/dfa/del/formula_test/empty/automaton.lp")
+        files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
+        m_nfa = solve(["-c horizon={}".format(4)],files)
 
-# [[(0, '"a(1)"'), (0, '"b"'), (1, '"a(1)"'), (1, '"b"'), (1, '"last"')],
-#  [(0, '"a(1)"'), (0, '"b"'), (1, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
-#  [(0, '"a(1)"'), (0, '"b"'), (1, '"a(1)"'), (1, '"last"')],
-# [(0, '"a(1)"'), (0, '"b"'), (1, '"b"'), (1, '"last"')], 
-# [(0, '"a(1)"'), (0, '"b"'), (1, '"b"'), (1, '"last"')], 
-# [(0, '"a(1)"'), (0, '"b"'), (1, '"last"')], 
-# [(0, '"a(1)"'), (1, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
-# [(0, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
-# [(0, '"b"'), (1, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
-# [(0, '"b"'), (1, '"a(1)"'), (1, '"last"')], 
-# [(0, '"b"'), (1, '"b"'), (1, '"last"')], 
-# [(0, '"b"'), (1, '"last"')]]
+        ltlf_formula_until = LTLfUntil([LTLfAtomic("a"),LTLfAtomic("b")])
+        nfa_until = ltlf2nfa(ltlf_formula_until)
+        nfa2lp(nfa_until,"outputs/test/dfa/del/formula_test/empty/automaton.lp")
+        files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
+        m_nfa_until = solve(["-c horizon={}".format(4)],files)
+        self.assertListEqual(m_nfa,m_nfa_until)

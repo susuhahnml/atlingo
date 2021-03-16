@@ -15,10 +15,3 @@ in_trace_at(ID,T) :- move(robot(N),T),prop(ID,("move",("robot",N))).
 
 
 move(R, T) :- move(R, _, T).
-
-
-
-% #show holds/2.
-% #show position/3.
-% #show id_map/2.
-% #show move/2.

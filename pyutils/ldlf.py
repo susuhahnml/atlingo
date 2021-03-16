@@ -104,9 +104,9 @@ class LDLfBoolean(LDLfFormula):
 
     def to_ltlf(self, eqs, rep2t):
         if self.__value:
-            return LTLfAtomic("true")
+            return LTLfTrue()
         else:
-            return LTLfAtomic("false")
+            return LTLfFalse()
 
 class LDLfProp(LDLfFormula):
     """
@@ -223,10 +223,13 @@ class LDLfDiamond(LDLfMainOperator):
             return eq_ltl
         elif c == KleeneStarPath:
             rhs_ltl = self._rhs.to_ltlf(eqs,rep2t)
-            l = set_next_aux(self._rep,rep2t)
-            step_ldl = LDLfDiamond(self._path._arg,self)
-            step_ltl = step_ldl.to_ltlf(eqs,rep2t)
-            eqs.append((l,LTLfOr([rhs_ltl,step_ltl])))
+            if self._path._arg.__class__==CheckPath:
+                l=rhs_ltl
+            else:
+                l = set_next_aux(self._rep,rep2t)
+                step_ldl = LDLfDiamond(self._path._arg,self)
+                step_ltl = step_ldl.to_ltlf(eqs,rep2t)
+                eqs.append((l,LTLfOr([rhs_ltl,step_ltl])))
             return l
 
 
@@ -278,10 +281,13 @@ class LDLfBox(LDLfMainOperator):
             return eq_ltl
         elif c == KleeneStarPath:
             rhs_ltl = self._rhs.to_ltlf(eqs,rep2t)
-            l = set_next_aux(self._rep,rep2t)
-            step_ldl = LDLfBox(self._path._arg,self)
-            step_ltl = step_ldl.to_ltlf(eqs,rep2t)
-            eqs.append((l,LTLfAnd([rhs_ltl,step_ltl])))
+            if self._path._arg.__class__==CheckPath:
+                l=rhs_ltl
+            else:
+                l = set_next_aux(self._rep,rep2t)
+                step_ldl = LDLfBox(self._path._arg,self)
+                step_ltl = step_ldl.to_ltlf(eqs,rep2t)
+                eqs.append((l,LTLfAnd([rhs_ltl,step_ltl])))
             return l
 
 # ---------------------- Paths

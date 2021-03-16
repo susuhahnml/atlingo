@@ -137,7 +137,7 @@ class NFA(Automata):
         final = f_states[0].split(" ") if len(f_states)>0 else []
         
         trans = re.findall(r'(?<=State\s).*?(?=\n)',mona)
-        t_reg = r'(\d+):\s([X01]+)\s\->\sstate\s(.+)'
+        t_reg = r'(\d+):\s([X01]*)\s\->\sstate\s(.+)'
         for t in trans[1:]:
             res = re.match(t_reg,t).groups()
             n_from = get_state(states, res[0])
