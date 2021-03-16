@@ -1,8 +1,7 @@
 import clingo as _clingo
 import sys
-from benchmarks.ltlf2dfa.ltlf2dfa.parser.ltlf import  LTLfParser
-
-from benchmarks.ltlf2dfa.ltlf2dfa.ltlf import (
+from ltlf2dfa.parser.ltlf import  LTLfParser
+from ltlf2dfa.ltlf import (
     LTLfAtomic,
     LTLfAnd,
     LTLfEquivalence,
@@ -28,7 +27,6 @@ path_operators.update(path_binary_operators)
 
 def set_next_aux(rep, rep2aux):
     aux_name = "aux_{}".format(len(rep2aux))
-    # aux_atom = LTLfAtomic(aux_name)
     aux_atom = LTLfAtomic(aux_name)
     rep2aux[rep]=aux_atom
     return aux_atom
@@ -69,31 +67,15 @@ class LDLfFormula():
             formulas.append(formula)
         return formulas
 
-    @classmethod
-    def to_ltlf(cls, ldlf_formula):
-        eqs = []
-        rep2t = {}
-        l = ldlf_formula.to_ltlf(eqs,rep2t)
-        ltl = l
-        for eq in eqs[::-1]:
-            ltl = LTLfAnd([ltl, LTLfEquivalence([eq[0],eq[1]])])
-        return ltl
-
-
-    def to_nfa(self):
-        # self.to_ltlf()
-        # call ltlf2dfa (include quantified auxiliary)
-        # Get diagram
-        # Parse diagram dotpy
-        # Construct NFA
-        pass
-
 
     @property
     def _rep(self):
         """
         Return the unique string representaiton of the formula.
         """
+        return self.__rep
+
+    def __str__(self):
         return self.__rep
 
 class LDLfBoolean(LDLfFormula):
@@ -126,8 +108,6 @@ class LDLfBoolean(LDLfFormula):
         else:
             return LTLfAtomic("false")
 
-
-
 class LDLfProp(LDLfFormula):
     """
     Formula capturing a proposition, including negation.
@@ -144,8 +124,8 @@ class LDLfProp(LDLfFormula):
         positive -- Boolean negated of the formula.
         """
         self._name = name
-        self._arguments = arguments
         args = "" if len(arguments)==0 else "({})".format(",".join([str(a) for a in arguments]))
+        self._arguments = args
         rep = "({}{}{})".format("" if positive else "~",
                                   name, args)
 
@@ -162,8 +142,8 @@ class LDLfProp(LDLfFormula):
         return cls(term.name, arguments, positive)
 
     def to_ltlf(self, eqs, rep2t):
-        args = "" if len(self._arguments)==0 else "__".join([""]+[str(a) for a in self._arguments])
-        return LTLfAtomic("{}{}".format(self._name,args))
+        s = self._rep[1:-1].replace("(","_1_").replace(")","_2_").replace(",","_3_")
+        return LTLfAtomic(s)
 
 class LDLfMainOperator(LDLfFormula):
     """
@@ -221,7 +201,9 @@ class LDLfDiamond(LDLfMainOperator):
             rhs_ltl = self._rhs.to_ltlf(eqs,rep2t)
             # l = set_next_aux(self._rep,rep2t)
             # eqs.append((l,LTLfNext(rhs_ltl)))
+            # return l
             return LTLfNext(rhs_ltl)
+
         elif c == CheckPath:
             rhs_ltl = self._rhs.to_ltlf(eqs,rep2t)
             lhs_ltl = self._path._arg.to_ltlf( eqs,rep2t)
@@ -267,9 +249,40 @@ class LDLfBox(LDLfMainOperator):
         """
         LDLfMainOperator.__init__(self, "[]", path, rhs)
 
-
-
-
+    def to_ltlf(self, eqs, rep2t):
+        if self._rep in rep2t:
+            return rep2t[self._rep]
+        c = self._path.__class__
+        if c == SkipPath:
+            rhs_ltl = self._rhs.to_ltlf(eqs,rep2t)
+            # l = set_next_aux(self._rep,rep2t)
+            # eqs.append((l,LTLfWeakNext(rhs_ltl)))
+            # return l
+            return LTLfWeakNext(rhs_ltl)
+        elif c == CheckPath:
+            rhs_ltl = self._rhs.to_ltlf(eqs,rep2t)
+            lhs_ltl = self._path._arg.to_ltlf( eqs,rep2t)
+            l = set_next_aux(self._rep,rep2t)
+            eqs.append((l,LTLfImplies([lhs_ltl,rhs_ltl])))
+            return l
+        elif c == ChoicePath:
+            lhs_ltl = LDLfBox(self._path._lhs,self._rhs).to_ltlf(eqs,rep2t)
+            rhs_ltl = LDLfBox(self._path._rhs,self._rhs).to_ltlf(eqs,rep2t)
+            l = set_next_aux(self._rep,rep2t)
+            eqs.append((l,LTLfAnd([lhs_ltl,rhs_ltl])))
+            return l
+        elif c == SequencePath:
+            eq_ldl = LDLfBox(self._path._lhs,LDLfBox(self._path._rhs,self._rhs))
+            eq_ltl = eq_ldl.to_ltlf(eqs,rep2t)
+            rhs_ltl = LDLfBox(self._path._rhs,self._rhs).to_ltlf(eqs,rep2t)
+            return eq_ltl
+        elif c == KleeneStarPath:
+            rhs_ltl = self._rhs.to_ltlf(eqs,rep2t)
+            l = set_next_aux(self._rep,rep2t)
+            step_ldl = LDLfBox(self._path._arg,self)
+            step_ltl = step_ldl.to_ltlf(eqs,rep2t)
+            eqs.append((l,LTLfAnd([rhs_ltl,step_ltl])))
+            return l
 
 # ---------------------- Paths
 class Path(object):

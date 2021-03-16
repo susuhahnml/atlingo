@@ -121,7 +121,7 @@ $ clingo $(PATH_OUT)/reified.lp ./formula_to_automaton/automata_$(LOGIC).lp -n 0
 The full translation process can be made using the make file:
 
 ```shell
-$ make translate LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE 
+$ make translate LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE 
 ```
 
 
@@ -160,7 +160,7 @@ Where:
 #### *Using make file*
 
 ```shell
-$ make generate-traces LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
+$ make generate-traces LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
 ```
 
 ### Validation of trace from planning encoding
@@ -189,7 +189,7 @@ Where:
 #### *Using make file*
 
 ```shell
-$ make run LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_FILES=$RUN_FILES HORIZON=$HORIZON
+$ make run LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_FILES=$RUN_FILES HORIZON=$HORIZON
 ```
 
 ------------
@@ -199,7 +199,7 @@ $ make run LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_F
 The representation of the automata, corresponding to the transition diagram, can be visualized on an image by running:
 
 ```shell
-$ make viz-automaton LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
+$ make viz-automaton LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 ```
 
 Example:

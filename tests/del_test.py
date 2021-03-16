@@ -1,11 +1,13 @@
 import unittest
+import os
 import sys
 import clingo
 # from subprocess import Popen, PIPE
 import subprocess
 import itertools
+from pyutils.transformers import ldlf2ltlf, ltlf2nfa,ldlflp2nfalp
 from pyutils.ldlf import LDLfFormula
-from benchmarks.ltlf2dfa.ltlf2dfa.ltlf import (
+from ltlf2dfa.ltlf import (
     LTLfAtomic,
     LTLfAnd,
     LTLfEquivalence,
@@ -25,6 +27,17 @@ from benchmarks.ltlf2dfa.ltlf2dfa.ltlf import (
 
 logic = 'del'
 
+
+# define the name of the directory to be created
+paths = ["./outputs/test/afw/del/formula_test/empty","./outputs/test/dfa/del/formula_test/empty"]
+
+try:
+    for p in paths:
+        os.makedirs(p,exist_ok=True)
+except OSError:
+    print ("Creation of the directory %s failed" % p)
+
+
 class Context:
     def id(self, x):
         return x
@@ -34,11 +47,17 @@ class Context:
 def sort_trace(trace):
     return list(sorted(trace))
 
+def tuple2str(sym):
+    if str(sym.type)=="Function" and sym.name=="":
+        args = "({})".format(",".join([tuple2str(s) for s in sym.arguments[1:]]))
+        return "{}{}".format(str(sym.arguments[0]).strip('"'),"" if args=="()" else args)
+    else:
+        return str(sym).strip('"')
 def parse_model(m):
     ret = []
     for sym in m.symbols(shown=True):
         if sym.name=="holds_map":
-            ret.append((sym.arguments[0].number, str(sym.arguments[1]) ))
+            ret.append((sym.arguments[0].number, '"{}"'.format(tuple2str(sym.arguments[1])) ))
     return sort_trace(ret)
 
 def solve(const=[], files=[],inline_data=[]):
@@ -56,28 +75,37 @@ def solve(const=[], files=[],inline_data=[]):
     return sorted(r)
 
 def translate(constraint,file,extra=[]):
-    f = open("env/test/temporal_constraints/{}/{}".format(logic,file), "w")
-    f.write(constraint)
-    f.close()
-    command = 'make translate LOGIC={} CONSTRAINT={} APP=test INSTANCE=env/test/instances/empty.lp'.format(logic,file[:-3]) 
+    # f = open("env/test/temporal_constraints/{}/{}".format(logic,file), "w")
+    with open("env/test/temporal_constraints/{}/{}".format(logic,file), 'w') as f:
+        f.write(constraint)
+    # f.close()
+    command = 'make translate LOGIC={} CONSTRAINT={} ENV_APP=test INSTANCE=env/test/instances/empty.lp'.format(logic,file[:-3]) 
     subprocess.check_output(command.split())
 
-def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):
+def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp",app="afw"):
     translate(constraint,file)
-    files = ["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./automata_run/run.lp","./automata_run/trace_generator.lp"]
+    files = ["outputs/test/{}/{}/formula_test/empty/automaton.lp".format(app, logic),"./automata_run/run.lp","./automata_run/trace_generator.lp"]
     if not mapping is None:
         files.append(mapping)
     return solve(["-c horizon={}".format(horizon)],files)
 
-def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False):
+def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False,app="afw"):
     translate(constraint,file)
     if visualize:
         command = "python scripts/viz.py {} {}".format(logic,file[:-3]) 
         subprocess.check_output(command.split())
 
-    return solve(["-c horizon={}".format(horizon)],["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./automata_run/run.lp",mapping],[trace,encoding])
+    return solve(["-c horizon={}".format(horizon)],["outputs/test/{}/{}/formula_test/empty/automaton.lp".format(app, logic),"./automata_run/run.lp",mapping],[trace,encoding])
 
+def comapre_app(constraint,horizon=3):
+    ldlflp2nfalp("outputs/test/dfa/del/formula_test/empty/automaton.lp",ldl_inline=constraint)
+    files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/nfa_run.lp","./automata_run/trace_generator.lp"]
+    m_nfa = solve(["-c horizon={}".format(horizon)],files)
+    translate(constraint,"formula_test.lp")
 
+    files = ["outputs/test/afw/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
+    m_afw = solve(["-c horizon={}".format(horizon)],files)
+    return (m_nfa,m_afw)
 
 class TestCase(unittest.TestCase):
     def assert_base(self,base_model,result):
@@ -391,25 +419,62 @@ class TestMain(TestCase):
         self.assertEqual(len(formulas),2)
         self.assertEqual(formulas[0]._rep,"[(a(1))?] &true ")
         self.assertEqual(formulas[1]._rep,"[(a(2))?] &true ")
+        
+    
+    def test_transformer(self):
 
 
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")[0]
-        ltlf_formula = LDLfFormula.to_ltlf(formula)
+        ltlf_formula = ldlf2ltlf(formula)
         
+        a_0 = LTLfAtomic('aux_0')
         b = LTLfAtomic('b')
         next_b = LTLfNext(b)
-        self.assertEqual(ltlf_formula,next_b)
+        # self.assertEqual(ltlf_formula,LTLfAnd([a_0,LTLfAlways(LTLfEquivalence([a_0,next_b]))]))
 
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ? a ;; &true .>? b}.")[0]
-        ltlf_formula = LDLfFormula.to_ltlf(formula)
-        a = LTLfAtomic('a')
-        a_0 = LTLfAtomic('aux_0')
-        a_1 = LTLfAtomic('aux_1')
+        ltlf_formula = ldlf2ltlf(formula)
+        # a = LTLfAtomic('a')
+        # a_1 = LTLfAtomic('aux_1')
 
-        self.assertEqual(ltlf_formula,LTLfAnd([a_0,LTLfEquivalence([a_0,LTLfAnd([a,next_b])])]))
+        # self.assertEqual(str(ltlf_formula),"((aux_1 & G((aux_1 <-> (a & aux_0)))) & G((aux_0 <-> X(b))))")
 
 
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
-        ltlf_formula = LDLfFormula.to_ltlf(formula)
-        self.assertEqual(str(ltlf_formula),"((aux_0 & (aux_0 <-> (b | aux_1))) & (aux_1 <-> (a & X(aux_0))))")
+        ltlf_formula = ldlf2ltlf(formula)
+        # self.assertEqual(str(ltlf_formula),"(((aux_0 & G((aux_0 <-> (b | aux_2)))) & G((aux_2 <-> (a & aux_1)))) & G((aux_1 <-> X(aux_0))))")
+
+
+        constraints = [
+            #  ":- not &del{ &true .>? b}.",
+             ":- not &del{ *(? a(1) ;; &true) .>? b}."
+        ]
         
+        for cons in constraints:
+            for h in range(1,2):
+                print(h)
+                m_nfa,m_afw = comapre_app(cons,h)
+                print(m_nfa)
+                print(m_afw)
+                self.assertListEqual(m_nfa,m_afw)
+
+
+# [[(0, '"a(1)"'), (0, '"b"'), (1, '"b"'), (1, '"last"')],
+#  [(0, '"a(1)"'), (0, '"b"'), (1, '"last"')],
+# [(0, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
+# [(0, '"b"'), (1, '"b"'), (1, '"last"')], 
+# [(0, '"b"'), (1, '"last"')]
+# ]
+
+# [[(0, '"a(1)"'), (0, '"b"'), (1, '"a(1)"'), (1, '"b"'), (1, '"last"')],
+#  [(0, '"a(1)"'), (0, '"b"'), (1, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
+#  [(0, '"a(1)"'), (0, '"b"'), (1, '"a(1)"'), (1, '"last"')],
+# [(0, '"a(1)"'), (0, '"b"'), (1, '"b"'), (1, '"last"')], 
+# [(0, '"a(1)"'), (0, '"b"'), (1, '"b"'), (1, '"last"')], 
+# [(0, '"a(1)"'), (0, '"b"'), (1, '"last"')], 
+# [(0, '"a(1)"'), (1, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
+# [(0, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
+# [(0, '"b"'), (1, '"a(1)"'), (1, '"b"'), (1, '"last"')], 
+# [(0, '"b"'), (1, '"a(1)"'), (1, '"last"')], 
+# [(0, '"b"'), (1, '"b"'), (1, '"last"')], 
+# [(0, '"b"'), (1, '"last"')]]
