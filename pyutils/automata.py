@@ -1,6 +1,15 @@
 import json
 import re
 from graphviz import Digraph, Source
+import clingo as _clingo
+import itertools
+def reduce_and(a,keep_true=True):
+    a = set(a)
+    a.discard('true')
+    a = list(a)
+    if keep_true and len(a)==0:
+        a.append('true')
+    return a
 
 class State():
     def __init__(self, s_id, label):
@@ -8,12 +17,13 @@ class State():
         self._id = int(s_id)
 
     def __str__(self):
-        return self._label
+        return str(self._label)
 
 class Condition():
     def __init__(self, included, not_included):
-        self._included = included
-        self._not_included = not_included
+        self._included = reduce_and(included,False)
+        self._not_included = reduce_and(not_included,False)
+
 
     @classmethod
     def from_str(cls, s, prop2id):
@@ -81,7 +91,7 @@ class Automata():
             'props': self._props,
             'states': {i:str(s) for i, s in self._states.items()},
             'initial_state': self._initial_state_id,
-            'transition': {i : {str(c) : str(n) for c, n in v.items()} for i, v in self._transitions.items()},
+            'transition': {i : {str(c) : n for c, n in v.items()} for i, v in self._transitions.items()},
             'final_states': list(self._final_states_ids),
         } 
         return j
@@ -89,27 +99,6 @@ class Automata():
     def save_png(self, file_name="outputs/automata_viz"):
         s = Source(self.dot, filename=file_name, format="png")
         s.view()
-
-    @property
-    def dot(self):
-        dot = 'digraph ATLINGO {\n'
-        dot += 'rankdir = LR;\n'
-        dot += 'center = true;\n'
-        dot += 'size = "7.5,10.5";\n'
-        
-        dot += 'edge [fontname = Courier];\n'
-        dot += 'node [height = .5, width = .5];\n'
-        for f in self._final_states_ids:
-            dot += 'node [shape = doublecircle]; {};\n'.format(f)
-        dot += 'node [shape = circle]; 1;\n'
-        dot += 'init [shape = plaintext, label = ""];\n'
-        dot += 'init -> 1;\n'
-        for s_from, v in self._transitions.items():
-            for c, s_to in v.items():
-                dot += '{} -> {} [label="{}"];\n'.format(s_from, s_to, c.str_names(self._props))
-        dot += '}'
-
-        return dot
 
     def __str__(self):
         return json.dumps(self.to_dic(),indent=4)
@@ -152,6 +141,29 @@ class NFA(Automata):
 
         return cls(id2prop,states,transitions,1,set(final),"")
 
+
+    @property
+    def dot(self):
+        dot = 'digraph ATLINGO {\n'
+        dot += 'rankdir = LR;\n'
+        dot += 'center = true;\n'
+        dot += 'size = "7.5,10.5";\n'
+        
+        dot += 'edge [fontname = Courier];\n'
+        dot += 'node [height = .5, width = .5];\n'
+        for f in self._final_states_ids:
+            dot += 'node [shape = doublecircle]; {};\n'.format(f)
+        dot += 'node [shape = circle]; 1;\n'
+        dot += 'init [shape = plaintext, label = ""];\n'
+        dot += 'init -> 1;\n'
+        for s_from, v in self._transitions.items():
+            for c, s_to in v.items():
+                dot += '{} -> {} [label="{}"];\n'.format(s_from, s_to, c.str_names(self._props))
+        dot += '}'
+
+        return dot
+
+
     def to_lp(self, state_prefix = ""):
         def tos(s_id):
             return state_prefix+str(s_id) 
@@ -192,16 +204,127 @@ class NFA(Automata):
 
 class AFW(Automata):
 
-    def __init__(self, **args):
-        Automata(**args)
+    def __init__(self, *args):
+        super(AFW,self).__init__(*args)
 
     @classmethod
-    def from_lp(cls, lp):
-        pass
+    def from_lp(cls, files=[], inline_data=""):
+        ctl = _clingo.Control([], message_limit=0)
+        ctl.add("base", [], "")
+        for f in files:
+            ctl.load(f)
+        ctl.add("base", [], inline_data)
+        ctl.ground([("base", [])])
+        states = {}
+        trans = {}
+        initial_state = None
+        id2prop = {}
+        cases = {}
+        for sa in ctl.symbolic_atoms:
+            s = sa.symbol
+            i = s.arguments[0].number
+            if s.name == 'initial_state':
+                initial_state = s.arguments[0].number
+            elif s.name == 'prop':
+                id2prop[i] = str(s.arguments[1]).strip('\\"')
+            elif s.name == 'state':
+                states[i] = State(i,str(s.arguments[1]))
+            elif s.name == 'delta':
+                n_to = s.arguments[2].number if s.arguments[2].number else "true"
+                case = str(s.arguments[1].arguments[0])
+                cases.setdefault(i,{}).setdefault(case,([],[]))
+                pos = 0 if s.arguments[1].arguments[1].name == "in" else 1
+                cases[i][case][pos].append(s.arguments[1].arguments[2].number)
+                trans.setdefault(i,{}).setdefault(case,[]).append(n_to)
+        transitions = {}
+        for s, dic_c in trans.items():
+            transitions[s]={}
+            for c,s2 in dic_c.items():
+                con = Condition(cases[s][c][0],cases[s][c][1])
+                transitions[s][con]= reduce_and(s2,True)
+
+
+        return cls(id2prop,states,transitions,initial_state,set(),"")
+
+    @property
+    def dot(self):
+        dot = 'digraph ATLINGO {\n'
+        dot += 'rankdir = LR;\n'
+        dot += 'center = true;\n'
+        dot += 'size = "7.5,10.5";\n'
+        
+        dot += 'edge [fontname = Courier];\n'
+        dot += 'node [height = .5, width = .5];\n'
+        dot += 'node [shape = circle]; 1;\n'
+        dot += 'init [shape = plaintext, label = ""];\n'
+        dot += 'true [shape = plaintext, label = "true"];\n'
+        dot += 'init -> {};\n'.format(self._initial_state_id)
+        and_id=0
+        for s_from, v in self._transitions.items():
+            for c, s_to in v.items():
+                style = "dotted" if s_to==['true'] else "solid"
+                if len(s_to)==1:
+                    dot += '{} -> {} [label="{}" style={}];\n'.format(s_from, s_to[0], c.str_names(self._props),style)
+                    continue
+                dot += 'and{} [shape = point width = .05 height = .05 pad= 2];\n'.format(and_id)
+                dot += '{} -> and{} [label="{}" style={}];\n'.format(s_from, and_id, c.str_names(self._props),style)
+                for s in s_to:
+                    dot += 'and{} -> {};\n'.format(and_id, s)
+                and_id+=1
+
+        dot += '}'
+
+        return dot
 
     def to_nfa(self):
-        # With pseudo code
-        pass
+        id2state = {}
+        tuple2state = {}
+        new_states = set([])
+        
+        def get_state(l):
+            l = reduce_and(l,False)
+            l.sort()
+            t = tuple(l)
+            if not t in tuple2state:
+                s =  State(len(tuple2state),t)
+                new_states.add(s)
+                tuple2state[t]=s
+            return tuple2state[t]
+
+        final = get_state([])._id
+        initial_state = get_state([self._initial_state_id])
+        transitions = {}
+        while not len(new_states)==0:
+
+            s=new_states.pop()
+
+            options_per_state = [[] for i in s._label]
+            for i, s_afw in enumerate(s._label):
+                if s_afw == "true":
+                    continue
+                options_per_state[i]=[(a,b) for a,b in self._transitions[s_afw].items()]
+            
+            combinations = list(itertools.product(*options_per_state))
+            for comb_t in combinations:
+                in_p = []
+                out_p = []
+                next_l = []
+                for c, s_next in comb_t:
+                    in_p=in_p+c._included
+                    out_p=out_p+c._not_included
+                    next_l = next_l + s_next
+
+                contradict = any(p in out_p for p in in_p)
+                if contradict:
+                    continue
+                s_to = get_state(next_l)
+                case = Condition(in_p,out_p)
+                transitions.setdefault(s._id,{})[case]=s_to._id
+
+        for i, state in tuple2state.items():
+            state._label = ", ".join([str(x) for x in state._label])
+        id2state = {s._id:s for s in tuple2state.values()}
+        return NFA(self._props,id2state,transitions,initial_state._id,set([final]),"")
 
 
 # Final options

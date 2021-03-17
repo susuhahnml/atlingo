@@ -7,6 +7,7 @@ import subprocess
 import itertools
 from pyutils.transformers import ldlf2ltlf, ltlf2nfa,ldlflp2nfalp,nfa2lp
 from pyutils.ldlf import LDLfFormula
+from pyutils.automata import AFW
 from ltlf2dfa.ltlf import (
     LTLfAtomic,
     LTLfAnd,
@@ -507,3 +508,25 @@ class TestMain(TestCase):
         files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
         m_nfa_until = solve(["-c horizon={}".format(4)],files)
         self.assertListEqual(m_nfa,m_nfa_until)
+
+
+    def test_lp2afw(self):
+
+        automata_lp = """
+        initial_state(0).
+        prop(9,"p").
+        prop(13,"q").
+        prop(15,"last").
+        state(0,diamond(sequence(test(diamond(star(top),prop(9))),top),prop(13))).
+        state(2,diamond(star(top),prop(9))).
+        state(1,prop(13)).
+        delta(2,(1,out,15),2).
+        delta(0,(1,out,15),2).
+        delta(0,(1,out,15),1).
+        delta(0,(0,out,15),1).
+        delta(0,(0,in,9),true).
+        delta(2,(0,in,9),true).
+        delta(1,(0,in,13),true).
+        """
+        afw = AFW.from_lp(inline_data= automata_lp)
+        nfa = afw.to_nfa()

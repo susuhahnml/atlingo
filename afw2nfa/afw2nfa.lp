@@ -2,13 +2,14 @@
 
 % ------- States
 
-% Power set for all possible states
+% Power set of afw states
 bin(ID,2**(ID)):-state(ID,S).
 number_states(N):-#count{ID:state(ID,_)}=N.
 state_nfa_set(0..2**N-1):- number_states(N).
 
 state_nfa_set(X,N):- state_nfa_set(X), X-B>=0, bin(N,B), number_states(N).
-state_nfa_set(X,N):- state_nfa_set(X), X-T-B>=0, bin(N,B), #sum{B':state_nfa_set(X,N'),bin(N',B'),N'>N}=T.
+state_nfa_set(X,N):- state_nfa_set(X), X-T-B>=0, bin(N,B), 
+                     #sum{B':state_nfa_set(X,N'),bin(N',B'),N'>N}=T.
 
 % Size of the set
 state_nfa_set_size(X,D):- state_nfa_set(X), #count{N: state_nfa_set(X,N)}=D.
@@ -18,9 +19,10 @@ state_nfa_set_indexed(X,N,D) :- state_nfa_set(X,N),
                                 #count{N': state_nfa_set(X,N'), N<N'}=D.
 
 % Initial is set containing only initial afw
-initial_state_nfa(X):- state_nfa_set(X), state_nfa_set(X,ID), 
-                        initial_state(ID), 
-                        #count{ID': state_nfa_set(X,ID'), ID'!=ID}=0. 
+% initial_state_nfa(X):- state_nfa_set(X), state_nfa_set(X,ID), 
+%                         initial_state(ID), 
+%                         #count{ID': state_nfa_set(X,ID'), ID'!=ID}=0. 
+initial_state_nfa(1).
 
 % Use only reacheble
 state_nfa_reachable(X):-initial_state_nfa(X).
@@ -48,11 +50,9 @@ delta_nfa_set(X,(C,CT),B+1,(T,P),N'):- delta_nfa_set(X,CT,B,(T,P),N'),
 delta_nfa_set_final(X,(C,T,P),N'):- state_nfa_set_size(X,D), 
                                     delta_nfa_set(X,C,D-1,(T,P),N').
 
-% Find the corresponding nfa state containing only next states
+
 delta_nfa(X,(C,T,P),X') :- delta_nfa_set_final(X,(C,T,P),_);
-                                state_nfa_set(X');
-                             #false: not delta_nfa_set_final(X,(C,_,_),N_IN), state_nfa_set(X',N_IN),N_IN!=true;
-                            state_nfa_set(X',N'):delta_nfa_set_final(X,(C,_,_),N'),N'!=true.
+                            #sum{B: bin(ID,B), delta_nfa_set_final(X,(C,_,_),ID) }=X'.
 
 % Set new reacheble states
 state_nfa_reachable(X'):-state_nfa_reachable(X),delta_nfa(X,_,X').
@@ -66,13 +66,12 @@ state_nfa_reachable(X'):-state_nfa_reachable(X),delta_nfa(X,_,X').
 state_nfa_reachable(X,(),0):- initial_state_nfa(X).
 state_nfa_reachable(X',(),0):-state_nfa_reachable(X,(),0), delta_nfa(X,_,X').
 
-state_nfa_reachable(X,(S_N,S_O),D+1):-state_nfa_set(X,S_N,D),      
+state_nfa_reachable(X,(S_N,S_O),D+1):-state_nfa_set_indexed(X,S_N,D),      
                             state_nfa_reachable(X,S_O,D).
 
-% Keep labels when finsied 
+% Keep labels when finsied
 state_nfa(X,L):-state_nfa_reachable(X,L,T), state_nfa_set_size(X,T).
 
-                    
 % Use ids for cases
 % delta_nfa(ID,(N,Opt,A),ID') :- delta_nfa_reachable(ID,(Case,Opt,A),ID'), 
 %                     #count{Case': Case'>Case, delta_nfa_reachable(ID,(Case',_,_),_)}=N.
@@ -97,6 +96,7 @@ final_state_nfa(ID) :-  state_nfa(ID,()).
 
 % #show state_nfa_reachable/1.
 % #show state_nfa_reachable/3.
+% #show state_nfa_set/2.
 % #show state_nfa_set/3.
 % #show delta_nfa_set/5.
 % #show delta_nfa_set/3.
