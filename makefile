@@ -115,7 +115,7 @@ translate-telingo:
 translate-run-telingo:
 
 	@ make translate-telingo CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP)
-	clingo ./$(PATH_OUT)/translation.lp  $(INSTANCE) $(RUN_ENV_FILES_$(ENV_APP)) -n $(MODELS) -c horizon=$(HORIZON) --stats | tee $(PATH_OUT)/telingo_plan_h-$(HORIZON)_n-$(MODELS).txt
+	clingo ./$(PATH_OUT)/translation.lp  $(INSTANCE) $(RUN_FILES) -n $(MODELS) -c horizon=$(HORIZON) --stats | tee $(PATH_OUT)/telingo_plan_h-$(HORIZON)_n-$(MODELS).txt
 
 
 ######################  DFA ########################
@@ -126,12 +126,33 @@ translate-dfa:
 	@if [ "$(APP)" = "dfa" ]; then echo ""; else  echo "$(R)Inconsistency APP should be dfa$(NC)"; fi
 
 	python ./pyutils/transformers.py $(PATH_OUT)/dfa_automata.lp ./$(PATH_INPUT).lp
-	@printf "$(G) Translation of ldlf2nfa successfull $(NC)\n";
+	@printf "$(G) Translation from ldlf 2 nfa successfull $(NC)\n";
 
 translate-run-dfa:
 
-	@ make translate-dfa CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP)
+	@ make translate-dfa CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP) APP=$(APP)
 
 	rm -f $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
 
 	clingo $(PATH_OUT)/dfa_automata.lp automata_run/run.lp $(INSTANCE) $(EXTRA) $(RUN_ENV_FILES_$(ENV_APP)) -c horizon=$(HORIZON) -n $(MODELS) --stats | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
+
+
+######################  NFA ########################
+
+
+translate-nfa:
+	
+	@if [ "$(APP)" = "nfa" ]; then echo ""; else  echo "$(R)Inconsistency APP should be nfa$(NC)"; fi
+
+	@ make translate APP=afw CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP) TRANSLATE_FILES=$(TRANSLATE_FILES_$(APP))
+
+	clingo ./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/automaton.lp ./afw2nfa/afw2nfa.lp -n 0 --outf=0 -V0 --out-atomf=%s____ --warn=none | head -n1 | sed $$'s/____/.\\\n/g' | sed $$'s/_nfa//g' > $(PATH_OUT)/nfa_automata.lp
+
+	@printf "$(G) Translation from afw 2 nfa successfull $(NC)\n";
+
+
+translate-run-nfa:
+
+	@ make translate-nfa CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP) APP=$(APP)
+
+	clingo $(PATH_OUT)/nfa_automata.lp automata_run/run.lp $(INSTANCE) $(EXTRA) $(RUN_ENV_FILES_$(ENV_APP)) env/$(ENV_APP)/glue.lp -c horizon=$(HORIZON) -n $(MODELS) --stats | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
