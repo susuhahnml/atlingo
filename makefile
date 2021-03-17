@@ -73,9 +73,9 @@ translate:
 	clingo $(PATH_OUT)/reified.lp ./formula_to_automaton/automata_$(LOGIC).lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/automaton.lp
 
 	@if [ -s $(PATH_OUT)/automaton.lp ]; then\
-		printf "$(G) Translation successfull $(NC)\n";\
+		printf "$(G) Translation to afw successfull $(NC)\n";\
 	else \
-		printf "$(R) Translation failed\n";\
+		printf "$(R) Translation to afw failed\n";\
 		exit 1;\
     fi;
 
