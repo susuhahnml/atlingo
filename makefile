@@ -115,7 +115,7 @@ translate-telingo:
 translate-run-telingo:
 
 	@ make translate-telingo CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP)
-	clingo ./$(PATH_OUT)/translation.lp  $(INSTANCE) $(RUN_FILES) -n $(MODELS) -c horizon=$(HORIZON) --stats | tee $(PATH_OUT)/telingo_plan_h-$(HORIZON)_n-$(MODELS).txt
+	clingo ./$(PATH_OUT)/translation.lp  $(INSTANCE) $(RUN_ENV_FILES_$(ENV_APP)) -n $(MODELS) -c horizon=$(HORIZON) --stats | tee $(PATH_OUT)/telingo_plan_h-$(HORIZON)_n-$(MODELS).txt
 
 
 ######################  DFA ########################

@@ -529,5 +529,13 @@ class TestMain(TestCase):
         delta(1,(0,in,13),true).
         """
         afw = AFW.from_lp(inline_data= automata_lp)
+        # afw.save_png()
+
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{  ? (* &true .>? p) ;; &true .>? q }.")[0]
+        ltlf_formula = ldlf2ltlf(formula)
+        nfa = ltlf2dfa(ltlf_formula)
+        # nfa.save_png()
+        
         nfa = afw.to_nfa()
         nfa.save_png()
+
