@@ -4,6 +4,8 @@ from graphviz import Digraph, Source
 import clingo as _clingo
 import itertools
 def reduce_and(a,keep_true=True):
+    if len(a)>0 and type(a[0])==list:
+        return [reduce_and(e) for e in a]
     a = set(a)
     a.discard('true')
     a = list(a)
@@ -133,7 +135,7 @@ class NFA(Automata):
             in_prop = [i for i,v in enumerate(res[1]) if v=='1']
             out_prop = [i for i,v in enumerate(res[1]) if v=='0']
             c = Condition(in_prop,out_prop)
-            transitions.setdefault(n_from._id,{})[c]=n_to._id
+            transitions.setdefault(n_from._id,{})[c]=[n_to._id]
 
         def str2pred(k):
             return k.replace("_1_","(").replace("_2_",")").replace("_3_",",").lower()
@@ -157,8 +159,9 @@ class NFA(Automata):
         dot += 'init [shape = plaintext, label = ""];\n'
         dot += 'init -> 1;\n'
         for s_from, v in self._transitions.items():
-            for c, s_to in v.items():
-                dot += '{} -> {} [label="{}"];\n'.format(s_from, s_to, c.str_names(self._props))
+            for c, s_tos in v.items():
+                for s_to in s_tos:
+                    dot += '{} -> {} [label="{}"];\n'.format(s_from, s_to, c.str_names(self._props))
         dot += '}'
 
         return dot
@@ -178,14 +181,15 @@ class NFA(Automata):
         
         for s_from, v in self._transitions.items():
             c_id = 0
-            for c, s_to in v.items():
-                for prop_in in c._included:
-                    p+=('delta({},({},in,{}),{}).\n').format(tos(s_from),c_id,prop_in,tos(s_to))
-                for prop_in in c._not_included:
-                    p+=('delta({},({},out,{}),{}).\n').format(tos(s_from),c_id,prop_in,tos(s_to))
-                if c.is_taut():
-                    p+=('delta({},({},in,true),{}).\n').format(tos(s_from),c_id,tos(s_to))
-                c_id=c_id+1
+            for c, s_tos in v.items():
+                for s_to in s_tos:
+                    for prop_in in c._included:
+                        p+=('delta({},({},in,{}),{}).\n').format(tos(s_from),c_id,prop_in,tos(s_to))
+                    for prop_in in c._not_included:
+                        p+=('delta({},({},out,{}),{}).\n').format(tos(s_from),c_id,prop_in,tos(s_to))
+                    if c.is_taut():
+                        p+=('delta({},({},in,true),{}).\n').format(tos(s_from),c_id,tos(s_to))
+                    c_id=c_id+1
         for s in self._final_states_ids:
             p+=('final_state({}).\n').format(tos(s))
     
@@ -236,12 +240,18 @@ class AFW(Automata):
                 pos = 0 if s.arguments[1].arguments[1].name == "in" else 1
                 cases[i][case][pos].append(s.arguments[1].arguments[2].number)
                 trans.setdefault(i,{}).setdefault(case,[]).append(n_to)
+        cases_classes = {}
+        for s_from, dic_c in cases.items():
+            cases_classes[s_from] = {}
+            for c_id, tup in dic_c.items():
+                cases_classes[s_from][c_id]=Condition(tup[0],tup[1])
+
         transitions = {}
-        for s, dic_c in trans.items():
-            transitions[s]={}
-            for c,s2 in dic_c.items():
-                con = Condition(cases[s][c][0],cases[s][c][1])
-                transitions[s][con]= reduce_and(s2,True)
+        for s_from, dic_c in trans.items():
+            transitions[s_from]={}
+            for c_id,s2 in dic_c.items():
+                con = cases_classes[s_from][c_id]
+                transitions[s_from].setdefault(con,[]).append(reduce_and(s2,True))
 
 
         return cls(id2prop,states,transitions,initial_state,set(),"")
@@ -261,16 +271,17 @@ class AFW(Automata):
         dot += 'init -> {};\n'.format(self._initial_state_id)
         and_id=0
         for s_from, v in self._transitions.items():
-            for c, s_to in v.items():
-                style = "dotted" if s_to==['true'] else "solid"
-                if len(s_to)==1:
-                    dot += '{} -> {} [label="{}" style={}];\n'.format(s_from, s_to[0], c.str_names(self._props),style)
-                    continue
-                dot += 'and{} [shape = point width = .05 height = .05 pad= 2];\n'.format(and_id)
-                dot += '{} -> and{} [label="{}" style={}];\n'.format(s_from, and_id, c.str_names(self._props),style)
-                for s in s_to:
-                    dot += 'and{} -> {};\n'.format(and_id, s)
-                and_id+=1
+            for c, s_tos in v.items():
+                for s_to in s_tos:
+                    style = "dotted" if s_to==['true'] else "solid"
+                    if len(s_to)==1:
+                        dot += '{} -> {} [label="{}" style={}];\n'.format(s_from, s_to[0], c.str_names(self._props),style)
+                        continue
+                    dot += 'and{} [shape = point width = .05 height = .05 pad= 2];\n'.format(and_id)
+                    dot += '{} -> and{} [label="{}" style={}];\n'.format(s_from, and_id, c.str_names(self._props),style)
+                    for s in s_to:
+                        dot += 'and{} -> {};\n'.format(and_id, s)
+                    and_id+=1
 
         dot += '}'
 
@@ -300,10 +311,12 @@ class AFW(Automata):
 
             options_per_state = [[] for i in s._label]
             for i, s_afw in enumerate(s._label):
-                if s_afw == "true":
+                if s_afw == "true" or not s_afw in self._transitions:
                     continue
-                options_per_state[i]=[(a,b) for a,b in self._transitions[s_afw].items()]
-            
+                options_per_state[i]=[]
+                for c,s_nexts in  self._transitions[s_afw].items():
+                    for s_next in s_nexts:
+                        options_per_state[i].append((c,s_next))
             combinations = list(itertools.product(*options_per_state))
             for comb_t in combinations:
                 in_p = []
@@ -319,7 +332,7 @@ class AFW(Automata):
                     continue
                 s_to = get_state(next_l)
                 case = Condition(in_p,out_p)
-                transitions.setdefault(s._id,{})[case]=s_to._id
+                transitions.setdefault(s._id,{}).setdefault(case,[]).append(s_to._id)
 
         for i, state in tuple2state.items():
             state._label = ", ".join([str(x) for x in state._label])

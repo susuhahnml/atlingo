@@ -6,7 +6,7 @@ from pyutils.ldlf import (
 )
 from ltlf2dfa.base import MonaProgram
 from ltlf2dfa.ltlf2dfa import createMonafile, invoke_mona, output2dot
-from pyutils.automata import NFA
+from pyutils.automata import NFA, AFW
 from pyutils.ldlf import LDLfFormula
 import sys
 import re
@@ -21,7 +21,7 @@ def ldlf2ltlf(ldlf_formula):
     return ltl
 
 
-def ltlf2nfa(ltlf_formula):
+def ltlf2dfa(ltlf_formula):
     p = MonaProgram(ltlf_formula)
     vrs = [v for v in p.vars if v[:4]!="AUX_"]
     aux_vrs = [v for v in p.vars if v[:4]=="AUX_"]
@@ -44,19 +44,27 @@ def nfa2lp(nfa, out_file, prefix = ""):
     with open(out_file, 'w') as f:
         f.write(nfa.to_lp(state_prefix= prefix))
 
-def ldlflp2nfalp(nfa_file,ldl_files=[],ldl_inline=""):
+def ldlflp2dfalp(dfa_file,ldl_files=[],ldl_inline=""):
     ldlfformulas = LDLfFormula.from_lp(files=ldl_files,inline_data=ldl_inline)
     p = ""
     for i,f in enumerate(ldlfformulas):
         ltlformula = ldlf2ltlf(f)
-        nfa = ltlf2nfa(ltlformula)
-        # nfa.save_png() 
+        dfa = ltlf2dfa(ltlformula)
+        # dfa.save_png() 
         p+="\n%========== AUTOMATA {} ==========\n".format(i)
-        p+=nfa.to_lp(state_prefix= "a{}_".format(i))
+        p+=dfa.to_lp(state_prefix= "a{}_".format(i))
 
-    with open(nfa_file, 'w') as f:
+    with open(dfa_file, 'w') as f:
         f.write(p)
 
+def ldlflp2nfalp(nfa_file,ldl_files=[],ldl_inline=""):
+    afw = AFW.from_lp(files = ldl_files, inline_data= ldl_inline)
+    nfa = afw.to_nfa()
+    with open(nfa_file, 'w') as f:
+        f.write(nfa.to_lp())
+
 if __name__ == "__main__":
-    ldlfformulas = LDLfFormula.from_lp(files=sys.argv[2:])
-    ldlflp2nfalp(sys.argv[1],sys.argv[2:])
+    if sys.argv[1]=="dfa":
+        ldlflp2dfalp(sys.argv[2],sys.argv[3:])
+    elif sys.argv[1]=="nfa":
+        ldlflp2nfalp(sys.argv[2],sys.argv[3:])

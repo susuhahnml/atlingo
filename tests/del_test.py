@@ -5,7 +5,7 @@ import clingo
 # from subprocess import Popen, PIPE
 import subprocess
 import itertools
-from pyutils.transformers import ldlf2ltlf, ltlf2nfa,ldlflp2nfalp,nfa2lp
+from pyutils.transformers import ldlf2ltlf, ltlf2dfa,ldlflp2dfalp,nfa2lp
 from pyutils.ldlf import LDLfFormula
 from pyutils.automata import AFW
 from ltlf2dfa.ltlf import (
@@ -99,7 +99,7 @@ def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file=
     return solve(["-c horizon={}".format(horizon)],["outputs/test/{}/{}/formula_test/empty/automaton.lp".format(app, logic),"./automata_run/run.lp",mapping],[trace,encoding])
 
 def comapre_app(constraint,horizon=3):
-    ldlflp2nfalp("outputs/test/dfa/del/formula_test/empty/automaton.lp",ldl_inline=constraint)
+    ldlflp2dfalp("outputs/test/dfa/del/formula_test/empty/automaton.lp",ldl_inline=constraint)
     files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
     m_nfa = solve(["-c horizon={}".format(horizon)],files)
     translate(constraint,"formula_test.lp")
@@ -497,13 +497,13 @@ class TestMain(TestCase):
     def test_until(self):
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
         ltlf_formula = ldlf2ltlf(formula)
-        nfa = ltlf2nfa(ltlf_formula)
+        nfa = ltlf2dfa(ltlf_formula)
         nfa2lp(nfa,"outputs/test/dfa/del/formula_test/empty/automaton.lp")
         files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
         m_nfa = solve(["-c horizon={}".format(4)],files)
 
         ltlf_formula_until = LTLfUntil([LTLfAtomic("a"),LTLfAtomic("b")])
-        nfa_until = ltlf2nfa(ltlf_formula_until)
+        nfa_until = ltlf2dfa(ltlf_formula_until)
         nfa2lp(nfa_until,"outputs/test/dfa/del/formula_test/empty/automaton.lp")
         files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
         m_nfa_until = solve(["-c horizon={}".format(4)],files)
@@ -530,3 +530,4 @@ class TestMain(TestCase):
         """
         afw = AFW.from_lp(inline_data= automata_lp)
         nfa = afw.to_nfa()
+        nfa.save_png()
