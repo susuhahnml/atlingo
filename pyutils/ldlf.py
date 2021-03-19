@@ -24,6 +24,14 @@ path_binary_operators = {";;":'Sequence', "+":'Choice'}
 path_operators = dict(path_unary_operators)
 path_operators.update(path_binary_operators)
 
+# Used in lp encodings
+del_operators_names = {"box":'Box', "diamond":'Diamond',"top": "Boolean","bot": "Boolean","neg": "Prop"}
+path_unary_operators_names  = {"star":'KleeneStar', "test":'Check', "top": "Skip"}
+path_binary_operators_names = {"sequence":'Sequence', "choice":'Choice'}
+path_operators_names = dict(path_unary_operators_names)
+path_operators_names.update(path_binary_operators_names)
+
+
 
 def set_next_aux(rep, rep2aux):
     aux_name = "aux_{}".format(len(rep2aux))
@@ -40,18 +48,27 @@ class LDLfFormula():
         self.__rep  = rep
 
     @classmethod
-    def from_term(cls, term):
+    def from_theory(cls, term):
         if (term.type ==  _clingo.TheoryTermType.Symbol):
-            return LDLfProp.from_term(term)
+            return LDLfProp.from_theory(term)
         elif (term.type ==  _clingo.TheoryTermType.Function):
             if term.name in del_operators:
                 class_name = "LDLf" + del_operators[term.name]
             else:
                 class_name = "LDLfProp"
-            return getattr(sys.modules[__name__], class_name).from_term(term)
+            return getattr(sys.modules[__name__], class_name).from_theory(term)
         else:
             raise RuntimeError("Invalid term {}".format(term))
     
+    @classmethod
+    def from_symbol(cls, symbol, id2prop):
+        if symbol.name in del_operators_names:
+            class_name = "LDLf" + del_operators_names[symbol.name]
+        else:
+            class_name = "LDLfProp"
+        return getattr(sys.modules[__name__], class_name).from_symbol(symbol,id2prop)
+        
+
     @classmethod
     def from_lp(cls, files=[], inline_data=""):
         ctl = _clingo.Control([], message_limit=0)
@@ -63,7 +80,7 @@ class LDLfFormula():
         ctl.ground([("base", [])])
         formulas = []
         for t in ctl.theory_atoms:
-            formula = LDLfFormula.from_term(t.elements[0].terms[0])
+            formula = LDLfFormula.from_theory(t.elements[0].terms[0])
             formulas.append(formula)
         return formulas
 
@@ -97,10 +114,14 @@ class LDLfBoolean(LDLfFormula):
         self.__value = value
 
     @classmethod
-    def from_term(cls, term):
+    def from_theory(cls, term):
         arg = term.arguments[0]
         assert(arg.type == _clingo.TheoryTermType.Symbol)
         return cls(arg.name == "true")
+
+    @classmethod
+    def from_symbol(cls, symbol, id2prop):
+        return cls(symbol.name == "top")
 
     def to_ltlf(self, eqs, rep2t):
         if self.__value:
@@ -126,14 +147,14 @@ class LDLfProp(LDLfFormula):
         self._name = name
         args = "" if len(arguments)==0 else "({})".format(",".join([str(a) for a in arguments]))
         self._arguments = args
-        rep = "({}{}{})".format("" if positive else "~",
+        rep = "{}{}{}".format("" if positive else "~",
                                   name, args)
 
         LDLfFormula.__init__(self, rep)
         self.positive = positive
 
     @classmethod
-    def from_term(cls, term):
+    def from_theory(cls, term):
         positive = True
         if term.type == _clingo.TheoryTermType.Function and term.name=="~":
             positive == False
@@ -141,8 +162,17 @@ class LDLfProp(LDLfFormula):
         arguments = [] if term.type == _clingo.TheoryTermType.Symbol else term.arguments
         return cls(term.name, arguments, positive)
 
+    @classmethod
+    def from_symbol(cls, symbol, id2prop):
+        positive = True
+        if symbol.name=="neg":
+            positive == False
+            symbol = symbol.arguments[0]
+        prop_id = symbol.arguments[0].number
+        return cls(id2prop[prop_id], [], positive)
+
     def to_ltlf(self, eqs, rep2t):
-        s = self._rep[1:-1].replace("(","_1_").replace(")","_2_").replace(",","_3_")
+        s = self._rep.replace("(","_1_").replace(")","_2_").replace(",","_3_")
         return LTLfAtomic(s)
 
 class LDLfMainOperator(LDLfFormula):
@@ -169,9 +199,15 @@ class LDLfMainOperator(LDLfFormula):
         LDLfFormula.__init__(self, rep)
 
     @classmethod
-    def from_term(cls, term):
-        path = Path.from_term(term.arguments[0])
-        rhs = LDLfFormula.from_term(term.arguments[1])
+    def from_theory(cls, term):
+        path = Path.from_theory(term.arguments[0])
+        rhs = LDLfFormula.from_theory(term.arguments[1])
+        return cls(path, rhs)
+
+    @classmethod
+    def from_symbol(cls, symbol, id2prop):
+        path = Path.from_symbol(symbol.arguments[0], id2prop)
+        rhs = LDLfFormula.from_symbol(symbol.arguments[1], id2prop)
         return cls(path, rhs)
 
 class LDLfDiamond(LDLfMainOperator):
@@ -314,20 +350,30 @@ class Path(object):
 
     
     @classmethod
-    def from_term(cls, term):
+    def from_theory(cls, term):
         assert term.type ==  _clingo.TheoryTermType.Function
         class_name = path_operators[term.name] + "Path"
-        return getattr(sys.modules[__name__], class_name).from_term(term)   
+        return getattr(sys.modules[__name__], class_name).from_theory(term)   
+
+    @classmethod
+    def from_symbol(cls, symbol, id2prop):
+        class_name = path_operators_names[symbol.name] + "Path"
+        return getattr(sys.modules[__name__], class_name).from_symbol(symbol, id2prop)   
 
 class SkipPath(Path):
     def __init__(self):
         Path.__init__(self, "(&skip)")
 
     @classmethod
-    def from_term(cls,term):
+    def from_theory(cls,term):
         assert term.arguments[0].name=="true"
         return cls()
     
+    @classmethod
+    def from_symbol(cls,symbol, id2prop):
+        assert symbol.name=="top"
+        return cls()
+
 class BinaryPath(Path):
     """
     Members:
@@ -341,20 +387,26 @@ class BinaryPath(Path):
         Path.__init__(self, rep)
 
     @classmethod
-    def from_term(cls,term):
-        lhs = Path.from_term(term.arguments[0])
-        rhs = Path.from_term(term.arguments[1])
+    def from_theory(cls,term):
+        lhs = Path.from_theory(term.arguments[0])
+        rhs = Path.from_theory(term.arguments[1])
+        return cls(lhs,rhs)
+
+    @classmethod
+    def from_symbol(cls,symbol, id2prop):
+        lhs = Path.from_symbol(symbol.arguments[0], id2prop)
+        rhs = Path.from_symbol(symbol.arguments[1], id2prop)
         return cls(lhs,rhs)
 
 class ChoicePath(BinaryPath):
     
     def __init__(self, lhs, rhs):
-        BinaryPath.__init__(self, "({}+{})".format(lhs._rep, rhs._rep), lhs, rhs)
+        BinaryPath.__init__(self, "{}+{}".format(lhs._rep, rhs._rep), lhs, rhs)
 
 class SequencePath(BinaryPath):
     
     def __init__(self, lhs, rhs):
-        BinaryPath.__init__(self, "({};;{})".format(lhs._rep, rhs._rep), lhs, rhs)
+        BinaryPath.__init__(self, "{};;{}".format(lhs._rep, rhs._rep), lhs, rhs)
 
 class UnaryPath(Path):
     """
@@ -378,19 +430,26 @@ class CheckPath(UnaryPath):
         UnaryPath.__init__(self, "{}?".format(arg._rep), arg)
 
     @classmethod
-    def from_term(cls,term):
+    def from_theory(cls,term):
+        arg =  LDLfFormula.from_theory(term.arguments[0])
+        return cls(arg)
 
-        arg =  LDLfFormula.from_term(term.arguments[0])
+    @classmethod
+    def from_symbol(cls,symbol, id2prop):
+        arg =  LDLfFormula.from_symbol(symbol.arguments[0], id2prop)
         return cls(arg)
 
 class KleeneStarPath(UnaryPath):
 
     def __init__(self, arg):
-        UnaryPath.__init__(self, "({}*)".format(arg._rep), arg)
+        UnaryPath.__init__(self, "{}*".format(arg._rep), arg)
 
     @classmethod
-    def from_term(cls,term):
-
-        arg =  Path.from_term(term.arguments[0])
+    def from_theory(cls,term):
+        arg =  Path.from_theory(term.arguments[0])
         return cls(arg)
 
+    @classmethod
+    def from_symbol(cls,symbol, id2prop):
+        arg =  Path.from_symbol(symbol.arguments[0], id2prop)
+        return cls(arg)

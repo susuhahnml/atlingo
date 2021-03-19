@@ -30,7 +30,11 @@ logic = 'del'
 
 
 # define the name of the directory to be created
-paths = ["./outputs/test/afw/del/formula_test/empty","./outputs/test/dfa/del/formula_test/empty"]
+paths = ["./outputs/test/afw/del/cons_tmp/instance_tmp",
+        "./outputs/test/telingo/del/cons_tmp/instance_tmp",
+        "./outputs/test/dfa/del/cons_tmp/instance_tmp",
+        "./outputs/test/nfa/del/cons_tmp/instance_tmp"
+        ]
 
 try:
     for p in paths:
@@ -75,38 +79,39 @@ def solve(const=[], files=[],inline_data=[]):
     ctl.solve(on_model= lambda m: r.append(parse_model(m)))
     return sorted(r)
 
-def translate(constraint,file,extra=[]):
-    # f = open("env/test/temporal_constraints/{}/{}".format(logic,file), "w")
-    with open("env/test/temporal_constraints/{}/{}".format(logic,file), 'w') as f:
+def translate(constraint,extra=[],app='afw',horizon=3):
+    cons_file = "env/test/temporal_constraints/{}/cons_tmp.lp".format(logic)
+    with open(cons_file, 'w') as f:
         f.write(constraint)
-    # f.close()
-    command = 'make translate LOGIC={} CONSTRAINT={} ENV_APP=test INSTANCE=env/test/instances/empty.lp'.format(logic,file[:-3]) 
+    command = 'make translate APP={} LOGIC={} CONSTRAINT=cons_tmp ENV_APP=test INSTANCE=env/test/instances/instance_tmp.lp APP={} HORIZON={}'.format(app,logic,app,horizon) 
+    print(command)
     subprocess.check_output(command.split())
 
-def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp",app="afw"):
-    translate(constraint,file)
-    files = ["outputs/test/{}/{}/formula_test/empty/automaton.lp".format(app, logic),"./automata_run/run.lp","./automata_run/trace_generator.lp"]
-    if not mapping is None:
-        files.append(mapping)
-    return solve(["-c horizon={}".format(horizon)],files)
 
-def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False,app="afw"):
-    translate(constraint,file)
-    if visualize:
-        command = "python scripts/viz.py {} {}".format(logic,file[:-3]) 
-        subprocess.check_output(command.split())
+def run_check(constraint,trace="",horizon=3,app="afw",generate=False,extra_files=[]):
+    translate(constraint,app=app,horizon=horizon)
 
-    return solve(["-c horizon={}".format(horizon)],["outputs/test/{}/{}/formula_test/empty/automaton.lp".format(app, logic),"./automata_run/run.lp",mapping],[trace,encoding])
+    automata_path = "outputs/test/{}/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app, logic,app)
+    run_files = {
+        "afw": ['./automata_run/run.lp',"./env/test/glue.lp"],
+        "dfa": ['./automata_run/run.lp'],
+        "nfa": ['./automata_run/run.lp'],
+        "telingo": []
+    }
+    paths = [automata_path]+run_files[app]+extra_files
+    if generate:
+        paths.append("./automata_run/trace_generator.lp")
+    return solve(["-c horizon={}".format(horizon)],paths,[trace])
 
-def comapre_app(constraint,horizon=3):
-    ldlflp2dfalp("outputs/test/dfa/del/formula_test/empty/automaton.lp",ldl_inline=constraint)
-    files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
-    m_nfa = solve(["-c horizon={}".format(horizon)],files)
-    translate(constraint,"formula_test.lp")
-
-    files = ["outputs/test/afw/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
-    m_afw = solve(["-c horizon={}".format(horizon)],files)
-    return (m_nfa,m_afw)
+def comapre_apps(constraint,horizon=3,apps=[],test_instance=None):
+    models = []
+    for app in apps:
+        models.append(run_check(constraint,horizon=horizon,app=app,generate=True))
+    for i in range(len(models)-2):
+        print(i)
+        print(models[i])
+        print(models[i+1])
+        test_instance.assertListEqual(models[i],models[i+1])
 
 class TestCase(unittest.TestCase):
     longMessage = True
@@ -132,23 +137,23 @@ class TestMain(TestCase):
     def test_generation(self):
         self.maxDiff=None
         
-        result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=1)
+        result = run_check(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=1,generate=True)
         base_model = [(0,'"q(1)"'),(0,'"p"'),(1,'"p"'),(1,'"last"')]
         expected_models = [base_model, base_model+[(1,'"q(1)"')]]
         self.assert_all(expected_models,result)
         self.assert_base(base_model,result)
 
 
-        result = run_generate(":- not &del{ ?p ;; &true .>? ~ p}.",horizon=1)
+        result = run_check(":- not &del{ ?p ;; &true .>? ~ p}.",horizon=1,generate=True)
         expected_models = [[(0,'"p"'),(1,'"last"')]]
         self.assert_all(expected_models,result)
 
 
-        result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=3)
+        result = run_check(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=3,generate=True)
         base_model = [(0,'"q(1)"'),(0,'"p"'),(1,'"p"'),(3,'"last"')]
         self.assert_base(base_model,result)
 
-        result = run_generate(":- not &del{ * ( ?p ;; &true ) .>? ?q .>? ~ p}.",horizon=1)
+        result = run_check(":- not &del{ * ( ?p ;; &true ) .>? ?q .>? ~ p}.",horizon=1,generate=True)
         expected_models = [[(1,'"last"'),(0,'"q"')],
                           [(1,'"last"'),(0,'"q"'),(1,'"q"')],
                           [(1,'"last"'),(0,'"q"'),(1,'"q"'),(1,'"p"')],
@@ -158,18 +163,17 @@ class TestMain(TestCase):
         self.assert_all(expected_models,result)                   
 
         # UNSAT because horizon has to be in in time point 0
-        result = run_generate(":- not &del{ &true .>* &false}.",horizon=3)
+        result = run_check(":- not &del{ &true .>* &false}.",horizon=3,generate=True)
         self.assert_unsat(result)
 
         # UNSAT because horizon has to be in in time point 0
-        result = run_generate(":- not &del{ &true .>* &false}.",horizon=2)
+        result = run_check(":- not &del{ &true .>* &false}.",horizon=2,generate=True)
         self.assert_unsat(result)
 
-        result = run_generate(":- not &del{ &true .>* &false}.",horizon=0)
+        result = run_check(":- not &del{ &true .>* &false}.",horizon=0,generate=True)
         expected_models = [[(0,'"last"')]]
         self.assert_all(expected_models,result)
         
-
     def test_check(self):
         self.maxDiff=None
 
@@ -383,10 +387,10 @@ class TestMain(TestCase):
         ######### Examples using asprilo env starting actions in timepoint 1.
         
     
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="env/asprilo/glue.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,extra_files=["env/asprilo/glue.lp"])
         self.assert_sat(result)
 
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="env/asprilo/glue.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,extra_files=["env/asprilo/glue.lp"])
         self.assert_unsat(result)
 
     def test_multiple(self):
@@ -414,15 +418,13 @@ class TestMain(TestCase):
     def test_ldlf(self):
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")
         self.assertEqual(formulas[0]._rep,"<(&skip)>(b)")
-
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a ;; * (? a + ?b ;; &true) .>? b}.")
         self.assertEqual(formulas[0]._rep,"<((a)?;;((((a)?+(b)?);;(&skip))*))>(b)")
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a(X) .>* &true}, p(X). p(1). p(2).")
         self.assertEqual(len(formulas),2)
         self.assertEqual(formulas[0]._rep,"[(a(1))?] &true ")
         self.assertEqual(formulas[1]._rep,"[(a(2))?] &true ")
-        
-    
+          
     def test_transformer(self):
 
 
@@ -452,32 +454,31 @@ class TestMain(TestCase):
 
     def test_translation(self):
 
-        self.longMessage = True
         constraints = [
-            ":- not &del{ &true }.",
-            ":- not &del{ &false }.",
-            # Atoms
-            ":- not &del{ p }.",
-            # Step (Diamond)
-            ":-not &del{ &true .>? p}.",
-            # Step (Box)
-            ":-not &del{ &true .>* p}.",
-            # Test construct (Diamond)
-            ":-not &del{ ?q .>? p}.",
-            # Test construct (Box)
-            ":-not &del{ ?q .>* p}.",
-            # Sequence (Diamond)
-            ":-not &del{ ?q ;; &true .>? p}.",
-            ":-not &del{ ?q ;; ?p .>? &true}.",
-            # Sequence (Box)
-            ":-not &del{ ?q ;; &true .>* p}.",
-            ":-not &del{ ?q ;; ?p .>* &true}.",
-            # Choice (Diamond)
-            ":-not &del{ ?q + &true .>? p}.",
-            ":-not &del{ ?q + ?p .>? &true}.",
-            # Choice (Box)
-            ":-not &del{ ?q + &true .>* p}.",
-            ":-not &del{ ?q + ?p .>* &true}.",
+            # ":- not &del{ &true }.",
+            # ":- not &del{ &false }.",
+            # # Atoms
+            # ":- not &del{ p }.",
+            # # Step (Diamond)
+            # ":-not &del{ &true .>? p}.",
+            # # Step (Box)
+            # ":-not &del{ &true .>* p}.",
+            # # Test construct (Diamond)
+            # ":-not &del{ ?q .>? p}.",
+            # # Test construct (Box)
+            # ":-not &del{ ?q .>* p}.",
+            # # Sequence (Diamond)
+            # ":-not &del{ ?q ;; &true .>? p}.",
+            # ":-not &del{ ?q ;; ?p .>? &true}.",
+            # # Sequence (Box)
+            # ":-not &del{ ?q ;; &true .>* p}.",
+            # ":-not &del{ ?q ;; ?p .>* &true}.",
+            # # Choice (Diamond)
+            # ":-not &del{ ?q + &true .>? p}.",
+            # ":-not &del{ ?q + ?p .>? &true}.",
+            # # Choice (Box)
+            # ":-not &del{ ?q + &true .>* p}.",
+            # ":-not &del{ ?q + ?p .>* &true}.",
             # Star (Diamond)
             ":-not &del{ * (?q ;; &true) .>? p}.",
             ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.",
@@ -485,57 +486,39 @@ class TestMain(TestCase):
             ":-not &del{ * (?q ;; &true) .>* p}.",
             ":-not &del{ * (?q) .>* ?p .>? &true .>? q}.",
             # Star (Box)
-            ":-not &del{ ?q .>? &true .>* &false}."
+            ":-not &del{ ?q .>? &true .>* &false}.",
+            # Until
+            ":- not &del{ *(? a;; &true) .>? b}."
         ]
         for cons in constraints:
             for h in range(1,4):
                 print("Testing {} with h = {}".format(cons,h))
-                m_nfa,m_afw = comapre_app(cons,h)
-                self.assertListEqual(m_nfa,m_afw,cons)
+                comapre_apps(cons,h,apps=['afw','dfa','nfa','telingo'],test_instance=self)
 
-
-    def test_until(self):
-        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
-        ltlf_formula = ldlf2ltlf(formula)
-        nfa = ltlf2dfa(ltlf_formula)
-        nfa2lp(nfa,"outputs/test/dfa/del/formula_test/empty/automaton.lp")
-        files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
-        m_nfa = solve(["-c horizon={}".format(4)],files)
-
-        ltlf_formula_until = LTLfUntil([LTLfAtomic("a"),LTLfAtomic("b")])
-        nfa_until = ltlf2dfa(ltlf_formula_until)
-        nfa2lp(nfa_until,"outputs/test/dfa/del/formula_test/empty/automaton.lp")
-        files = ["outputs/test/dfa/del/formula_test/empty/automaton.lp","./automata_run/run.lp","./automata_run/trace_generator.lp"]
-        m_nfa_until = solve(["-c horizon={}".format(4)],files)
-        self.assertListEqual(m_nfa,m_nfa_until)
 
 
     def test_lp2afw(self):
 
         automata_lp = """
-        initial_state(0).
-        prop(9,"p").
-        prop(13,"q").
-        prop(15,"last").
-        state(0,diamond(sequence(test(diamond(star(top),prop(9))),top),prop(13))).
-        state(2,diamond(star(top),prop(9))).
-        state(1,prop(13)).
-        delta(2,(1,out,15),2).
-        delta(0,(1,out,15),2).
-        delta(0,(1,out,15),1).
-        delta(0,(0,out,15),1).
-        delta(0,(0,in,9),true).
-        delta(2,(0,in,9),true).
-        delta(1,(0,in,13),true).
+initial_state(0).
+prop(5,"q").
+prop(12,"p").
+prop(14,"last").
+state(0,diamond(star(sequence(test(prop(5)),top)),prop(12))).
+delta(0,(1,out,14),0).
+delta(0,(1,in,5),true).
+delta(0,(0,in,12),true).
         """
         afw = AFW.from_lp(inline_data= automata_lp)
-        # afw.save_png()
 
-        formula = LDLfFormula.from_lp(inline_data= ":- not &del{  ? (* &true .>? p) ;; &true .>? q }.")[0]
-        ltlf_formula = ldlf2ltlf(formula)
-        nfa = ltlf2dfa(ltlf_formula)
-        # nfa.save_png()
+        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ * (?q ;; &true) .>? p}.")[0]
+        # ltlf_formula = ldlf2ltlf(formula)
+        # nfa = ltlf2dfa(ltlf_formula)
+        # print(afw)
+        # afw.to_tex()
+        # afw.save_png(labels=False)
         
         nfa = afw.to_nfa()
+        print(nfa)
         nfa.save_png()
 

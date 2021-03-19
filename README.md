@@ -252,17 +252,21 @@ $ make viz-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 For detailed information on how the benchmarking works check the [benchmarks-readme](./benchmarks/README.md).
 
 
-## Final options
+## Other options
 
 **LDL_LP** ->
     1. **(atlingo)** AFW_LP + AUTOMATA_CLINGO
     2. **(telingo)** LTL_TELINGO **➜** LP  (PROP & TELINGO TSEITEN) + CLINGO
     3. **(afw2nfa)** AFW_LP **➜** AFW_PY **➜** NFA_PY (Vardi Pseudo) **➜** NFA_LP + AUTOMATA_CLINGO  
     3.1. **(afw2nfa)** AFW_LP **➜** (Clingo) **➜** NFA_LP + AUTOMATA_CLINGO 
-    1. **(ltl2dfa)** LDL_PY (Thoery(API)) **➜** LTL_PY (ltl2dfa) **➜** DFA_MONA (LTL2DFA & MONA) **➜** NFA_PY (pydot) **➜** NFA_LP + AUTOMATA_CLINGO
+    4. **(ltl2dfa)** LDL_PY (Thoery(API)) **➜** LTL_PY (ltl2dfa) **➜** DFA_MONA (LTL2DFA & MONA) **➜** NFA_PY (pydot) **➜** NFA_LP + AUTOMATA_CLINGO
       
-    
+ AWF   
 
 ![](/afw.png)
+
+DFA
 ![](dfa.png)
+
+NFA
 ![](nfa.png)

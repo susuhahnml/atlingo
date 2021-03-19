@@ -11,6 +11,7 @@ from pyutils.ldlf import LDLfFormula
 import sys
 import re
 
+
 def ldlf2ltlf(ldlf_formula):
     eqs = []
     rep2t = {}
@@ -44,8 +45,8 @@ def nfa2lp(nfa, out_file, prefix = ""):
     with open(out_file, 'w') as f:
         f.write(nfa.to_lp(state_prefix= prefix))
 
-def ldlflp2dfalp(dfa_file,ldl_files=[],ldl_inline=""):
-    ldlfformulas = LDLfFormula.from_lp(files=ldl_files,inline_data=ldl_inline)
+def ldlflp2dfalp(dfa_file,files=[],inline_data=""):
+    ldlfformulas = LDLfFormula.from_lp(files=files,inline_data=inline_data)
     p = ""
     for i,f in enumerate(ldlfformulas):
         ltlformula = ldlf2ltlf(f)
@@ -57,14 +58,27 @@ def ldlflp2dfalp(dfa_file,ldl_files=[],ldl_inline=""):
     with open(dfa_file, 'w') as f:
         f.write(p)
 
-def ldlflp2nfalp(nfa_file,ldl_files=[],ldl_inline=""):
-    afw = AFW.from_lp(files = ldl_files, inline_data= ldl_inline)
+    return dfa
+
+def afwlp2nfalp(nfa_file,files=[],inline_data=""):
+    afw = AFW.from_lp(files = files, inline_data= inline_data)
     nfa = afw.to_nfa()
     with open(nfa_file, 'w') as f:
         f.write(nfa.to_lp())
+    return nfa
 
 if __name__ == "__main__":
     if sys.argv[1]=="dfa":
         ldlflp2dfalp(sys.argv[2],sys.argv[3:])
     elif sys.argv[1]=="nfa":
-        ldlflp2nfalp(sys.argv[2],sys.argv[3:])
+        afwlp2nfalp(sys.argv[2],sys.argv[3:])
+    elif sys.argv[1]=="viz":
+        app = sys.argv[2]
+        if app=="dfa":
+            automata = ldlflp2dfalp(sys.argv[3],sys.argv[4:])
+        elif app=="nfa":
+            automata = afwlp2nfalp(sys.argv[3],sys.argv[4:])
+        elif app=="afw":
+            automata = AFW.from_lp(files = sys.argv[4:])
+        automata.save_png()
+            
