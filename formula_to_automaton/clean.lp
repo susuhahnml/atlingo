@@ -24,7 +24,9 @@ drop_delta(Case,S):-
     delta_reachable(S,(Case,NotOpt,A),S''), 
     NotOpt!=Opt.
 
-delta(S,(Case,Opt,A),S'):-delta_reachable(S,(Case,Opt,A),S'), not drop_delta(Case,S).
+% Assign numbers to cases
+delta(S,(N,Opt,A),S'):- delta_reachable(S,(Case,Opt,A),S'), not drop_delta(Case,S), 
+                #count{Case': Case'>Case, delta_reachable(S,(Case',_,_),_), not drop_delta(Case',S)}=N.
 
 % -------------------- Remove cases for irelevat atoms using binary resolution 
 % delta(S,C,S'):-delta_reachable(S,C,S').

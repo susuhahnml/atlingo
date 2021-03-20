@@ -43,7 +43,7 @@ def translate(constraint,file,extra=[]):
     f = open("env/test/temporal_constraints/{}/{}".format(logic,file), "w")
     f.write(constraint)
     f.close()
-    command = 'make translate LOGIC={} CONSTRAINT={} APP=test INSTANCE=env/test/instances/empty.lp'.format(logic,file[:-3]) 
+    command = 'make translate LOGIC={} CONSTRAINT={} ENV_APP=test INSTANCE=env/test/instances/empty.lp'.format(logic,file[:-3]) 
     subprocess.check_output(command.split())
 
 def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):

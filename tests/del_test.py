@@ -1,12 +1,47 @@
 import unittest
+import os
 import sys
 import clingo
 # from subprocess import Popen, PIPE
 import subprocess
 import itertools
+from pyutils.transformers import ldlf2ltlf, ltlf2dfa,ldlflp2dfalp,nfa2lp
+from pyutils.ldlf import LDLfFormula
+from pyutils.automata import AFW
+from ltlf2dfa.ltlf import (
+    LTLfAtomic,
+    LTLfAnd,
+    LTLfEquivalence,
+    LTLfOr,
+    LTLfNot,
+    LTLfImplies,
+    LTLfEventually,
+    LTLfAlways,
+    LTLfUntil,
+    LTLfRelease,
+    LTLfNext,
+    LTLfWeakNext,
+    LTLfTrue,
+    LTLfFalse,
+)
 
 
 logic = 'del'
+
+
+# define the name of the directory to be created
+paths = ["./outputs/test/afw/del/cons_tmp/instance_tmp",
+        "./outputs/test/telingo/del/cons_tmp/instance_tmp",
+        "./outputs/test/dfa/del/cons_tmp/instance_tmp",
+        "./outputs/test/nfa/del/cons_tmp/instance_tmp"
+        ]
+
+try:
+    for p in paths:
+        os.makedirs(p,exist_ok=True)
+except OSError:
+    print ("Creation of the directory %s failed" % p)
+
 
 class Context:
     def id(self, x):
@@ -17,17 +52,23 @@ class Context:
 def sort_trace(trace):
     return list(sorted(trace))
 
+def tuple2str(sym):
+    if str(sym.type)=="Function" and sym.name=="":
+        args = "({})".format(",".join([tuple2str(s) for s in sym.arguments[1:]]))
+        return "{}{}".format(str(sym.arguments[0]).strip('"'),"" if args=="()" else args)
+    else:
+        return str(sym).strip('"')
 def parse_model(m):
     ret = []
     for sym in m.symbols(shown=True):
         if sym.name=="holds_map":
-            ret.append((sym.arguments[0].number, str(sym.arguments[1]) ))
+            ret.append((sym.arguments[0].number, '"{}"'.format(tuple2str(sym.arguments[1])) ))
     return sort_trace(ret)
 
 def solve(const=[], files=[],inline_data=[]):
     r = []
     imax  = 20
-    ctl = clingo.Control(['0']+const, message_limit=0)
+    ctl = clingo.Control(['0','--project']+const, message_limit=0)
     ctl.add("base", [], "")
     for f in files:
         ctl.load(f)
@@ -38,31 +79,39 @@ def solve(const=[], files=[],inline_data=[]):
     ctl.solve(on_model= lambda m: r.append(parse_model(m)))
     return sorted(r)
 
-def translate(constraint,file,extra=[]):
-    f = open("env/test/temporal_constraints/{}/{}".format(logic,file), "w")
-    f.write(constraint)
-    f.close()
-    command = 'make translate LOGIC={} CONSTRAINT={} APP=test INSTANCE=env/test/instances/empty.lp'.format(logic,file[:-3]) 
+def translate(constraint,extra=[],app='afw',horizon=3):
+    cons_file = "env/test/temporal_constraints/{}/cons_tmp.lp".format(logic)
+    with open(cons_file, 'w') as f:
+        f.write(constraint)
+    command = 'make translate APP={} LOGIC={} CONSTRAINT=cons_tmp ENV_APP=test INSTANCE=env/test/instances/instance_tmp.lp APP={} HORIZON={}'.format(app,logic,app,horizon) 
+    # print(command)
     subprocess.check_output(command.split())
 
-def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):
-    translate(constraint,file)
-    files = ["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./automata_run/run.lp","./automata_run/trace_generator.lp"]
-    if not mapping is None:
-        files.append(mapping)
-    return solve(["-c horizon={}".format(horizon)],files)
 
-def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file="formula_test.lp",horizon=3,visualize=False):
-    translate(constraint,file)
-    if visualize:
-        command = "python scripts/viz.py {} {}".format(logic,file[:-3]) 
-        subprocess.check_output(command.split())
+def run_check(constraint,trace="",horizon=3,app="afw",generate=False,extra_files=[]):
+    translate(constraint,app=app,horizon=horizon)
 
-    return solve(["-c horizon={}".format(horizon)],["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./automata_run/run.lp",mapping],[trace,encoding])
+    automata_path = "outputs/test/{}/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app, logic,app)
+    run_files = {
+        "afw": ['./automata_run/run.lp',"./env/test/glue.lp"],
+        "dfa": ['./automata_run/run.lp'],
+        "nfa": ['./automata_run/run.lp'],
+        "telingo": []
+    }
+    paths = [automata_path]+run_files[app]+extra_files
+    if generate:
+        paths.append("./automata_run/trace_generator.lp")
+    return solve(["-c horizon={}".format(horizon)],paths,[trace])
 
-
+def comapre_apps(constraint,horizon=3,apps=[],test_instance=None):
+    models = []
+    for app in apps:
+        models.append(run_check(constraint,horizon=horizon,app=app,generate=True))
+    for i in range(len(models)-2):
+        test_instance.assertListEqual(models[i],models[i+1])
 
 class TestCase(unittest.TestCase):
+    longMessage = True
     def assert_base(self,base_model,result):
         for r in result:
             for a in base_model:
@@ -85,23 +134,23 @@ class TestMain(TestCase):
     def test_generation(self):
         self.maxDiff=None
         
-        result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=1)
-        base_model = [(0,'("q",1)'),(0,'"p"'),(1,'"p"'),(1,'"last"')]
-        expected_models = [base_model, base_model+[(1,'("q",1)')]]
+        result = run_check(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=1,generate=True)
+        base_model = [(0,'"q(1)"'),(0,'"p"'),(1,'"p"'),(1,'"last"')]
+        expected_models = [base_model, base_model+[(1,'"q(1)"')]]
         self.assert_all(expected_models,result)
         self.assert_base(base_model,result)
 
 
-        result = run_generate(":- not &del{ ?p ;; &true .>? ~ p}.",horizon=1)
+        result = run_check(":- not &del{ ?p ;; &true .>? ~ p}.",horizon=1,generate=True)
         expected_models = [[(0,'"p"'),(1,'"last"')]]
         self.assert_all(expected_models,result)
 
 
-        result = run_generate(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=3)
-        base_model = [(0,'("q",1)'),(0,'"p"'),(1,'"p"'),(3,'"last"')]
+        result = run_check(":- not &del{ ?q(1) ;; ?p ;; &true .>? p}.",horizon=3,generate=True)
+        base_model = [(0,'"q(1)"'),(0,'"p"'),(1,'"p"'),(3,'"last"')]
         self.assert_base(base_model,result)
 
-        result = run_generate(":- not &del{ * ( ?p ;; &true ) .>? ?q .>? ~ p}.",horizon=1)
+        result = run_check(":- not &del{ * ( ?p ;; &true ) .>? ?q .>? ~ p}.",horizon=1,generate=True)
         expected_models = [[(1,'"last"'),(0,'"q"')],
                           [(1,'"last"'),(0,'"q"'),(1,'"q"')],
                           [(1,'"last"'),(0,'"q"'),(1,'"q"'),(1,'"p"')],
@@ -111,18 +160,17 @@ class TestMain(TestCase):
         self.assert_all(expected_models,result)                   
 
         # UNSAT because horizon has to be in in time point 0
-        result = run_generate(":- not &del{ &true .>* &false}.",horizon=3)
+        result = run_check(":- not &del{ &true .>* &false}.",horizon=3,generate=True)
         self.assert_unsat(result)
 
         # UNSAT because horizon has to be in in time point 0
-        result = run_generate(":- not &del{ &true .>* &false}.",horizon=2)
+        result = run_check(":- not &del{ &true .>* &false}.",horizon=2,generate=True)
         self.assert_unsat(result)
 
-        result = run_generate(":- not &del{ &true .>* &false}.",horizon=0)
+        result = run_check(":- not &del{ &true .>* &false}.",horizon=0,generate=True)
         expected_models = [[(0,'"last"')]]
         self.assert_all(expected_models,result)
         
-
     def test_check(self):
         self.maxDiff=None
 
@@ -336,10 +384,10 @@ class TestMain(TestCase):
         ######### Examples using asprilo env starting actions in timepoint 1.
         
     
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,mapping="env/asprilo/glue.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,extra_files=["env/asprilo/glue.lp"])
         self.assert_sat(result)
 
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,mapping="env/asprilo/glue.lp")
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,extra_files=["env/asprilo/glue.lp"])
         self.assert_unsat(result)
 
     def test_multiple(self):
@@ -362,3 +410,85 @@ class TestMain(TestCase):
         self.assert_unsat(result)
         result = run_check(":-not &del{ (? ((* &true) .>* q)) .>* p}.",trace="q(0).q(1).q(2).p(0).",horizon=2)
         self.assert_sat(result)
+
+
+    def test_ldlf(self):
+        formulas = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")
+        self.assertEqual(formulas[0]._rep,"<(&skip)>b")
+        formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a ;; * (? a + ?b ;; &true) .>? b}.")
+        self.assertEqual(formulas[0]._rep,"<a?;;a?+b?;;(&skip)*>b")
+        formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a(X) .>* &true}, p(X). p(1). p(2).")
+        self.assertEqual(len(formulas),2)
+        self.assertEqual(formulas[0]._rep,"[a(1)?] &true ")
+        self.assertEqual(formulas[1]._rep,"[a(2)?] &true ")
+          
+    def test_transformer(self):
+
+
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")[0]
+        ltlf_formula = ldlf2ltlf(formula)
+        
+        a_0 = LTLfAtomic('aux_0')
+        b = LTLfAtomic('b')
+        next_b = LTLfNext(b)
+        # self.assertEqual(ltlf_formula,LTLfAnd([a_0,LTLfAlways(LTLfEquivalence([a_0,next_b]))]))
+        self.assertEqual(ltlf_formula,next_b)
+
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ? a ;; &true .>? b}.")[0]
+        ltlf_formula = ldlf2ltlf(formula)
+        # a = LTLfAtomic('a')
+        # a_1 = LTLfAtomic('aux_1')
+
+        self.assertEqual(str(ltlf_formula),"(aux_0 & G((aux_0 <-> (a & X(b)))))")
+
+
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
+        ltlf_formula = ldlf2ltlf(formula)
+        self.assertEqual(str(ltlf_formula),"((aux_0 & G((aux_0 <-> (b | aux_1)))) & G((aux_1 <-> (a & X(aux_0)))))")
+
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ &true }.")[0]
+        ltlf_formula = ldlf2ltlf(formula)
+
+    def test_translation(self):
+
+        constraints = [
+            ":- not &del{ &true }.",
+            ":- not &del{ &false }.",
+            # Atoms
+            ":- not &del{ p }.",
+            # Step (Diamond)
+            ":-not &del{ &true .>? p}.",
+            # Step (Box)
+            ":-not &del{ &true .>* p}.",
+            # Test construct (Diamond)
+            ":-not &del{ ?q .>? p}.",
+            # Test construct (Box)
+            ":-not &del{ ?q .>* p}.",
+            # Sequence (Diamond)
+            ":-not &del{ ?q ;; &true .>? p}.",
+            ":-not &del{ ?q ;; ?p .>? &true}.",
+            # Sequence (Box)
+            ":-not &del{ ?q ;; &true .>* p}.",
+            ":-not &del{ ?q ;; ?p .>* &true}.",
+            # Choice (Diamond)
+            ":-not &del{ ?q + &true .>? p}.",
+            ":-not &del{ ?q + ?p .>? &true}.",
+            # Choice (Box)
+            ":-not &del{ ?q + &true .>* p}.",
+            ":-not &del{ ?q + ?p .>* &true}.",
+            # Star (Diamond)
+            ":-not &del{ * (?q ;; &true) .>? p}.",
+            ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.",
+            # Star (Box)
+            ":-not &del{ * (?q ;; &true) .>* p}.",
+            ":-not &del{ * (?q) .>* ?p .>? &true .>? q}.",
+            # Star (Box)
+            ":-not &del{ ?q .>? &true .>* &false}.",
+            # Until
+            ":- not &del{ *(? a;; &true) .>? b}."
+        ]
+        for cons in constraints:
+            for h in range(1,4):
+                print("Testing {} with h = {}".format(cons,h))
+                comapre_apps(cons,h,apps=['afw','dfa','nfa','telingo'],test_instance=self)
+

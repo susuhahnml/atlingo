@@ -17,6 +17,7 @@ node(S',T+1) :- select_case(Case,S,T), delta(S,(Case,_,_),S'), S'!=true.
 :- select_case(Case,S,T), delta(S,(Case,in,A),_), not in_trace_at(A,T).
 :- select_case(Case,S,T), delta(S,(Case,out,A),_), in_trace_at(A,T).
 
+:- node(ID,horizon+1), not final_state(ID).
 
 #show holds_map/2.
 % #show in_trace_at/2.

@@ -121,7 +121,7 @@ $ clingo $(PATH_OUT)/reified.lp ./formula_to_automaton/automata_$(LOGIC).lp -n 0
 The full translation process can be made using the make file:
 
 ```shell
-$ make translate LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE 
+$ make translate LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE 
 ```
 
 
@@ -160,7 +160,7 @@ Where:
 #### *Using make file*
 
 ```shell
-$ make generate-traces LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
+$ make generate-traces LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
 ```
 
 ### Validation of trace from planning encoding
@@ -189,7 +189,7 @@ Where:
 #### *Using make file*
 
 ```shell
-$ make run LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_FILES=$RUN_FILES HORIZON=$HORIZON
+$ make run LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_FILES=$RUN_FILES HORIZON=$HORIZON
 ```
 
 ------------
@@ -199,7 +199,7 @@ $ make run LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_F
 The representation of the automata, corresponding to the transition diagram, can be visualized on an image by running:
 
 ```shell
-$ make viz-automaton LOGIC=$LOGIC APP=$APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
+$ make viz-automaton LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 ```
 
 Example:
@@ -252,4 +252,21 @@ $ make viz-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 For detailed information on how the benchmarking works check the [benchmarks-readme](./benchmarks/README.md).
 
 
+## Other options
 
+**LDL_LP** ->
+    1. **(atlingo)** AFW_LP + AUTOMATA_CLINGO
+    2. **(telingo)** LTL_TELINGO **➜** LP  (PROP & TELINGO TSEITEN) + CLINGO
+    3. **(afw2nfa)** AFW_LP **➜** AFW_PY **➜** NFA_PY (Vardi Pseudo) **➜** NFA_LP + AUTOMATA_CLINGO  
+    3.1. **(afw2nfa)** AFW_LP **➜** (Clingo) **➜** NFA_LP + AUTOMATA_CLINGO 
+    4. **(ltl2dfa)** LDL_PY (Thoery(API)) **➜** LTL_PY (ltl2dfa) **➜** DFA_MONA (LTL2DFA & MONA) **➜** NFA_PY (pydot) **➜** NFA_LP + AUTOMATA_CLINGO
+      
+ AWF   
+
+![](/afw.png)
+
+DFA
+![](dfa.png)
+
+NFA
+![](nfa.png)

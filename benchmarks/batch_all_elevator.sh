@@ -15,15 +15,36 @@ make copy-programs
 #./run_bm.sh elevator afw_del 13 0
 #./run_bm.sh elevator afw_del 14 0
 #./run_bm.sh elevator afw_del 15 0
-# ./run_bm.sh elevator afw_del 16 0
-# ./run_bm.sh elevator afw_del 17 0
-# ./run_bm.sh elevator afw_del 18 0
-# ./run_bm.sh elevator afw_del 19 0
-# ./run_bm.sh elevator afw_del 20 0
-# ./run_bm.sh elevator afw_del 21 0
+#./run_bm.sh elevator afw_del 16 0
+#./run_bm.sh elevator afw_del 17 0
+#./run_bm.sh elevator afw_del 18 0
+#./run_bm.sh elevator afw_del 19 0
+#./run_bm.sh elevator afw_del 20 0
+#./run_bm.sh elevator afw_del 21 0
 
 
-#./run_bm.sh elevator nc 8 0
+./run_bm.sh elevator telingo 8 0
+ ./run_bm.sh elevator telingo 9 0
+ ./run_bm.sh elevator telingo 10 0
+ ./run_bm.sh elevator telingo 11 0
+ ./run_bm.sh elevator telingo 12 0
+ ./run_bm.sh elevator telingo 13 0
+ ./run_bm.sh elevator telingo 14 0
+ ./run_bm.sh elevator telingo 15 0
+ ./run_bm.sh elevator telingo 16 0
+
+#./run_bm.sh elevator dfa 8 0
+# ./run_bm.sh elevator dfa 9 0
+# ./run_bm.sh elevator dfa 10 0
+# ./run_bm.sh elevator dfa 11 0
+# ./run_bm.sh elevator dfa 12 0
+# ./run_bm.sh elevator dfa 13 0
+# ./run_bm.sh elevator dfa 14 0
+# ./run_bm.sh elevator dfa 15 0
+# ./run_bm.sh elevator dfa 16 0
+
+
+# ./run_bm.sh elevator nc 8 0
 #./run_bm.sh elevator nc 9 0
 #./run_bm.sh elevator nc 10 0
 #./run_bm.sh elevator nc 11 0
@@ -38,14 +59,6 @@ make copy-programs
 # ./run_bm.sh elevator nc 20 0
 # ./run_bm.sh elevator nc 21 0
 
-./run_bm.sh elevator telingo 8 0
-./run_bm.sh elevator telingo 9 0
-./run_bm.sh elevator telingo 10 0
-./run_bm.sh elevator telingo 11 0
-./run_bm.sh elevator telingo 12 0
-./run_bm.sh elevator telingo 13 0
-./run_bm.sh elevator telingo 14 0
-./run_bm.sh elevator telingo 15 0
 
 make clean -s
 
