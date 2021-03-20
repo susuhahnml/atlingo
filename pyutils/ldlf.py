@@ -25,7 +25,7 @@ path_operators = dict(path_unary_operators)
 path_operators.update(path_binary_operators)
 
 # Used in lp encodings
-del_operators_names = {"box":'Box', "diamond":'Diamond',"top": "Boolean","bot": "Boolean","neg": "Prop"}
+del_operators_names = {"box":'Box', "diamond":'Diamond',"top": "Boolean","bottom": "Boolean","neg": "Prop"}
 path_unary_operators_names  = {"star":'KleeneStar', "test":'Check', "top": "Skip"}
 path_binary_operators_names = {"sequence":'Sequence', "choice":'Choice'}
 path_operators_names = dict(path_unary_operators_names)
@@ -164,6 +164,7 @@ class LDLfProp(LDLfFormula):
 
     @classmethod
     def from_symbol(cls, symbol, id2prop):
+        print(symbol)
         positive = True
         if symbol.name=="neg":
             positive == False

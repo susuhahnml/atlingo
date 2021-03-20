@@ -42,11 +42,6 @@ clean:
 	(cd benchmarks ; make clean)
 
 
-# viz-automaton:
-# 	@printf "$B Computing visualization for automaton in $(PATH_OUT)/automaton.lp ... $(NC)"
-
-# 	@python scripts/viz.py $(LOGIC) $(PATH_OUT)/automaton.lp
-
 viz:
 	@ printf "$BVisualizing APP=$(APP) ENV=$(ENV_APP) CONSTRAINT=$(CONSTRAINT)$ INSTANCE=$(NAME_INSTANCE) HORIZON=$(HORIZON) $(NC)\n"
 

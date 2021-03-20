@@ -84,7 +84,7 @@ def translate(constraint,extra=[],app='afw',horizon=3):
     with open(cons_file, 'w') as f:
         f.write(constraint)
     command = 'make translate APP={} LOGIC={} CONSTRAINT=cons_tmp ENV_APP=test INSTANCE=env/test/instances/instance_tmp.lp APP={} HORIZON={}'.format(app,logic,app,horizon) 
-    print(command)
+    # print(command)
     subprocess.check_output(command.split())
 
 
@@ -108,9 +108,6 @@ def comapre_apps(constraint,horizon=3,apps=[],test_instance=None):
     for app in apps:
         models.append(run_check(constraint,horizon=horizon,app=app,generate=True))
     for i in range(len(models)-2):
-        print(i)
-        print(models[i])
-        print(models[i+1])
         test_instance.assertListEqual(models[i],models[i+1])
 
 class TestCase(unittest.TestCase):
@@ -417,13 +414,13 @@ class TestMain(TestCase):
 
     def test_ldlf(self):
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")
-        self.assertEqual(formulas[0]._rep,"<(&skip)>(b)")
+        self.assertEqual(formulas[0]._rep,"<(&skip)>b")
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a ;; * (? a + ?b ;; &true) .>? b}.")
-        self.assertEqual(formulas[0]._rep,"<((a)?;;((((a)?+(b)?);;(&skip))*))>(b)")
+        self.assertEqual(formulas[0]._rep,"<a?;;a?+b?;;(&skip)*>b")
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a(X) .>* &true}, p(X). p(1). p(2).")
         self.assertEqual(len(formulas),2)
-        self.assertEqual(formulas[0]._rep,"[(a(1))?] &true ")
-        self.assertEqual(formulas[1]._rep,"[(a(2))?] &true ")
+        self.assertEqual(formulas[0]._rep,"[a(1)?] &true ")
+        self.assertEqual(formulas[1]._rep,"[a(2)?] &true ")
           
     def test_transformer(self):
 
@@ -455,30 +452,30 @@ class TestMain(TestCase):
     def test_translation(self):
 
         constraints = [
-            # ":- not &del{ &true }.",
-            # ":- not &del{ &false }.",
-            # # Atoms
-            # ":- not &del{ p }.",
-            # # Step (Diamond)
-            # ":-not &del{ &true .>? p}.",
-            # # Step (Box)
-            # ":-not &del{ &true .>* p}.",
-            # # Test construct (Diamond)
-            # ":-not &del{ ?q .>? p}.",
-            # # Test construct (Box)
-            # ":-not &del{ ?q .>* p}.",
-            # # Sequence (Diamond)
-            # ":-not &del{ ?q ;; &true .>? p}.",
-            # ":-not &del{ ?q ;; ?p .>? &true}.",
-            # # Sequence (Box)
-            # ":-not &del{ ?q ;; &true .>* p}.",
-            # ":-not &del{ ?q ;; ?p .>* &true}.",
-            # # Choice (Diamond)
-            # ":-not &del{ ?q + &true .>? p}.",
-            # ":-not &del{ ?q + ?p .>? &true}.",
-            # # Choice (Box)
-            # ":-not &del{ ?q + &true .>* p}.",
-            # ":-not &del{ ?q + ?p .>* &true}.",
+            ":- not &del{ &true }.",
+            ":- not &del{ &false }.",
+            # Atoms
+            ":- not &del{ p }.",
+            # Step (Diamond)
+            ":-not &del{ &true .>? p}.",
+            # Step (Box)
+            ":-not &del{ &true .>* p}.",
+            # Test construct (Diamond)
+            ":-not &del{ ?q .>? p}.",
+            # Test construct (Box)
+            ":-not &del{ ?q .>* p}.",
+            # Sequence (Diamond)
+            ":-not &del{ ?q ;; &true .>? p}.",
+            ":-not &del{ ?q ;; ?p .>? &true}.",
+            # Sequence (Box)
+            ":-not &del{ ?q ;; &true .>* p}.",
+            ":-not &del{ ?q ;; ?p .>* &true}.",
+            # Choice (Diamond)
+            ":-not &del{ ?q + &true .>? p}.",
+            ":-not &del{ ?q + ?p .>? &true}.",
+            # Choice (Box)
+            ":-not &del{ ?q + &true .>* p}.",
+            ":-not &del{ ?q + ?p .>* &true}.",
             # Star (Diamond)
             ":-not &del{ * (?q ;; &true) .>? p}.",
             ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.",
@@ -494,31 +491,4 @@ class TestMain(TestCase):
             for h in range(1,4):
                 print("Testing {} with h = {}".format(cons,h))
                 comapre_apps(cons,h,apps=['afw','dfa','nfa','telingo'],test_instance=self)
-
-
-
-    def test_lp2afw(self):
-
-        automata_lp = """
-initial_state(0).
-prop(5,"q").
-prop(12,"p").
-prop(14,"last").
-state(0,diamond(star(sequence(test(prop(5)),top)),prop(12))).
-delta(0,(1,out,14),0).
-delta(0,(1,in,5),true).
-delta(0,(0,in,12),true).
-        """
-        afw = AFW.from_lp(inline_data= automata_lp)
-
-        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ * (?q ;; &true) .>? p}.")[0]
-        # ltlf_formula = ldlf2ltlf(formula)
-        # nfa = ltlf2dfa(ltlf_formula)
-        # print(afw)
-        # afw.to_tex()
-        # afw.save_png(labels=False)
-        
-        nfa = afw.to_nfa()
-        print(nfa)
-        nfa.save_png()
 
