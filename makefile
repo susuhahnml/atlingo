@@ -28,6 +28,7 @@ $(eval RUN_APP_FILES_nfa = automata_run/run.lp)
 $(eval RUN_ENV_FILES_asprilo = env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_elevator = env/elevator/encoding.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_test = $(RUN_FILES))
+$(eval RUN_ENV_FILES_nc = $(RUN_FILES))
 
 $(eval TRANSLATE_FILES_asprilo = env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $(TRANSLATE_FILES))
 $(eval TRANSLATE_FILES_elevator = $(TRANSLATE_FILES))
@@ -91,6 +92,11 @@ run:
 	@printf "$(G)Run of $(APP) successfull $(NC)\n";
 
 translate-run:
+
+	@if [ "$(APP)" = "nc" ]; then;\
+		clingo --stats $(INSTANCE) $(RUN_ENV_FILES_$(ENV_APP)) -c horizon=$(HORIZON)-n $(MODELS) -q;\
+		true;\
+	fi
 
 	@if [ "$(FORCE_TRANSLATE)" = "1" ]; then \
 		make translate;\
