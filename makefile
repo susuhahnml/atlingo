@@ -93,11 +93,11 @@ run:
 
 translate-run:
 
-	@if [ "$(APP)" = "nc" ]; then;\
-		clingo --stats $(INSTANCE) $(RUN_ENV_FILES_$(ENV_APP)) -c horizon=$(HORIZON)-n $(MODELS) -q;\
-		true;\
+	@if [ "$(APP)" = "nc" ]; then\
+		echo "$(Y)No constrain option$(NC)";\
+		clingo --stats $(INSTANCE) $(RUN_ENV_FILES_$(ENV_APP)) -c horizon=$(HORIZON) -n $(MODELS);\
+		exit 1;\
 	fi
-
 	@if [ "$(FORCE_TRANSLATE)" = "1" ]; then \
 		make translate;\
 	else\

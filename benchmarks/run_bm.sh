@@ -49,7 +49,7 @@ echo "$C ---------------------------$NC"
 RUNSCRIPT_PATH=$PWD/runscripts/runscript_${ENV}_$NAME.xml
 echo "$Y Creating runscript in "
 echo "$B    $RUNSCRIPT_PATH $NC"
-sed "s/{H}/"$HORIZON"/g; s/{N}/"$MODELS"/g; s/{CLINGO_ARGS}/'"$CLINGO_ARGS"'/g; s/{APP}/'"$APPROACH"'/g" ./runscripts/runscript_${ENV}.xml >  $RUNSCRIPT_PATH
+sed "s/{H}/"$HORIZON"/g; s/{N}/"$MODELS"/g; s/{CLINGO_ARGS}/'"$CLINGO_ARGS"'/g; s/{APP}/"$APPROACH"/g" ./runscripts/runscript_${ENV}.xml >  $RUNSCRIPT_PATH
 
 
 # Results directory
