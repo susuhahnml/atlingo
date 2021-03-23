@@ -100,6 +100,8 @@ translate-run:
 	fi
 	@if [ "$(FORCE_TRANSLATE)" = "1" ]; then \
 		make translate;\
+	elif [ "$(APP)" = "telingo" ]; then\
+		make translate;\
 	else\
 		if [ -s $(PATH_OUT)/$(APP)_automata.lp ]; then\
 			echo "$(Y)Skipping translation$(NC)";\
