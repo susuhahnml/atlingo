@@ -6,6 +6,8 @@ This project contains the ASP encodings to transform temporal logic formulas int
 
 Update git-submodules. We use `https` instead of `sh` to facilitate the installation in the cluster.
 
+dot2tex
+
 ```shell
 $ git submodule update --init --recursive
 ```

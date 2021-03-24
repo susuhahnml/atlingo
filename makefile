@@ -28,6 +28,7 @@ $(eval RUN_APP_FILES_nfa = automata_run/run.lp)
 $(eval RUN_ENV_FILES_asprilo = env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_elevator = env/elevator/encoding.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_test = $(RUN_FILES))
+$(eval RUN_ENV_FILES_nc = $(RUN_FILES))
 
 $(eval TRANSLATE_FILES_asprilo = env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $(TRANSLATE_FILES))
 $(eval TRANSLATE_FILES_elevator = $(TRANSLATE_FILES))
@@ -92,7 +93,14 @@ run:
 
 translate-run:
 
+	@if [ "$(APP)" = "nc" ]; then\
+		echo "$(Y)No constrain option$(NC)";\
+		clingo --stats $(INSTANCE) $(RUN_ENV_FILES_$(ENV_APP)) -c horizon=$(HORIZON) -n $(MODELS);\
+		exit 1;\
+	fi
 	@if [ "$(FORCE_TRANSLATE)" = "1" ]; then \
+		make translate;\
+	elif [ "$(APP)" = "telingo" ]; then\
 		make translate;\
 	else\
 		if [ -s $(PATH_OUT)/$(APP)_automata.lp ]; then\
