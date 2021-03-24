@@ -190,6 +190,8 @@ instances = cleaned_dfs[0]['instance-name']
 n_columns = len(columns)
 n_instances = len(instances)
 x_instances = np.arange(len(instances))  # the label locations
+for i in instances:
+    print(i)
 width = 0.35  # the width of the bars
 for column in columns:
     reduced_df = pd.DataFrame()
@@ -217,8 +219,10 @@ for column in columns:
             elif args.plot_type=="line":
                 color=colors[int(i/len(horizons))]
                 linestyle = linestyles[i%len(horizons)]
-                next_plt = plt.plot(x_instances, col_plt, alpha=1, label=label,color=color,linestyle=linestyle)
-                plots_approach.append(next_plt[0])
+                # print(x_instances)
+                # print(col_plt)
+                # next_plt = plt.plot(x_instances, col_plt, alpha=1, label=label,color=color,linestyle=linestyle)
+                # plots_approach.append(next_plt[0])
             reduced_df[label] = col_plt
         
         final_plots += plots_approach
