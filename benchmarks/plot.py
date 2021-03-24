@@ -252,17 +252,23 @@ for column in columns:
         file_name_csv = 'plots/tables/{}-{}.csv'.format(prefix,column)
         file_name_tex_csv = 'plots/tables/{}-{}.tex'.format(prefix,column)
         reduced_df = reduced_df.rename(index={idx:i for idx,i in enumerate(instances)})
-        table_df = pd.DataFrame()
+        
         
         # ELEVATOR
+        table_df = pd.DataFrame(columns = args.approach, index=["h-{}".format(h) for h in horizons])
+
         for s in reduced_df.columns:
             s_split=s.split("__")
-            if(s_split[0]!='afw_del'):
-                continue
-            table_df[s_split[1]]=reduced_df['nc__'+s_split[1]].astype(int).apply(str)+'/'+reduced_df['dfa__'+s_split[1]].astype(int).apply(str)+'/'+reduced_df['telingo__'+s_split[1]].astype(int).apply(str)+'/'+reduced_df[s].astype(int).apply(str)
-
+            # h= int(s_split[1].split("-")[1])
+            table_df[s_split[0]][s_split[1]]=reduced_df[s][0].astype(int)
+        
         table_df.to_csv(file_name_csv,float_format='%.0f')
         tex_table = table_df.to_latex(float_format='%.0f')
+
+        # reduced_df.to_csv(file_name_csv,float_format='%.0f')
+        # tex_table = reduced_df.to_latex(float_format='%.0f')
+
+
         f = open(file_name_tex_csv, "w")
         f.write(tex_table)
         f.close()
@@ -276,8 +282,8 @@ for column in columns:
         tikz = tikz.replace("legend style={","legend style={font=\\scriptsize,")
         tikz = tikz.replace("xticklabel style = {","xticklabel style = {font=\\scriptsize,")
         tikz = tikz.replace("tick pos=both","tick pos=left")
-        tikz = tikz.replace("afw ","afw ltl ")
-        tikz = tikz.replace("afw_del","afw ldl")
+        # tikz = tikz.replace("afw ","afw ltl ")
+        # tikz = tikz.replace("afw","afw ldl")
         f = open(file_name_tikz, "w")
         f.write(tikz)
         f.close()
