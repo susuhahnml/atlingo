@@ -173,6 +173,8 @@ class NFA(Automata):
 
     @classmethod
     def from_mona(cls, mona):
+        if "Execution aborted" in mona:
+            raise Exception("Error in mona: \n{}".format(mona))
 
         def get_state(states, state_name):
             s_id = int(state_name)

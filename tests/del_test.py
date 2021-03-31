@@ -513,38 +513,45 @@ class TestMain(TestCase):
 
     def test_ldlf2mona(self):
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ( ?a + ?c ) ;; &true .>? ?b .>? &true .>* &false }.")[0]
-        formula = LDLfFormula.from_lp(inline_data= ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ?b .>? &true .>* &false }.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ &true .>* &false }.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ (?a ;; &true) .>? b  }.")[0]
         # mona_del_string = LDLfFormula.to_mona(formula)
         # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p .>? q}.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p ;; &true ;; ?q ;; &true .>? r}.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p ;; &true ;; ?q ;; &true .>? &true}.")[0]
+        formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(?p;; &true) .>? q}.")[0]
+        formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(&true) .>? q}.")[0]
         
-        print("----------- Vardi direct without closure --------------")
-        mona_string = LDLfFormula.to_mona_vardi(formula)
-        createMonafile(mona_string)
-        print(mona_string)
-        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        nfa = NFA.from_mona(mona_dfa)
-        nfa.save_png(file="outputs/automata_vardi_viz")
+        print("******* FORMULA *******")
+        print(formula)
+        print("***********************\n")
+        # print("----------- Vardi direct without closure --------------")
+        # mona_string = LDLfFormula.to_mona_vardi(formula)
+        # createMonafile(mona_string)
+        # print(mona_string)
+        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        # nfa = NFA.from_mona(mona_dfa)
+        # nfa.save_png(file="outputs/automata_vardi_viz")
 
-        print("----------- Vardi using closure --------------")
-        mona_string = LDLfFormula.to_mso(formula)
-        createMonafile(mona_string)
-        print(mona_string)
-        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        nfa = NFA.from_mona(mona_dfa)
-        nfa.save_png(file="outputs/automata_mso_viz")
+        # print("----------- Vardi using closure --------------")
+        # mona_string = LDLfFormula.to_mso(formula)
+        # createMonafile(mona_string)
+        # print(mona_string)
+        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        # nfa = NFA.from_mona(mona_dfa)
+        # nfa.save_png(file="outputs/automata_mso_viz")
 
 
-        print("----------- Using LTL --------------")
-        ltlf_formula = ldlf2ltlf(formula)
-        mona_string = ltlf2mona(ltlf_formula)
-        print(mona_string)
-        createMonafile(mona_string)
-        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        nfa = NFA.from_mona(mona_dfa)
-        nfa.save_png(file="outputs/automata_ltl_viz")
+        # print("----------- Using LTL --------------")
+        # ltlf_formula = ldlf2ltlf(formula)
+        # mona_string = ltlf2mona(ltlf_formula)
+        # print(mona_string)
+        # createMonafile(mona_string)
+        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        # nfa = NFA.from_mona(mona_dfa)
+        # nfa.save_png(file="outputs/automata_ltl_viz")
 
 
         print("----------- Blue book no star --------------")
@@ -552,6 +559,7 @@ class TestMain(TestCase):
         createMonafile(mona_string)
         print(mona_string)
         mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        print(mona_dfa)
         nfa = NFA.from_mona(mona_dfa)
         nfa.save_png(file="outputs/automata_blue_viz")
         

@@ -32,6 +32,23 @@ path_operators_names = dict(path_unary_operators_names)
 path_operators_names.update(path_binary_operators_names)
 
 
+class AuxMSO():
+    def __init__(self, f_id, f):
+        self._id = f_id
+        self._f = f
+    
+    def mona_q(self,time):
+        if not self._f.is_atomic:
+            return "({} in Q_{})".format(time,self._id)
+        elif self._f.__class__ == LDLfProp:
+            return "({} in {})".format(time,self._f.mona_rep)
+        elif self._f.__class__ == LDLfBoolean:
+            return "({})".format(self._f.mona_rep)
+        else:
+            raise Exception("Should be one above")
+            
+    def __str__(self):
+        return "ID: {} F:{} MONA:{}".format(self._id,self._f,self.mona_q('x'))
 
 def set_next_aux(rep, rep2aux):
     aux_name = "aux_{}".format(len(rep2aux))
@@ -46,7 +63,6 @@ class LDLfFormula():
         Initializes a formula with the given string representation.
         """
         self.__rep  = rep
-
 
     @classmethod
     def from_theory(cls, term):
@@ -89,24 +105,24 @@ class LDLfFormula():
     def to_mso(cls, formula):
 
         closure = list(formula.closure(set([])))
-        all_prop_vars = set()
 
         translations = []
-        rep2id = {f._rep:i for i, f in enumerate(closure)}
-        for f, i in rep2id.items():
-            translations.append("( (x in Q_{}) <=> ({}) )".format(i,closure[i].mso_eq("x",rep2id,all_prop_vars)))
+        rep2aux = {f._rep:AuxMSO(i,f) for i, f in enumerate(closure)}
+
+        for _, aux_mso in rep2aux.items():
+            # print(aux_mso)
+            if not aux_mso._f.is_atomic:
+                translations.append("( {} <=> ({}) )".format(aux_mso.mona_q('x'),aux_mso._f.mso_eq("x",rep2aux)))
         
         
         mso_string = "\nm2l-str;\n"
         
+        all_prop_vars = [f.mona_rep for f in closure if f.__class__ == LDLfProp and f.positive]
         if len(all_prop_vars)>0:
             mso_string += "var2 {};\n".format(", ".join(all_prop_vars))
         
-        phi_id = rep2id[formula._rep]
-        # print(rep2id)
-        exist_2var = ", ".join(["Q_{}".format(i) for i in rep2id.values()])
-        # print(translations)
-        mso_string += "(ex2 {}: (0 in Q_{}) & all1 x: ({}));\n".format(exist_2var,phi_id," & ".join(translations))
+        exist_2var = ", ".join(["Q_{}".format(aux_mso._id) for aux_mso in rep2aux.values() if not aux_mso._f.is_atomic])
+        mso_string += "(ex2 {}: {} & all1 x: ({}));\n".format(exist_2var,rep2aux[formula._rep].mona_q(0)," & ".join(translations))
         return mso_string
 
     @classmethod
@@ -166,10 +182,18 @@ class LDLfBoolean(LDLfFormula):
         """
         LDLfFormula.__init__(self, " &true " if value else " &false ")
         self.__value = value
-
+    
+    @property
+    def is_atomic(self):
+        return True
+    
     def closure(self,done):
         done.add(self._rep)
         return set([self])
+
+    @property
+    def mona_rep(self):
+        return 'true ' if self.__value else 'false '
 
     @classmethod
     def from_theory(cls, term):
@@ -181,9 +205,6 @@ class LDLfBoolean(LDLfFormula):
     def from_symbol(cls, symbol, id2prop):
         return cls(symbol.name == "top")
 
-    def mso_eq(self, time, rep2id,all_prop_vars):
-        return 'true ' if self.__value else 'false '
-
     def to_ltlf(self, eqs, rep2t):
         if self.__value:
             return LTLfTrue()
@@ -191,10 +212,10 @@ class LDLfBoolean(LDLfFormula):
             return LTLfFalse()
 
     def to_mona(self, v_start, all_prop_vars, all_vars):
-        return 'true ' if self.__value else 'false '
+        return self.mona_rep
 
     def to_mona_vardi(self, v_start, all_prop_vars, all_vars):
-        return 'true ' if self.__value else 'false '
+        return self.mona_rep
         
 class LDLfProp(LDLfFormula):
     """
@@ -219,6 +240,11 @@ class LDLfProp(LDLfFormula):
 
         LDLfFormula.__init__(self, rep)
         self.positive = positive
+    
+    @property
+    def is_atomic(self):
+        return self.positive
+
     @property
     def positive_version(self):
         return LDLfProp(self._name,self._arguments,True)
@@ -254,26 +280,23 @@ class LDLfProp(LDLfFormula):
     @property
     def mona_rep(self):
         s = self._rep.replace("(","_1_").replace(")","_2_").replace(",","_3_")
-        return s
+        return s.upper()
 
-    def mso_eq(self, time, rep2id, all_prop_vars):
-        if not self.positive:
-            return "~ ({} in Q_{})".format(time,rep2id[self.positive_version._rep])
-        else:
-            all_prop_vars.add(self.mona_rep.upper())
-            return "({} in {})".format(time, self.mona_rep.upper())
+    def mso_eq(self, time, rep2aux):
+        assert not self.positive
+        return "~ {}".format(rep2aux[self.positive_version._rep].mona_q(time))
 
     def to_ltlf(self, eqs, rep2t):
-        return LTLfAtomic(self.mona_rep)
+        return LTLfAtomic(self.mona_rep.lower())
 
     def to_mona(self, v_start, all_prop_vars, all_vars):
-        all_prop_vars.add(self.mona_rep.upper())
-        return "({} in {}) ".format(v_start, self.mona_rep.upper())
+        all_prop_vars.add(self.mona_rep)
+        return "({} in {}) ".format(v_start, self.mona_rep)
 
     def to_mona_vardi(self, v_start, all_prop_vars, all_vars):
         if self._rep[0]!="Q":
-            all_prop_vars.add(self.mona_rep.upper())
-        return "({} in {}) ".format(v_start, self.mona_rep.upper())
+            all_prop_vars.add(self.mona_rep)
+        return "({} in {}) ".format(v_start, self.mona_rep)
 
 class LDLfMainOperator(LDLfFormula):
     """
@@ -297,6 +320,10 @@ class LDLfMainOperator(LDLfFormula):
         self._rhs = rhs
         rep = "{}{}{}{}".format(op[0], path._rep, op[1], rhs._rep)
         LDLfFormula.__init__(self, rep)
+
+    @property
+    def is_atomic(self):
+        return False
 
     def closure(self, done):
         if self._rep in done:
@@ -353,31 +380,31 @@ class LDLfDiamond(LDLfMainOperator):
         """
         LDLfMainOperator.__init__(self, "<>", path, rhs)
     
-    def mso_eq(self, time, rep2id, all_prop_vars):
+    def mso_eq(self, time, rep2aux):
         c = self._path.__class__
         if c == SkipPath:
-            return "ex1 v: v={}+1 & (v in Q_{})".format(time,rep2id[self._rhs._rep])
+            return "ex1 v: v={}+1 & {}".format(time,rep2aux[self._rhs._rep].mona_q('v'))
         elif c == CheckPath:
-            rhs_rep = rep2id[self._rhs._rep]
-            lhs_rep = rep2id[self._path._arg._rep]
-            return "({} in Q_{}) & ({} in Q_{})".format(time,rhs_rep,time,lhs_rep)
+            rhs_rep = rep2aux[self._rhs._rep]
+            lhs_rep = rep2aux[self._path._arg._rep]
+            return "{} & {}".format(rhs_rep.mona_q(time),lhs_rep.mona_q(time))
         elif c == ChoicePath:
-            lhs_rep = rep2id[LDLfDiamond(self._path._lhs,self._rhs)._rep]
-            rhs_rep = rep2id[LDLfDiamond(self._path._rhs,self._rhs)._rep]
-            return "({} in Q_{}) | ({} in Q_{})".format(time,rhs_rep,time,lhs_rep)
+            lhs_rep = rep2aux[LDLfDiamond(self._path._lhs,self._rhs)._rep]
+            rhs_rep = rep2aux[LDLfDiamond(self._path._rhs,self._rhs)._rep]
+            return "{} | {}".format(rhs_rep.mona_q(time),lhs_rep.mona_q(time))
         elif c == SequencePath:
             eq_ldl = LDLfDiamond(self._path._lhs,LDLfDiamond(self._path._rhs,self._rhs))
-            eq_rep = rep2id[eq_ldl._rep]
-            return "({} in Q_{})".format(time,eq_rep)
+            eq_rep = rep2aux[eq_ldl._rep]
+            return "{}".format(eq_rep.mona_q(time))
 
         elif c == KleeneStarPath:
-            rhs_rep = rep2id[self._rhs._rep]
+            rhs_rep = rep2aux[self._rhs._rep]
             if self._path._arg.__class__==CheckPath:
-                return "({} in Q_{})".format(time,rhs_rep)
+                return "{}".format(rhs_rep.mona_q(time))
             else:
                 step_ldl = LDLfDiamond(self._path._arg,self)
-                step_rep = rep2id[step_ldl._rep]
-                return "({} in Q_{}) | ({} in Q_{})".format(time,rhs_rep,time,step_rep)
+                step_rep = rep2aux[step_ldl._rep]
+                return "{} | {}".format(rhs_rep.mona_q(time),step_rep.mona_q(time))
 
             
     def to_ltlf(self, eqs, rep2t):
@@ -484,31 +511,31 @@ class LDLfBox(LDLfMainOperator):
         """
         LDLfMainOperator.__init__(self, "[]", path, rhs)
 
-    def mso_eq(self, time, rep2id, all_prop_vars):
+    def mso_eq(self, time, rep2aux):
         c = self._path.__class__
         if c == SkipPath:
-            return "all1 v: v={}+1 => (v in Q_{})".format(time,rep2id[self._rhs._rep])
+            return "all1 v: v={}+1 => {}".format(time,rep2aux[self._rhs._rep].mona_q('v'))
         elif c == CheckPath:
-            rhs_rep = rep2id[self._rhs._rep]
-            lhs_rep = rep2id[self._path._arg._rep]
-            return "({} in Q_{}) => ({} in Q_{})".format(time,rhs_rep,time,lhs_rep)
+            rhs_rep = rep2aux[self._rhs._rep]
+            lhs_rep = rep2aux[self._path._arg._rep]
+            return "{} => {}".format(rhs_rep.mona_q(time),lhs_rep.mona_q(time))
         elif c == ChoicePath:
-            lhs_rep = rep2id[LDLfBox(self._path._lhs,self._rhs)._rep]
-            rhs_rep = rep2id[LDLfBox(self._path._rhs,self._rhs)._rep]
-            return "({} in Q_{}) & ({} in Q_{})".format(time,rhs_rep,time,lhs_rep)
+            lhs_rep = rep2aux[LDLfBox(self._path._lhs,self._rhs)._rep]
+            rhs_rep = rep2aux[LDLfBox(self._path._rhs,self._rhs)._rep]
+            return "{} & {}".format(rhs_rep.mona_q(time),lhs_rep.mona_q(time))
         elif c == SequencePath:
             eq_ldl = LDLfBox(self._path._lhs,LDLfBox(self._path._rhs,self._rhs))
-            eq_rep = rep2id[eq_ldl._rep]
-            return "({} in Q_{})".format(time,eq_rep)
+            eq_rep = rep2aux[eq_ldl._rep]
+            return "{}".format(eq_rep.mona_q(time))
 
         elif c == KleeneStarPath:
-            rhs_rep = rep2id[self._rhs._rep]
+            rhs_rep = rep2aux[self._rhs._rep]
             if self._path._arg.__class__==CheckPath:
-                return "({} in Q_{})".format(time,rhs_rep)
+                return "{}".format(rhs_rep.mona_q(time))
             else:
                 step_ldl = LDLfBox(self._path._arg,self)
-                step_rep = rep2id[step_ldl._rep]
-                return "({} in Q_{}) => ({} in Q_{})".format(time,rhs_rep,time,step_rep)
+                step_rep = rep2aux[step_ldl._rep]
+                return "{} => {}".format(rhs_rep.mona_q(time),step_rep.mona_q(time))
 
     def to_ltlf(self, eqs, rep2t):
         if self._rep in rep2t:
@@ -516,9 +543,6 @@ class LDLfBox(LDLfMainOperator):
         c = self._path.__class__
         if c == SkipPath:
             rhs_ltl = self._rhs.to_ltlf(eqs,rep2t)
-            # l = set_next_aux(self._rep,rep2t)
-            # eqs.append((l,LTLfWeakNext(rhs_ltl)))
-            # return l
             return LTLfWeakNext(rhs_ltl)
         elif c == CheckPath:
             rhs_ltl = self._rhs.to_ltlf(eqs,rep2t)
@@ -743,4 +767,10 @@ class KleeneStarPath(UnaryPath):
         return cls(arg)
 
     def to_mona(self, v_start, v_end, all_prop_vars, all_vars):
-        raise NotImplemented
+        conditions = []
+        conditions.append("{} in U".format(v_start)) #Initial tp is in the set of starting tps
+        conditions.append("all1 r: (r in U) => ({}<=r & r<={})".format(v_start,v_end)) #All tps in the set are between the limits
+        st_p = self._arg.to_mona('v', 'w', all_prop_vars, all_vars)
+        # For every two tps in the set that are consecutive rho must hold between them
+        conditions.append("all1 v, w: (v<w & (v in U) & ( (w in U)| w={}) & ~(ex1 z: z<w & v<z) ) => {}".format(v_end,st_p))
+        return "{}={} | ex2 U: ({})".format(v_start,v_end, "& ".join(["({})".format(c) for c in conditions]))
