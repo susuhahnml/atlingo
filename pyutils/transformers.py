@@ -21,8 +21,7 @@ def ldlf2ltlf(ldlf_formula):
         ltl = LTLfAnd([ltl, LTLfAlways(LTLfEquivalence([eq[0],eq[1]]))])
     return ltl
 
-
-def ltlf2dfa(ltlf_formula):
+def ltlf2mona(ltlf_formula):
     p = MonaProgram(ltlf_formula)
     vrs = [v for v in p.vars if v[:4]!="AUX_"]
     aux_vrs = [v for v in p.vars if v[:4]=="AUX_"]
@@ -34,7 +33,20 @@ def ltlf2dfa(ltlf_formula):
     else:
         mona_p_string += "{};\n".format(p.formula.to_mona())
 
-    createMonafile(mona_p_string)
+    return mona_p_string
+
+def ltlf2dfa(ltlf_formula):
+
+    createMonafile(ltlf2mona(ltlf_formula))
+
+    mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+
+    nfa = NFA.from_mona(mona_dfa)
+    return nfa
+
+def ldlf2dfa(ldlf_formula):
+
+    createMonafile(LDLfFormula.to_mona_vardi(ldlf_formula))
 
     mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
 
@@ -49,8 +61,9 @@ def ldlflp2dfalp(dfa_file,files=[],inline_data=""):
     ldlfformulas = LDLfFormula.from_lp(files=files,inline_data=inline_data)
     p = ""
     for i,f in enumerate(ldlfformulas):
-        ltlformula = ldlf2ltlf(f)
-        dfa = ltlf2dfa(ltlformula)
+        # ltlformula = ldlf2ltlf(f)
+        # dfa = ltlf2dfa(ltlformula)
+        dfa = ldlf2dfa(f)
         # dfa.save_png() 
         p+="\n%========== AUTOMATA {} ==========\n".format(i)
         p+=dfa.to_lp(state_prefix= "a{}_".format(i))

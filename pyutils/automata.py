@@ -29,10 +29,7 @@ class Condition():
         
         self._included = reduce_and(included,False)
         self._not_included = reduce_and(not_included,False)
-        # print("con")
-        # print(self._included)
-        # print(included)
-        # print(self._not_included)
+
     @classmethod
     def from_str(cls, s, prop2id):
         s = s.strip('"')
@@ -116,7 +113,7 @@ class Automata():
                 label = label.replace("]","}").replace(">","}")
                 label = "s_{{{}}}".format(label)
             shape= 'circle'
-            if s._id in self._final_states_ids:
+            if str(s._id) in self._final_states_ids:
                 shape = 'doublecircle'
             dot += 'node [shape = {} label= "{}"] {};\n'.format(shape, label,s._id)
         dot += 'init [shape = plaintext, label = " "];\n'

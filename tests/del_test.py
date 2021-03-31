@@ -5,9 +5,9 @@ import clingo
 # from subprocess import Popen, PIPE
 import subprocess
 import itertools
-from pyutils.transformers import ldlf2ltlf, ltlf2dfa,ldlflp2dfalp,nfa2lp
+from pyutils.transformers import ldlf2ltlf, ltlf2dfa,ldlflp2dfalp,nfa2lp,ltlf2mona
 from pyutils.ldlf import LDLfFormula
-from pyutils.automata import AFW
+from pyutils.automata import AFW, NFA
 from ltlf2dfa.ltlf import (
     LTLfAtomic,
     LTLfAnd,
@@ -24,6 +24,8 @@ from ltlf2dfa.ltlf import (
     LTLfTrue,
     LTLfFalse,
 )
+from ltlf2dfa.ltlf2dfa import createMonafile, invoke_mona, output2dot
+from ltlf2dfa.base import MonaProgram
 
 
 logic = 'del'
@@ -492,3 +494,23 @@ class TestMain(TestCase):
                 print("Testing {} with h = {}".format(cons,h))
                 comapre_apps(cons,h,apps=['afw','dfa','nfa','telingo'],test_instance=self)
 
+    def test_ldlf2mona(self):
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ( ?a + ?c ) ;; &true .>? ?b .>? &true .>* &false }.")[0]
+        formula = LDLfFormula.from_lp(inline_data= ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ?b .>? &true .>* &false }.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ &true .>* &false }.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(?a ;; &true) .>? b  }.")[0]
+        # mona_del_string = LDLfFormula.to_mona(formula)
+        mona_del_string = LDLfFormula.to_mona_vardi(formula)
+        
+        createMonafile(mona_del_string)
+
+        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        nfa = NFA.from_mona(mona_dfa)
+        nfa.save_png(file="outputs/automata_del_viz")
+
+        ltlf_formula = ldlf2ltlf(formula)
+        createMonafile(ltlf2mona(ltlf_formula))
+        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        nfa = NFA.from_mona(mona_dfa)
+        nfa.save_png(file="outputs/automata_tel_viz")

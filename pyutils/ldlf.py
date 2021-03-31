@@ -84,6 +84,35 @@ class LDLfFormula():
             formulas.append(formula)
         return formulas
 
+    @classmethod
+    def to_mona(cls, formula):
+
+        vars_prop = set()
+        all_vars = set()
+        
+        mona_p_string = "\nm2l-str;\n"
+        
+        mona_formula = formula.to_mona(0,vars_prop,all_vars)
+        if len(vars_prop)>0:
+            mona_p_string += "var2 {};\n".format(", ".join(vars_prop))
+        
+        mona_p_string += "{};\n".format(mona_formula)
+        return mona_p_string
+
+    @classmethod
+    def to_mona_vardi(cls, formula):
+
+        vars_prop = set()
+        all_vars = set()
+        
+        mona_p_string = "\nm2l-str;\n"
+        
+        mona_formula = formula.to_mona_vardi(0,vars_prop,all_vars)
+        if len(vars_prop)>0:
+            mona_p_string += "var2 {};\n".format(", ".join(vars_prop))
+        
+        mona_p_string += "{};\n".format(mona_formula)
+        return mona_p_string
 
     @property
     def _rep(self):
@@ -129,6 +158,12 @@ class LDLfBoolean(LDLfFormula):
         else:
             return LTLfFalse()
 
+    def to_mona(self, v_start, all_prop_vars, all_vars):
+        return 'true ' if self.__value else 'false '
+
+    def to_mona_vardi(self, v_start, all_prop_vars, all_vars):
+        return 'true ' if self.__value else 'false '
+        
 class LDLfProp(LDLfFormula):
     """
     Formula capturing a proposition, including negation.
@@ -164,7 +199,6 @@ class LDLfProp(LDLfFormula):
 
     @classmethod
     def from_symbol(cls, symbol, id2prop):
-        print(symbol)
         positive = True
         if symbol.name=="neg":
             positive == False
@@ -172,9 +206,22 @@ class LDLfProp(LDLfFormula):
         prop_id = symbol.arguments[0].number
         return cls(id2prop[prop_id], [], positive)
 
-    def to_ltlf(self, eqs, rep2t):
+    @property
+    def mona_rep(self):
         s = self._rep.replace("(","_1_").replace(")","_2_").replace(",","_3_")
-        return LTLfAtomic(s)
+        return s
+
+    def to_ltlf(self, eqs, rep2t):
+        return LTLfAtomic(self.mona_rep)
+
+    def to_mona(self, v_start, all_prop_vars, all_vars):
+        all_prop_vars.add(self.mona_rep.upper())
+        return "({} in {}) ".format(v_start, self.mona_rep.upper())
+
+    def to_mona_vardi(self, v_start, all_prop_vars, all_vars):
+        if self._rep[0]!="Q":
+            all_prop_vars.add(self.mona_rep.upper())
+        return "({} in {}) ".format(v_start, self.mona_rep.upper())
 
 class LDLfMainOperator(LDLfFormula):
     """
@@ -269,6 +316,51 @@ class LDLfDiamond(LDLfMainOperator):
                 eqs.append((l,LTLfOr([rhs_ltl,step_ltl])))
             return l
 
+    def to_mona(self, v_start, all_prop_vars, all_vars):
+        new_var = 'v_{}'.format(len(all_vars))
+        all_vars.add(new_var)
+        st_p = self._path.to_mona(v_start,new_var,all_prop_vars, all_vars)
+        st_m = self._rhs.to_mona(new_var,all_prop_vars, all_vars)
+        return "(ex1 {}: ( {}& {})) ".format(new_var,st_p,st_m)
+    
+    def to_mona_vardi(self, v_start, all_prop_vars, all_vars):
+        
+        c = self._path.__class__
+        if c == SkipPath:
+            new_var = 'v_{}'.format(len(all_vars))
+            all_vars.add(new_var)
+            st_m = self._rhs.to_mona_vardi(new_var,all_prop_vars, all_vars)
+            return "(ex1 {}: ( {}={}+1 & {})) ".format(new_var,new_var,v_start,st_m)
+
+        elif c == CheckPath:
+            st_p = self._path._arg.to_mona_vardi(v_start,all_prop_vars, all_vars)
+            st_rhs = self._rhs.to_mona_vardi(v_start,all_prop_vars, all_vars)
+            return "({}& {}) ".format(st_p, st_rhs)
+
+        elif c == ChoicePath:
+            st_lhs = LDLfDiamond(self._path._lhs,self._rhs).to_mona_vardi(v_start,all_prop_vars, all_vars)
+            st_rhs = LDLfDiamond(self._path._rhs,self._rhs).to_mona_vardi(v_start,all_prop_vars, all_vars)
+            return "({}| {}) ".format(st_lhs, st_rhs)
+
+        elif c == SequencePath:
+            eq_ldl = LDLfDiamond(self._path._lhs,LDLfDiamond(self._path._rhs,self._rhs))
+            return eq_ldl.to_mona_vardi(v_start,all_prop_vars, all_vars)
+
+        elif c == KleeneStarPath:
+            if self._path._arg.__class__==CheckPath:
+                return self._rhs.to_mona_vardi(v_start,all_prop_vars,all_vars)
+            new_2var = 'Q_{}'.format(len(all_vars))
+            all_vars.add(new_2var)
+            q_prop_q = LDLfProp(new_2var,[],True)
+            new_var = 'v_{}'.format(len(all_vars))
+            all_vars.add(new_var)
+            st_q = q_prop_q.to_mona_vardi(v_start,all_prop_vars,all_vars)
+            st_qv = q_prop_q.to_mona_vardi(new_var,all_prop_vars,all_vars)
+            st_rhs_v = self._rhs.to_mona_vardi(new_var,all_prop_vars,all_vars)
+            st_induc_v = LDLfDiamond(self._path._arg,q_prop_q).to_mona_vardi(new_var,all_prop_vars,all_vars)
+            
+            
+            return "ex2 {}: ({}& all1 {}: ({}<=> ({}| {})))".format(new_2var,st_q,new_var,st_qv,st_rhs_v,st_induc_v)
 
 class LDLfBox(LDLfMainOperator):
     """
@@ -327,6 +419,51 @@ class LDLfBox(LDLfMainOperator):
                 eqs.append((l,LTLfAnd([rhs_ltl,step_ltl])))
             return l
 
+    def to_mona(self, v_start, all_prop_vars, all_vars):
+        new_var = 'v_{}'.format(len(all_vars))
+        all_vars.add(new_var)
+        st_p = self._path.to_mona(v_start,new_var,all_prop_vars, all_vars)
+        st_m = self._rhs.to_mona(new_var,all_prop_vars, all_vars)
+        return "(all1 {}: ( {}=> {})) ".format(new_var,st_p,st_m)
+
+    def to_mona_vardi(self, v_start, all_prop_vars, all_vars):
+        
+        c = self._path.__class__
+        if c == SkipPath:
+            new_var = 'v_{}'.format(len(all_vars))
+            all_vars.add(new_var)
+            st_m = self._rhs.to_mona_vardi(new_var,all_prop_vars, all_vars)
+            return "(({} = max($)) | (ex1 {}: ( {}={}+1 & {}))) ".format(v_start,new_var,new_var,v_start,st_m)
+
+        elif c == CheckPath:
+            st_p = self._path._arg.to_mona_vardi(v_start,all_prop_vars, all_vars)
+            st_rhs = self._rhs.to_mona_vardi(v_start,all_prop_vars, all_vars)
+            return "({}=> {}) ".format(st_p, st_rhs)
+
+        elif c == ChoicePath:
+            st_lhs = LDLfBox(self._path._lhs,self._rhs).to_mona_vardi(v_start,all_prop_vars, all_vars)
+            st_rhs = LDLfBox(self._path._rhs,self._rhs).to_mona_vardi(v_start,all_prop_vars, all_vars)
+            return "({}& {}) ".format(st_lhs, st_rhs)
+
+        elif c == SequencePath:
+            eq_ldl = LDLfBox(self._path._lhs,LDLfBox(self._path._rhs,self._rhs))
+            return eq_ldl.to_mona_vardi(v_start,all_prop_vars, all_vars)
+
+        elif c == KleeneStarPath:
+            if self._path._arg.__class__==CheckPath:
+                return self._rhs.to_mona_vardi(v_start,all_prop_vars,all_vars)
+            new_2var = 'Q_{}'.format(len(all_vars))
+            all_vars.add(new_2var)
+            q_prop_q = LDLfProp(new_2var,[],True)
+            new_var = 'v_{}'.format(len(all_vars))
+            all_vars.add(new_var)
+            st_q = q_prop_q.to_mona_vardi(v_start,all_prop_vars,all_vars)
+            st_qv = q_prop_q.to_mona_vardi(new_var,all_prop_vars,all_vars)
+            st_rhs_v = self._rhs.to_mona_vardi(new_var,all_prop_vars,all_vars)
+            st_induc_v = LDLfBox(self._path._arg,q_prop_q).to_mona_vardi(new_var,all_prop_vars,all_vars)
+            
+            
+            return "ex2 {}: ({}& all1 {}: ({}<=> ({}& {})))".format(new_2var,st_q,new_var,st_qv,st_rhs_v,st_induc_v)
 # ---------------------- Paths
 class Path(object):
 
@@ -374,6 +511,9 @@ class SkipPath(Path):
     def from_symbol(cls,symbol, id2prop):
         assert symbol.name=="top"
         return cls()
+    
+    def to_mona(self, v_start, v_end, all_prop_vars, all_vars):
+        return "( {} = {}+1) ".format(v_end,v_start)
 
 class BinaryPath(Path):
     """
@@ -399,15 +539,29 @@ class BinaryPath(Path):
         rhs = Path.from_symbol(symbol.arguments[1], id2prop)
         return cls(lhs,rhs)
 
+
+        
 class ChoicePath(BinaryPath):
     
     def __init__(self, lhs, rhs):
         BinaryPath.__init__(self, "{}+{}".format(lhs._rep, rhs._rep), lhs, rhs)
 
+    def to_mona(self, v_start, v_end, all_prop_vars, all_vars):
+        st_p_l = self._lhs.to_mona(v_start,v_end, all_prop_vars, all_vars)
+        st_p_r = self._rhs.to_mona(v_start,v_end, all_prop_vars, all_vars)
+        return "({} | {}) ".format(st_p_l,st_p_r)
+
 class SequencePath(BinaryPath):
     
     def __init__(self, lhs, rhs):
         BinaryPath.__init__(self, "{};;{}".format(lhs._rep, rhs._rep), lhs, rhs)
+
+    def to_mona(self, v_start, v_end, all_prop_vars, all_vars):
+        new_var = 'v_{}'.format(len(all_vars))
+        all_vars.add(new_var)
+        st_p_l = self._lhs.to_mona(v_start,new_var, all_prop_vars, all_vars)
+        st_p_r = self._rhs.to_mona(new_var,v_end, all_prop_vars, all_vars)
+        return "(ex1 {}: ({}& {}))".format(new_var, st_p_l,st_p_r)
 
 class UnaryPath(Path):
     """
@@ -440,6 +594,10 @@ class CheckPath(UnaryPath):
         arg =  LDLfFormula.from_symbol(symbol.arguments[0], id2prop)
         return cls(arg)
 
+    def to_mona(self, v_start, v_end, all_prop_vars, all_vars):
+        st_m = self._arg.to_mona(v_start, all_prop_vars, all_vars)
+        return "({}& {}={})".format(st_m,v_end,v_start) #ONLY test in prop
+
 class KleeneStarPath(UnaryPath):
 
     def __init__(self, arg):
@@ -454,3 +612,6 @@ class KleeneStarPath(UnaryPath):
     def from_symbol(cls,symbol, id2prop):
         arg =  Path.from_symbol(symbol.arguments[0], id2prop)
         return cls(arg)
+
+    def to_mona(self, v_start, v_end, all_prop_vars, all_vars):
+        raise NotImplemented
