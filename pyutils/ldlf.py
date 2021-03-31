@@ -47,6 +47,7 @@ class LDLfFormula():
         """
         self.__rep  = rep
 
+
     @classmethod
     def from_theory(cls, term):
         if (term.type ==  _clingo.TheoryTermType.Symbol):
@@ -85,16 +86,40 @@ class LDLfFormula():
         return formulas
 
     @classmethod
+    def to_mso(cls, formula):
+
+        closure = list(formula.closure(set([])))
+        all_prop_vars = set()
+
+        translations = []
+        rep2id = {f._rep:i for i, f in enumerate(closure)}
+        for f, i in rep2id.items():
+            translations.append("( (x in Q_{}) <=> ({}) )".format(i,closure[i].mso_eq("x",rep2id,all_prop_vars)))
+        
+        
+        mso_string = "\nm2l-str;\n"
+        
+        if len(all_prop_vars)>0:
+            mso_string += "var2 {};\n".format(", ".join(all_prop_vars))
+        
+        phi_id = rep2id[formula._rep]
+        # print(rep2id)
+        exist_2var = ", ".join(["Q_{}".format(i) for i in rep2id.values()])
+        # print(translations)
+        mso_string += "(ex2 {}: (0 in Q_{}) & all1 x: ({}));\n".format(exist_2var,phi_id," & ".join(translations))
+        return mso_string
+
+    @classmethod
     def to_mona(cls, formula):
 
-        vars_prop = set()
+        all_prop_vars = set()
         all_vars = set()
         
         mona_p_string = "\nm2l-str;\n"
         
-        mona_formula = formula.to_mona(0,vars_prop,all_vars)
-        if len(vars_prop)>0:
-            mona_p_string += "var2 {};\n".format(", ".join(vars_prop))
+        mona_formula = formula.to_mona(0,all_prop_vars,all_vars)
+        if len(all_prop_vars)>0:
+            mona_p_string += "var2 {};\n".format(", ".join(all_prop_vars))
         
         mona_p_string += "{};\n".format(mona_formula)
         return mona_p_string
@@ -102,14 +127,14 @@ class LDLfFormula():
     @classmethod
     def to_mona_vardi(cls, formula):
 
-        vars_prop = set()
+        all_prop_vars = set()
         all_vars = set()
         
         mona_p_string = "\nm2l-str;\n"
         
-        mona_formula = formula.to_mona_vardi(0,vars_prop,all_vars)
-        if len(vars_prop)>0:
-            mona_p_string += "var2 {};\n".format(", ".join(vars_prop))
+        mona_formula = formula.to_mona_vardi(0,all_prop_vars,all_vars)
+        if len(all_prop_vars)>0:
+            mona_p_string += "var2 {};\n".format(", ".join(all_prop_vars))
         
         mona_p_string += "{};\n".format(mona_formula)
         return mona_p_string
@@ -142,6 +167,10 @@ class LDLfBoolean(LDLfFormula):
         LDLfFormula.__init__(self, " &true " if value else " &false ")
         self.__value = value
 
+    def closure(self,done):
+        done.add(self._rep)
+        return set([self])
+
     @classmethod
     def from_theory(cls, term):
         arg = term.arguments[0]
@@ -151,6 +180,9 @@ class LDLfBoolean(LDLfFormula):
     @classmethod
     def from_symbol(cls, symbol, id2prop):
         return cls(symbol.name == "top")
+
+    def mso_eq(self, time, rep2id,all_prop_vars):
+        return 'true ' if self.__value else 'false '
 
     def to_ltlf(self, eqs, rep2t):
         if self.__value:
@@ -187,6 +219,19 @@ class LDLfProp(LDLfFormula):
 
         LDLfFormula.__init__(self, rep)
         self.positive = positive
+    @property
+    def positive_version(self):
+        return LDLfProp(self._name,self._arguments,True)
+        
+    def closure(self,done):
+        s= set([self])
+        done.add(self._rep)
+        if not self.positive:
+            positive_version = self.positive_version
+            done.add(positive_version._rep)
+            s = s.union([positive_version])
+        return s
+
 
     @classmethod
     def from_theory(cls, term):
@@ -210,6 +255,13 @@ class LDLfProp(LDLfFormula):
     def mona_rep(self):
         s = self._rep.replace("(","_1_").replace(")","_2_").replace(",","_3_")
         return s
+
+    def mso_eq(self, time, rep2id, all_prop_vars):
+        if not self.positive:
+            return "~ ({} in Q_{})".format(time,rep2id[self.positive_version._rep])
+        else:
+            all_prop_vars.add(self.mona_rep.upper())
+            return "({} in {})".format(time, self.mona_rep.upper())
 
     def to_ltlf(self, eqs, rep2t):
         return LTLfAtomic(self.mona_rep)
@@ -246,6 +298,30 @@ class LDLfMainOperator(LDLfFormula):
         rep = "{}{}{}{}".format(op[0], path._rep, op[1], rhs._rep)
         LDLfFormula.__init__(self, rep)
 
+    def closure(self, done):
+        if self._rep in done:
+            return set([])
+        s= set([self])
+        done.add(self._rep)
+        s = s.union(self._rhs.closure(done))
+        main_class = self.__class__
+        c = self._path.__class__
+        if c == CheckPath:
+            s = s.union(self._path._arg.closure(done))
+        elif c == ChoicePath:
+            lhs_ldl = main_class(self._path._lhs,self._rhs)
+            rhs_ldl = main_class(self._path._rhs,self._rhs)
+            s = s.union(lhs_ldl.closure(done))
+            s = s.union(rhs_ldl.closure(done))
+        elif c == SequencePath:
+            eq_ldl = main_class(self._path._lhs,main_class(self._path._rhs,self._rhs))
+            s = s.union(eq_ldl.closure(done))
+        elif c == KleeneStarPath:
+            step_ldl = main_class(self._path._arg,self)
+            s = s.union(step_ldl.closure(done))
+
+        return s
+
     @classmethod
     def from_theory(cls, term):
         path = Path.from_theory(term.arguments[0])
@@ -277,6 +353,33 @@ class LDLfDiamond(LDLfMainOperator):
         """
         LDLfMainOperator.__init__(self, "<>", path, rhs)
     
+    def mso_eq(self, time, rep2id, all_prop_vars):
+        c = self._path.__class__
+        if c == SkipPath:
+            return "ex1 v: v={}+1 & (v in Q_{})".format(time,rep2id[self._rhs._rep])
+        elif c == CheckPath:
+            rhs_rep = rep2id[self._rhs._rep]
+            lhs_rep = rep2id[self._path._arg._rep]
+            return "({} in Q_{}) & ({} in Q_{})".format(time,rhs_rep,time,lhs_rep)
+        elif c == ChoicePath:
+            lhs_rep = rep2id[LDLfDiamond(self._path._lhs,self._rhs)._rep]
+            rhs_rep = rep2id[LDLfDiamond(self._path._rhs,self._rhs)._rep]
+            return "({} in Q_{}) | ({} in Q_{})".format(time,rhs_rep,time,lhs_rep)
+        elif c == SequencePath:
+            eq_ldl = LDLfDiamond(self._path._lhs,LDLfDiamond(self._path._rhs,self._rhs))
+            eq_rep = rep2id[eq_ldl._rep]
+            return "({} in Q_{})".format(time,eq_rep)
+
+        elif c == KleeneStarPath:
+            rhs_rep = rep2id[self._rhs._rep]
+            if self._path._arg.__class__==CheckPath:
+                return "({} in Q_{})".format(time,rhs_rep)
+            else:
+                step_ldl = LDLfDiamond(self._path._arg,self)
+                step_rep = rep2id[step_ldl._rep]
+                return "({} in Q_{}) | ({} in Q_{})".format(time,rhs_rep,time,step_rep)
+
+            
     def to_ltlf(self, eqs, rep2t):
         if self._rep in rep2t:
             return rep2t[self._rep]
@@ -380,6 +483,32 @@ class LDLfBox(LDLfMainOperator):
         rhs -- The right-hand-side of the operator.
         """
         LDLfMainOperator.__init__(self, "[]", path, rhs)
+
+    def mso_eq(self, time, rep2id, all_prop_vars):
+        c = self._path.__class__
+        if c == SkipPath:
+            return "all1 v: v={}+1 => (v in Q_{})".format(time,rep2id[self._rhs._rep])
+        elif c == CheckPath:
+            rhs_rep = rep2id[self._rhs._rep]
+            lhs_rep = rep2id[self._path._arg._rep]
+            return "({} in Q_{}) => ({} in Q_{})".format(time,rhs_rep,time,lhs_rep)
+        elif c == ChoicePath:
+            lhs_rep = rep2id[LDLfBox(self._path._lhs,self._rhs)._rep]
+            rhs_rep = rep2id[LDLfBox(self._path._rhs,self._rhs)._rep]
+            return "({} in Q_{}) & ({} in Q_{})".format(time,rhs_rep,time,lhs_rep)
+        elif c == SequencePath:
+            eq_ldl = LDLfBox(self._path._lhs,LDLfBox(self._path._rhs,self._rhs))
+            eq_rep = rep2id[eq_ldl._rep]
+            return "({} in Q_{})".format(time,eq_rep)
+
+        elif c == KleeneStarPath:
+            rhs_rep = rep2id[self._rhs._rep]
+            if self._path._arg.__class__==CheckPath:
+                return "({} in Q_{})".format(time,rhs_rep)
+            else:
+                step_ldl = LDLfBox(self._path._arg,self)
+                step_rep = rep2id[step_ldl._rep]
+                return "({} in Q_{}) => ({} in Q_{})".format(time,rhs_rep,time,step_rep)
 
     def to_ltlf(self, eqs, rep2t):
         if self._rep in rep2t:

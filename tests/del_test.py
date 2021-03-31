@@ -492,25 +492,66 @@ class TestMain(TestCase):
         for cons in constraints:
             for h in range(1,4):
                 print("Testing {} with h = {}".format(cons,h))
-                comapre_apps(cons,h,apps=['afw','dfa','nfa','telingo'],test_instance=self)
+                comapre_apps(cons,h,apps=['afw','dfa'],test_instance=self)
+
+    def test_closure(self):
+        formula = LDLfFormula.from_lp(inline_data= ":-not &del{ * ((?p + ?q) ;; &true)  .>* ?r .>? &true}.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ * (?q) .>* ?p .>? &true .>? q}.")[0]
+        closure = [c._rep.replace(" ","") for c in formula.closure(set([]))]
+        assert "p" in closure
+        assert "[(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
+        assert "[p?+q?;;(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
+        assert "[p?+q?][(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
+        assert "[p?][(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
+        assert "[q?][(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
+        assert "r" in closure
+        assert "<r?>&true" in closure
+        assert "&true" in closure
+        assert "q" in closure
+        assert "[p?+q?;;(&skip)*]<r?>&true" in closure
+
 
     def test_ldlf2mona(self):
-        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ( ?a + ?c ) ;; &true .>? ?b .>? &true .>* &false }.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ( ?a + ?c ) ;; &true .>? ?b .>? &true .>* &false }.")[0]
         formula = LDLfFormula.from_lp(inline_data= ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ?b .>? &true .>* &false }.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ &true .>* &false }.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(?a ;; &true) .>? b  }.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ (?a ;; &true) .>? b  }.")[0]
         # mona_del_string = LDLfFormula.to_mona(formula)
-        mona_del_string = LDLfFormula.to_mona_vardi(formula)
+        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p .>? q}.")[0]
         
-        createMonafile(mona_del_string)
-
+        print("----------- Vardi direct without closure --------------")
+        mona_string = LDLfFormula.to_mona_vardi(formula)
+        createMonafile(mona_string)
+        print(mona_string)
         mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
         nfa = NFA.from_mona(mona_dfa)
-        nfa.save_png(file="outputs/automata_del_viz")
+        nfa.save_png(file="outputs/automata_vardi_viz")
 
+        print("----------- Vardi using closure --------------")
+        mona_string = LDLfFormula.to_mso(formula)
+        createMonafile(mona_string)
+        print(mona_string)
+        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        nfa = NFA.from_mona(mona_dfa)
+        nfa.save_png(file="outputs/automata_mso_viz")
+
+
+        print("----------- Using LTL --------------")
         ltlf_formula = ldlf2ltlf(formula)
-        createMonafile(ltlf2mona(ltlf_formula))
+        mona_string = ltlf2mona(ltlf_formula)
+        print(mona_string)
+        createMonafile(mona_string)
         mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
         nfa = NFA.from_mona(mona_dfa)
-        nfa.save_png(file="outputs/automata_tel_viz")
+        nfa.save_png(file="outputs/automata_ltl_viz")
+
+
+        print("----------- Blue book no star --------------")
+        mona_string = LDLfFormula.to_mona(formula)
+        createMonafile(mona_string)
+        print(mona_string)
+        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        nfa = NFA.from_mona(mona_dfa)
+        nfa.save_png(file="outputs/automata_blue_viz")
+        

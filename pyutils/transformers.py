@@ -46,7 +46,7 @@ def ltlf2dfa(ltlf_formula):
 
 def ldlf2dfa(ldlf_formula):
 
-    createMonafile(LDLfFormula.to_mona_vardi(ldlf_formula))
+    createMonafile(LDLfFormula.to_mso(ldlf_formula))
 
     mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
 
