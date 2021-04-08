@@ -1,3 +1,42 @@
+Funciona: `<T*>p`
+
+```
 m2l-str;
-var2 Q, P;
-(ex2 Q_0, Q_1, Q_2: ( (0 in Q_1) & all1 x: (( (x in Q_0) <=> (x in P) ) & ( (x in Q_1) <=> ( (x in Q_2) & (x in Q_0)) ) & ( (x in Q_2) <=> (x in Q) ))));
+var2 P;
+(ex1 v_0:           #from <>
+    ( 
+        ex2 S: (
+            (0 in S)& (v_0 in S)& 
+            (all1 r: (r in S) => (0<=r & r<=v_0))& 
+            (all1 x, y: (
+                (x<y & (x in S) & (y in S) & ~(ex1 z: (x<z & z<y & (z in S))) ) 
+                => ( y = x+1) ))
+        ) 
+        
+        &          #from <>
+        (v_0 in P) #from p
+    )
+) ;
+```
+
+
+No funciona: `[T*]p`
+
+```
+m2l-str;
+var2 P;
+(all1 v_0:          #from <>
+    ( 
+        ex2 S: (
+            (0 in S)& (v_0 in S)& 
+            (all1 r: (r in S) => (0<=r & r<=v_0))& 
+            (all1 x, y: (
+                (x<y & (x in S) & (y in S) & ~(ex1 z: (x<z & z<y & (z in S))) ) 
+                => ( y = x+1) ))
+        ) 
+        
+        =>          #from []
+        (v_0 in P)  #from p
+    )
+) ;
+```

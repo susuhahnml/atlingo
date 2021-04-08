@@ -20,7 +20,8 @@ $(eval EXTRA = $(PATH_INPUT).extra.lp)
 # ------- Files needed for each app
 $(eval RUN_APP_FILES_afw = automata_run/run.lp env/$(ENV_APP)/glue.lp)
 # $(eval RUN_APP_FILES_telingo = env/elevator/encoding.lp )
-$(eval RUN_APP_FILES_dfa = automata_run/run.lp)
+$(eval RUN_APP_FILES_dfa-mso = automata_run/run.lp)
+$(eval RUN_APP_FILES_dfa-stm = automata_run/run.lp)
 $(eval RUN_APP_FILES_nfa = automata_run/run.lp)
 
 
@@ -52,7 +53,7 @@ viz:
 
 	@ printf "$BCompiling latex...$(NC)\n"
 
-	pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex > NUL 2>&1
+	pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex > /dev/null 2>&1
 
 
 	open $(PATH_OUT)/$(APP)_automata.pdf
@@ -76,7 +77,7 @@ translate:
 	@if [ -s $(PATH_OUT)/$(APP)_automata.lp ]; then\
 		printf "$(G)Translation to $(APP)  successfull $(NC)\n";\
 	else \
-		printf "$(R) Translation to $(APP)  failed\n";\
+		printf "$(R) Translation to $(APP) failed no output automata\n";\
 		exit 1;\
     fi;
 
@@ -153,11 +154,18 @@ translate-telingo:
 ######################  DFA ########################
 
 
-translate-dfa:
+translate-dfa-mso:
 	
 
-	python ./pyutils/transformers.py dfa $(PATH_OUT)/dfa_automata.lp ./$(PATH_INPUT).lp
-	@printf "$(G) Translation from ldlf 2 nfa successfull $(NC)\n";
+	python ./scripts/translater.py --input=ldlf --app=dfa-mso --out-file=$(PATH_OUT)/dfa-mso_automata.lp --in-files='./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP))'
+
+	@printf "$(G) Translation from ldlf 2 dfa successfull $(NC)\n";
+
+translate-dfa-stm:
+	
+
+	python ./scripts/translater.py --input=ldlf --app=dfa-stm --out-file=$(PATH_OUT)/dfa-stm_automata.lp --in-files="./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP))"
+	@printf "$(G) Translation from ldlf 2 dfa successfull $(NC)\n";
 
 ######################  NFA ########################
 
@@ -166,5 +174,5 @@ translate-nfa:
 	
 	@ make translate-afw APP=afw CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP) TRANSLATE_FILES=$(TRANSLATE_FILES_$(APP))
 
-	python ./pyutils/transformers.py nfa $(PATH_OUT)/nfa_automata.lp ./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
+	python ./scripts/translater.py --input=afw --app=nfa --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
 

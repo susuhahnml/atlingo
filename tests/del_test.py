@@ -2,12 +2,10 @@ import unittest
 import os
 import sys
 import clingo
-# from subprocess import Popen, PIPE
 import subprocess
 import itertools
-from pyutils.transformers import ldlf2ltlf, ltlf2dfa,ldlflp2dfalp,nfa2lp,ltlf2mona
-from pyutils.ldlf import LDLfFormula
-from pyutils.automata import AFW, NFA
+from pystructures.ldlf import LDLfFormula, KleeneStarPath, LDLfBoolean, SkipPath, ltlf2mona
+from pystructures.automata import AFW, NFA
 from ltlf2dfa.ltlf import (
     LTLfAtomic,
     LTLfAnd,
@@ -86,7 +84,6 @@ def translate(constraint,extra=[],app='afw',horizon=3):
     with open(cons_file, 'w') as f:
         f.write(constraint)
     command = 'make translate APP={} LOGIC={} CONSTRAINT=cons_tmp ENV_APP=test INSTANCE=env/test/instances/instance_tmp.lp APP={} HORIZON={}'.format(app,logic,app,horizon) 
-    # print(command)
     subprocess.check_output(command.split())
 
 
@@ -96,7 +93,8 @@ def run_check(constraint,trace="",horizon=3,app="afw",generate=False,extra_files
     automata_path = "outputs/test/{}/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app, logic,app)
     run_files = {
         "afw": ['./automata_run/run.lp',"./env/test/glue.lp"],
-        "dfa": ['./automata_run/run.lp'],
+        "dfa-mso": ['./automata_run/run.lp'],
+        "dfa-stm": ['./automata_run/run.lp'],
         "nfa": ['./automata_run/run.lp'],
         "telingo": []
     }
@@ -110,6 +108,7 @@ def comapre_apps(constraint,horizon=3,apps=[],test_instance=None):
     for app in apps:
         models.append(run_check(constraint,horizon=horizon,app=app,generate=True))
     for i in range(len(models)-2):
+        # print("{} vs {}".format(apps[i],apps[i+1]))
         test_instance.assertListEqual(models[i],models[i+1])
 
 class TestCase(unittest.TestCase):
@@ -424,32 +423,27 @@ class TestMain(TestCase):
         self.assertEqual(formulas[0]._rep,"[a(1)?] &true ")
         self.assertEqual(formulas[1]._rep,"[a(2)?] &true ")
           
-    def test_transformer(self):
-
+    def test_ldl2ltl(self):
 
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")[0]
-        ltlf_formula = ldlf2ltlf(formula)
+        ltlf_formula = formula.ltlf_main()
         
-        a_0 = LTLfAtomic('aux_0')
+        a_0 = LTLfAtomic('l_0')
         b = LTLfAtomic('b')
         next_b = LTLfNext(b)
-        # self.assertEqual(ltlf_formula,LTLfAnd([a_0,LTLfAlways(LTLfEquivalence([a_0,next_b]))]))
         self.assertEqual(ltlf_formula,next_b)
 
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ? a ;; &true .>? b}.")[0]
-        ltlf_formula = ldlf2ltlf(formula)
-        # a = LTLfAtomic('a')
-        # a_1 = LTLfAtomic('aux_1')
-
-        self.assertEqual(str(ltlf_formula),"(aux_0 & G((aux_0 <-> (a & X(b)))))")
+        ltlf_formula = formula.ltlf_main()
+        self.assertEqual(str(ltlf_formula),"(l_0 & G((l_0 <-> (a & X(b)))))")
 
 
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
-        ltlf_formula = ldlf2ltlf(formula)
-        self.assertEqual(str(ltlf_formula),"((aux_0 & G((aux_0 <-> (b | aux_1)))) & G((aux_1 <-> (a & X(aux_0)))))")
+        ltlf_formula = formula.ltlf_main()
+        self.assertEqual(str(ltlf_formula),"((l_0 & G((l_0 <-> (b | l_1)))) & G((l_1 <-> (a & X(l_0)))))")
 
         formula = LDLfFormula.from_lp(inline_data= ":- not &del{ &true }.")[0]
-        ltlf_formula = ldlf2ltlf(formula)
+        ltlf_formula = formula.ltlf_main()
 
     def test_translation(self):
 
@@ -482,17 +476,21 @@ class TestMain(TestCase):
             ":-not &del{ * (?q ;; &true) .>? p}.",
             ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.",
             # Star (Box)
+            ":-not &del{ * (&true) .>* p}.",
+            ":-not &del{ * (?q) .>* p}.",
             ":-not &del{ * (?q ;; &true) .>* p}.",
             ":-not &del{ * (?q) .>* ?p .>? &true .>? q}.",
             # Star (Box)
             ":-not &del{ ?q .>? &true .>* &false}.",
             # Until
-            ":- not &del{ *(? a;; &true) .>? b}."
+            ":- not &del{ *(? a;; &true) .>? b}.",
+            # Complex
+            ":- not &del{ *( (? a;; &true) + (? a;; &true ;; ? c;; &true)) .>? b}."
         ]
         for cons in constraints:
             for h in range(1,4):
                 print("Testing {} with h = {}".format(cons,h))
-                comapre_apps(cons,h,apps=['afw','dfa'],test_instance=self)
+                comapre_apps(cons,h,apps=['afw','dfa-mso','dfa-stm','nfa','telingo'],test_instance=self)
 
     def test_closure(self):
         formula = LDLfFormula.from_lp(inline_data= ":-not &del{ * ((?p + ?q) ;; &true)  .>* ?r .>? &true}.")[0]
@@ -510,7 +508,6 @@ class TestMain(TestCase):
         assert "q" in closure
         assert "[p?+q?;;(&skip)*]<r?>&true" in closure
 
-
     def test_ldlf2mona(self):
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ( ?a + ?c ) ;; &true .>? ?b .>? &true .>* &false }.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":-not &del{  * (?q) .>? ?p .>? &true .>? q}.")[0]
@@ -521,45 +518,41 @@ class TestMain(TestCase):
         # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p .>? q}.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p ;; &true ;; ?q ;; &true .>? r}.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p ;; &true ;; ?q ;; &true .>? &true}.")[0]
-        formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(?p;; &true) .>? q}.")[0]
-        formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(&true) .>? q}.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(?p;; &true) .>? q}.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *( (? a;; &true) + (? a;; &true ;; ? c;; &true)) .>? b}.")[0]
+        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(&true) .>? q}.")[0]
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{  ? (*(&true) .>* b) ;; &true .>? a}.")[0]
+
         
         print("******* FORMULA *******")
         print(formula)
         print("***********************\n")
-        # print("----------- Vardi direct without closure --------------")
-        # mona_string = LDLfFormula.to_mona_vardi(formula)
-        # createMonafile(mona_string)
-        # print(mona_string)
-        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        # nfa = NFA.from_mona(mona_dfa)
-        # nfa.save_png(file="outputs/automata_vardi_viz")
-
-        # print("----------- Vardi using closure --------------")
-        # mona_string = LDLfFormula.to_mso(formula)
-        # createMonafile(mona_string)
-        # print(mona_string)
-        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        # nfa = NFA.from_mona(mona_dfa)
-        # nfa.save_png(file="outputs/automata_mso_viz")
 
 
-        # print("----------- Using LTL --------------")
-        # ltlf_formula = ldlf2ltlf(formula)
-        # mona_string = ltlf2mona(ltlf_formula)
-        # print(mona_string)
-        # createMonafile(mona_string)
-        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        # nfa = NFA.from_mona(mona_dfa)
-        # nfa.save_png(file="outputs/automata_ltl_viz")
-
-
-        print("----------- Blue book no star --------------")
-        mona_string = LDLfFormula.to_mona(formula)
+        print("----------- Vardi using closure --------------")
+        mona_string = formula.mso_main()
         createMonafile(mona_string)
         print(mona_string)
         mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        print(mona_dfa)
+        nfa = NFA.from_mona(mona_dfa)
+        nfa.save_png(file="outputs/automata_mso_viz")
+
+
+        print("----------- Using LTL --------------")
+        ltlf_formula = formula.ltlf_main()
+        mona_string = ltlf2mona(ltlf_formula)
+        print(mona_string)
+        createMonafile(mona_string)
+        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        nfa = NFA.from_mona(mona_dfa)
+        nfa.save_png(file="outputs/automata_ltl_viz")
+
+
+        print("----------- Blue book no star --------------")
+        mona_string = formula.stm_main()
+        createMonafile(mona_string)
+        print(mona_string)
+        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
         nfa = NFA.from_mona(mona_dfa)
         nfa.save_png(file="outputs/automata_blue_viz")
         
