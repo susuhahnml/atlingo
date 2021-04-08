@@ -84,6 +84,7 @@ def translate(constraint,extra=[],app='afw',horizon=3):
     with open(cons_file, 'w') as f:
         f.write(constraint)
     command = 'make translate APP={} LOGIC={} CONSTRAINT=cons_tmp ENV_APP=test INSTANCE=env/test/instances/instance_tmp.lp APP={} HORIZON={}'.format(app,logic,app,horizon) 
+    print(command)
     subprocess.check_output(command.split())
 
 
@@ -108,6 +109,8 @@ def comapre_apps(constraint,horizon=3,apps=[],test_instance=None):
     for app in apps:
         models.append(run_check(constraint,horizon=horizon,app=app,generate=True))
     for i in range(len(models)-2):
+        # print(models[i])
+        # print(models[i+1])
         # print("{} vs {}".format(apps[i],apps[i+1]))
         test_instance.assertListEqual(models[i],models[i+1])
 
@@ -521,38 +524,39 @@ class TestMain(TestCase):
         # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(?p;; &true) .>? q}.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *( (? a;; &true) + (? a;; &true ;; ? c;; &true)) .>? b}.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(&true) .>? q}.")[0]
-        formula = LDLfFormula.from_lp(inline_data= ":- not &del{  ? (*(&true) .>* b) ;; &true .>? a}.")[0]
+        formula = LDLfFormula.from_lp(inline_data= ":- not &del{  ? (*(&true) .>* b(1)) ;; &true .>? a}.")[0]
 
-        
-        print("******* FORMULA *******")
-        print(formula)
-        print("***********************\n")
+        comapre_apps(":- not &del{  ? b(1) ;; &true .>? a}.",1,apps=['afw','telingo'],test_instance=self)
 
-
-        print("----------- Vardi using closure --------------")
-        mona_string = formula.mso_main()
-        createMonafile(mona_string)
-        print(mona_string)
-        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        nfa = NFA.from_mona(mona_dfa)
-        nfa.save_png(file="outputs/automata_mso_viz")
+        # print("******* FORMULA *******")
+        # print(formula)
+        # print("***********************\n")
 
 
-        print("----------- Using LTL --------------")
-        ltlf_formula = formula.ltlf_main()
-        mona_string = ltlf2mona(ltlf_formula)
-        print(mona_string)
-        createMonafile(mona_string)
-        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        nfa = NFA.from_mona(mona_dfa)
-        nfa.save_png(file="outputs/automata_ltl_viz")
+        # print("----------- Vardi using closure --------------")
+        # mona_string = formula.mso_main()
+        # createMonafile(mona_string)
+        # print(mona_string)
+        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        # nfa = NFA.from_mona(mona_dfa)
+        # nfa.save_png(file="outputs/automata_mso_viz")
 
 
-        print("----------- Blue book no star --------------")
-        mona_string = formula.stm_main()
-        createMonafile(mona_string)
-        print(mona_string)
-        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        nfa = NFA.from_mona(mona_dfa)
-        nfa.save_png(file="outputs/automata_blue_viz")
+        # print("----------- Using LTL --------------")
+        # ltlf_formula = formula.ltlf_main()
+        # mona_string = ltlf2mona(ltlf_formula)
+        # print(mona_string)
+        # createMonafile(mona_string)
+        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        # nfa = NFA.from_mona(mona_dfa)
+        # nfa.save_png(file="outputs/automata_ltl_viz")
+
+
+        # print("----------- Blue book no star --------------")
+        # mona_string = formula.stm_main()
+        # createMonafile(mona_string)
+        # print(mona_string)
+        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+        # nfa = NFA.from_mona(mona_dfa)
+        # nfa.save_png(file="outputs/automata_blue_viz")
         

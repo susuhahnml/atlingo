@@ -35,6 +35,7 @@ $(eval TRANSLATE_FILES_asprilo = env/asprilo/asprilo-abstraction-encodings/aspri
 $(eval TRANSLATE_FILES_elevator = $(TRANSLATE_FILES))
 $(eval TRANSLATE_FILES_test = $(TRANSLATE_FILES))
 
+
 ifeq ("$(wildcard $(EXTRA))","")
     $(eval EXTRA = )
 endif
@@ -53,6 +54,7 @@ viz:
 
 	@ printf "$BCompiling latex...$(NC)\n"
 
+	# pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex 
 	pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex > /dev/null 2>&1
 
 
@@ -147,9 +149,18 @@ generate-traces:
 ######################  TELINGO ########################
 
 translate-telingo:
+	$(eval TELINGO_TRANSLATE_FILES = )
 
-	(cd benchmarks/telingo ; python telingo/program_observer.py $(HORIZON) $(PATH_FROM_TELINGO)/$(PATH_OUT)/telingo_automata.lp $(PATH_FROM_TELINGO)/env/$(ENV_APP)/telingo_choices.lp  $(PATH_FROM_TELINGO)/$(PATH_INPUT).lp)
+	$(foreach n,$(TRANSLATE_FILES_$(ENV_APP)),$(if $(n),$(eval TELINGO_TRANSLATE_FILES=$(TELINGO_TRANSLATE_FILES) $(PATH_FROM_TELINGO)/$(n) )))
 
+	(cd benchmarks/telingo ; python telingo/program_observer.py --h=$(HORIZON) --out-file=$(PATH_FROM_TELINGO)/$(PATH_OUT)/telingo_automata.lp --extra-files="$(TELINGO_TRANSLATE_FILES)" --choices-file=$(PATH_FROM_TELINGO)/env/$(ENV_APP)/telingo_choices.lp --instance-file=$(PATH_FROM_TELINGO)/$(INSTANCE) --constraint-file=$(PATH_FROM_TELINGO)/$(PATH_INPUT).lp )
+
+# translate-telingo:
+	
+
+# 	python ./scripts/translater.py --input=ldlf --app=telingo --out-file=$(PATH_OUT)/telingo_automata.lp --in-files='./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP)) $(INSTANCE)'
+
+# 	@printf "$(G) Translation from ldlf 2 telingo successfull $(NC)\n";
 
 ######################  DFA ########################
 
@@ -157,14 +168,14 @@ translate-telingo:
 translate-dfa-mso:
 	
 
-	python ./scripts/translater.py --input=ldlf --app=dfa-mso --out-file=$(PATH_OUT)/dfa-mso_automata.lp --in-files='./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP))'
+	python ./scripts/translater.py --input=ldlf --app=dfa-mso --out-file=$(PATH_OUT)/dfa-mso_automata.lp --in-files='./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP)) $(INSTANCE)'
 
 	@printf "$(G) Translation from ldlf 2 dfa successfull $(NC)\n";
 
 translate-dfa-stm:
 	
 
-	python ./scripts/translater.py --input=ldlf --app=dfa-stm --out-file=$(PATH_OUT)/dfa-stm_automata.lp --in-files="./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP))"
+	python ./scripts/translater.py --input=ldlf --app=dfa-stm --out-file=$(PATH_OUT)/dfa-stm_automata.lp --in-files="./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP)) $(INSTANCE)"
 	@printf "$(G) Translation from ldlf 2 dfa successfull $(NC)\n";
 
 ######################  NFA ########################
@@ -176,3 +187,7 @@ translate-nfa:
 
 	python ./scripts/translater.py --input=afw --app=nfa --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
 
+###################### ASPRILO EXTRA ###################
+
+viz-asprilo:
+	sed -n "4,5p" $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt | viz

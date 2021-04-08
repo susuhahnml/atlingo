@@ -1,5 +1,4 @@
-#program always.
 {p}.
 {a}.
 {b}.
-#program initial.
+{b(1)}.

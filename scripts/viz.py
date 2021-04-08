@@ -46,13 +46,14 @@ if app=="afw":
     automaton = afw
 elif app in ["dfa-mso","dfa-stm"]:
     ldlfformulas = LDLfFormula.from_lp(files=[constraint_path])
+    print(constraint_path)
     automaton = ldlfformulas[0].dfa(translation=args.app.split('-')[1])
 elif app=="nfa":
     automaton = afw.to_nfa()
 
 png_path = "outputs/{}/{}/del/{}/{}/{}_automata".format(env_app, app,constraint,instance,app)
 
-automaton.save_png(file=png_path,labels=labels)
+automaton.save_png(file=png_path,labels=labels,latex=latex)
 if(latex):
     automaton.to_tex(file=png_path+".tex",labels=labels)
             

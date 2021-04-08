@@ -8,12 +8,12 @@ reachable(F) :- initial_state_full(F).
 reachable(S') :- delta_full(S,_,S'), reachable(S).
 
 % -------------------- Assign ids to states
-initial_state(0).
-state(0,S) :- initial_state_full(S).
+state(0,S) :- initial_state_full(S), #count{1,S':initial_state_full(S'),S'<S}=0.
 state(1+N,S) :- 
-    state_full(S), reachable(S), not initial_state_full(S), 
-    #count{1,S': state_full(S'), S>S', reachable(S'), not initial_state_full(S')}=N.
+    state_full(S), reachable(S), not state(0,S), 
+    #count{1,S': state_full(S'), S>S', reachable(S'), not state(0,S')}=N.
 
+initial_state(ID):-initial_state_full(F),state(ID,F).
 % -------------------- Keep deltas for reachable states
 delta_reachable(ID,(Case,Opt,A),ID') :- delta_full(S,(Case,Opt,A),S'), state(ID,S), state(ID',S').
 delta_reachable(ID,(Case,Opt,A),true) :- delta_full(S,(Case,Opt,A),true), state(ID,S).
