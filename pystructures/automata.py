@@ -4,7 +4,6 @@ from graphviz import Digraph, Source
 import clingo as _clingo
 import itertools
 import dot2tex
-from pyutils.ldlf import LDLfFormula
 
 def reduce_and(a,keep_true=True):
     if len(a)>0 and type(a[0])==list:
@@ -29,10 +28,7 @@ class Condition():
         
         self._included = reduce_and(included,False)
         self._not_included = reduce_and(not_included,False)
-        # print("con")
-        # print(self._included)
-        # print(included)
-        # print(self._not_included)
+
     @classmethod
     def from_str(cls, s, prop2id):
         s = s.strip('"')
@@ -112,11 +108,12 @@ class Automata():
             if labels and latex:
                 label = label.replace("<","\\deventually{").replace("[","\\dalways{")
                 label = label.replace("&skip","\\top")
+                label = label.replace("~","\\neg")
                 label = label.replace(";;",";").replace("*","^*")
                 label = label.replace("]","}").replace(">","}")
-                label = "s_{{{}}}".format(label)
+                label = "q_{{{}}}".format(label)
             shape= 'circle'
-            if s._id in self._final_states_ids:
+            if str(s._id) in self._final_states_ids:
                 shape = 'doublecircle'
             dot += 'node [shape = {} label= "{}"] {};\n'.format(shape, label,s._id)
         dot += 'init [shape = plaintext, label = " "];\n'
@@ -136,6 +133,7 @@ class Automata():
                 label = c.str_names(self._props)
                 if latex:
                     label = label.replace("&","\\wedge")
+                    label = label.replace("~","-")
                 for s_to in s_tos:
                     if isinstance(s_to,int) or len(s_to)==1:
                         s_to_int = s_to if isinstance(s_to,int) else s_to[0]
@@ -176,6 +174,8 @@ class NFA(Automata):
 
     @classmethod
     def from_mona(cls, mona):
+        if "Execution aborted" in mona:
+            raise Exception("Error in mona: \n{}".format(mona))
 
         def get_state(states, state_name):
             s_id = int(state_name)
@@ -255,6 +255,8 @@ class AFW(Automata):
 
     @classmethod
     def from_lp(cls, files=[], inline_data=""):
+        from pystructures.ldlf import LDLfFormula
+
         ctl = _clingo.Control([], message_limit=0)
         ctl.add("base", [], "")
         for f in files:
@@ -277,28 +279,21 @@ class AFW(Automata):
                 formula = LDLfFormula.from_symbol(s.arguments[1],id2prop)
                 states[i] = State(i,str(formula))
             elif s.name == 'delta':
-                # print(s)
                 n_to = "true"  if s.arguments[2].number is None  else s.arguments[2].number
                 case = str(s.arguments[1].arguments[0])
                 cases.setdefault(i,{}).setdefault(case,([],[]))
                 pos = 0 if s.arguments[1].arguments[1].name == "in" else 1
-                # print("from lp")
-                # print(s.arguments[1].arguments[2])
-                # print(s.arguments[1].arguments[2].number)
                 prop = s.arguments[1].arguments[2].number if s.arguments[1].arguments[2].number else "true"
                 cases[i][case][pos].append(prop)
                 trans.setdefault(i,{}).setdefault(case,[]).append(n_to)
-                # print(trans)
 
         cases_classes = {}
         for s_from, dic_c in cases.items():
             cases_classes[s_from] = {}
             for c_id, tup in dic_c.items():
-                # print("here")
                 cases_classes[s_from][c_id]=Condition(tup[0],tup[1])
 
         transitions = {}
-        # print(trans)
         for s_from, dic_c in trans.items():
             transitions[s_from]={}
             for c_id,s2 in dic_c.items():

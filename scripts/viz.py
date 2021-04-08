@@ -10,9 +10,8 @@ import clingo
 import itertools
 import pdb
 import subprocess
-from pyutils.automata import AFW
-from pyutils.ldlf import LDLfFormula
-from pyutils.transformers import ltlf2dfa, ldlf2ltlf
+from pystructures.automata import AFW
+from pystructures.ldlf import LDLfFormula
 parser = argparse.ArgumentParser(description='Viz automata')
 
 parser.add_argument('--constraint', help='Constaint name',required=True)
@@ -45,10 +44,9 @@ afw = AFW.from_lp(files = [afw_automata_path])
 
 if app=="afw":
     automaton = afw
-elif app=="dfa":
+elif app in ["dfa-mso","dfa-stm"]:
     ldlfformulas = LDLfFormula.from_lp(files=[constraint_path])
-    ltlformula = ldlf2ltlf(ldlfformulas[0])
-    automaton = ltlf2dfa(ltlformula)
+    automaton = ldlfformulas[0].dfa(translation=args.app.split('-')[1])
 elif app=="nfa":
     automaton = afw.to_nfa()
 
