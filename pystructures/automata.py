@@ -94,7 +94,6 @@ class Automata():
         return j
 
     def dot(self, latex = False, labels =True):
-        print(latex)
         dot = 'digraph ATLINGO {\n'
         dot += 'rankdir = LR;\n'
         dot += 'center = true;\n'

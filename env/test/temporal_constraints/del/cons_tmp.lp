@@ -1,1 +1,1 @@
-:- not &del{ *( (? a;; &true) + (? a;; &true ;; ? c;; &true)) .>? b}.
+:-not &del{ &true .>? p}.
