@@ -1,6 +1,4 @@
 #!/bin/bash
-ENV=`asprilo`
-
 #Activate conda env
 source /usr/local/apps/anaconda3/etc/profile.d/conda.sh
 conda activate temporal-automata
@@ -73,8 +71,8 @@ make asprilo-small-instances
 # ./run_bm.sh asprilo asp 35 1 grid-
 
 ###### PROJECTED MODELS TO VERIFY CORRECTENESS
-make asprilo-clean-instances
-make asprilo-small-instances
+# make asprilo-clean-instances
+# make asprilo-small-instances
 #./run_bm.sh asprilo afw 6 0 proj- '--project=show' 
 #./run_bm.sh asprilo afw 7 0 proj- '--project=show' 
 

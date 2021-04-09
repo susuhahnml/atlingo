@@ -12,7 +12,7 @@ clean-plots:
 	rm -rf ./plots/tikz/*
 clean-runscripts:
 	rm -rf ./cluster_script__*.sh
-	rm -rf ./runscripts/runscript_asprilo_*__*
+	rm -rf ./runscripts/runscript_*_*__*
 clean-output:
 	rm -rf benchmark-tool/output/*
 clean:

@@ -21,6 +21,6 @@
 % }, robot(R).
 
 :- not &del{
-       (* ( ( ? no_move_vertically(robot(R)) ) ;; &true ))  .>? 
-        ( (* &true ) .>* no_move_horizontally(robot(R)) )
-}, robot(R).
+       (* ( ( ? no_move_vertically(robot(1)) ) ;; &true ))  .>? 
+        ( (* &true ) .>* no_move_horizontally(robot(1)) )
+}.
