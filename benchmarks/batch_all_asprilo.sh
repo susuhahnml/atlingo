@@ -9,22 +9,22 @@ make asprilo-clean-instances
 make asprilo-small-instances
 ###### ALL MODELS
 
-./run_bm.sh asprilo afw 6 0
-./run_bm.sh asprilo afw 7 0
+#./run_bm.sh asprilo afw 6 0
+#./run_bm.sh asprilo afw 7 0
 #./run_bm.sh asprilo afw 8 0
 
-./run_bm.sh asprilo telingo 6 0
-./run_bm.sh asprilo telingo 7 0
+#./run_bm.sh asprilo telingo 6 0
+#./run_bm.sh asprilo telingo 7 0
 #./run_bm.sh asprilo telingo 8 0
 
-./run_bm.sh asprilo dfa-mso 6 0
-./run_bm.sh asprilo dfa-mso 7 0
+#./run_bm.sh asprilo dfa-mso 6 0
+#./run_bm.sh asprilo dfa-mso 7 0
 
-./run_bm.sh asprilo dfa-stm 6 0
-./run_bm.sh asprilo dfa-stm 7 0
+#./run_bm.sh asprilo dfa-stm 7 0
+#./run_bm.sh asprilo dfa-stm 6 0
 
-./run_bm.sh asprilo nc 6 0
-./run_bm.sh asprilo nc 7 0
+#./run_bm.sh asprilo nc 6 0
+#./run_bm.sh asprilo nc 7 0
 #./run_bm.sh asprilo nc 6 0
 #./run_bm.sh asprilo nc 7 0
 #./run_bm.sh asprilo nc 8 0
@@ -73,22 +73,20 @@ make asprilo-small-instances
 ###### PROJECTED MODELS TO VERIFY CORRECTENESS
 # make asprilo-clean-instances
 # make asprilo-small-instances
-#./run_bm.sh asprilo afw 6 0 proj- '--project=show' 
+./run_bm.sh asprilo afw 7 0 proj- --project=show
 #./run_bm.sh asprilo afw 7 0 proj- '--project=show' 
 
-#./run_bm.sh asprilo afw_del 6 0 proj- '--project=show'
+./run_bm.sh asprilo telingo 7 0 proj- --project=show
 #./run_bm.sh asprilo afw_del 7 0 proj- '--project=show'
 
-#./run_bm.sh asprilo asp 6 0 proj- '--project=show'
-#./run_bm.sh asprilo asp 7 0 proj- '--project=show'
+./run_bm.sh asprilo dfa-stm 7 0 proj- --project=show
 
-#./run_bm.sh asprilo dfa 6 0 proj- '--project=show'
-#./run_bm.sh asprilo dfa 7 0 proj- '--project=show'
+./run_bm.sh asprilo dfa-mso 7 0 proj- --project=show
 
 
-make clean -s
+#make clean -s
 
 # ./print_summary.sh asprilo
 
 cd ..
-make clean -s
+#make clean -s

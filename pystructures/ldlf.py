@@ -220,6 +220,7 @@ class LDLfFormula():
             mso_string = self.mso_main()
         elif translation == "stm":
             mso_string = self.stm_main()
+        print(mso_string)
         createMonafile(mso_string)
 
         mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")

@@ -1,0 +1,156 @@
+<result>
+	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
+	<config name="seq-asprilo" template="../programs/seq-asprilo.sh"/>
+	<system name="general_compute" version="1" measures="clingo" config="seq-asprilo">
+		<setting name="horizontal_before_vertical" cmdline="dfa-mso asprilo 7 0 del horizontally_before_vertically ''" tag="basic" pbstemplate="templates/single.pbs"/>
+	</system>
+	<pbsjob name="pbs-gen" timeout="1200" runs="1" script_mode="timeout" walltime="3000" cpt="4" partition="short"/>
+	<benchmark name="asprilo-benchmark">
+		<class name="structured/x7_y6_r4" id="0">
+			<instance name="x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N001.lp" id="0"/>
+			<instance name="x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N002.lp" id="1"/>
+			<instance name="x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N003.lp" id="2"/>
+			<instance name="x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N004.lp" id="3"/>
+			<instance name="x7_y6_n42_r4_s4_ps1_pr4_u4_o4_l4_N005.lp" id="4"/>
+		</class>
+	</benchmark>
+	<project name="temporal-automata" job="pbs-gen">
+		<runspec machine="komputer" system="general_compute" version="1" benchmark="asprilo-benchmark" setting="horizontal_before_vertical">
+			<class id="0">
+				<instance id="4">
+					<run number="1">
+						<measure name="atoms" type="float" val="23851.0"/>
+						<measure name="bodies" type="float" val="48875.0"/>
+						<measure name="calls" type="float" val="1.0"/>
+						<measure name="choices" type="float" val="62385.0"/>
+						<measure name="conflicts" type="float" val="6334.0"/>
+						<measure name="cons" type="float" val="29996.0"/>
+						<measure name="csolve" type="float" val="1.7"/>
+						<measure name="ctime" type="float" val="2.038"/>
+						<measure name="equiv" type="float" val="13771.0"/>
+						<measure name="error" type="float" val="0"/>
+						<measure name="mem" type="float" val="97400.0"/>
+						<measure name="memout" type="float" val="0"/>
+						<measure name="models" type="float" val="55103.0"/>
+						<measure name="ngadded" type="float" val="0.0"/>
+						<measure name="optimal" type="float" val="0.0"/>
+						<measure name="rchoices" type="float" val="253.0"/>
+						<measure name="restarts" type="float" val="136.0"/>
+						<measure name="roriginal" type="float" val="64374.0"/>
+						<measure name="rules" type="float" val="71718.0"/>
+						<measure name="status" type="float" val="1"/>
+						<measure name="time" type="float" val="2.71566"/>
+						<measure name="timeout" type="float" val="0"/>
+						<measure name="vars" type="float" val="8532.0"/>
+					</run>
+				</instance>
+				<instance id="3">
+					<run number="1">
+						<measure name="atoms" type="float" val="23851.0"/>
+						<measure name="bodies" type="float" val="48875.0"/>
+						<measure name="calls" type="float" val="1.0"/>
+						<measure name="choices" type="float" val="78098.0"/>
+						<measure name="conflicts" type="float" val="3702.0"/>
+						<measure name="cons" type="float" val="30003.0"/>
+						<measure name="csolve" type="float" val="1.99"/>
+						<measure name="ctime" type="float" val="2.282"/>
+						<measure name="equiv" type="float" val="13771.0"/>
+						<measure name="error" type="float" val="0"/>
+						<measure name="mem" type="float" val="97400.0"/>
+						<measure name="memout" type="float" val="0"/>
+						<measure name="models" type="float" val="74072.0"/>
+						<measure name="ngadded" type="float" val="0.0"/>
+						<measure name="optimal" type="float" val="0.0"/>
+						<measure name="rchoices" type="float" val="253.0"/>
+						<measure name="restarts" type="float" val="102.0"/>
+						<measure name="roriginal" type="float" val="64374.0"/>
+						<measure name="rules" type="float" val="71718.0"/>
+						<measure name="status" type="float" val="1"/>
+						<measure name="time" type="float" val="2.99905"/>
+						<measure name="timeout" type="float" val="0"/>
+						<measure name="vars" type="float" val="8532.0"/>
+					</run>
+				</instance>
+				<instance id="1">
+					<run number="1">
+						<measure name="atoms" type="float" val="0.0"/>
+						<measure name="bodies" type="float" val="47691.0"/>
+						<measure name="calls" type="float" val="1.0"/>
+						<measure name="choices" type="float" val="0.0"/>
+						<measure name="conflicts" type="float" val="1.0"/>
+						<measure name="cons" type="float" val="0.0"/>
+						<measure name="csolve" type="float" val="0.0"/>
+						<measure name="ctime" type="float" val="0.272"/>
+						<measure name="error" type="float" val="0"/>
+						<measure name="mem" type="float" val="93960.0"/>
+						<measure name="memout" type="float" val="0"/>
+						<measure name="models" type="float" val="0.0"/>
+						<measure name="ngadded" type="float" val="0.0"/>
+						<measure name="optimal" type="float" val="0.0"/>
+						<measure name="restarts" type="float" val="0.0"/>
+						<measure name="roriginal" type="float" val="63103.0"/>
+						<measure name="rules" type="float" val="64196.0"/>
+						<measure name="status" type="float" val="0"/>
+						<measure name="time" type="float" val="0.946418"/>
+						<measure name="timeout" type="float" val="0"/>
+						<measure name="vars" type="float" val="0.0"/>
+					</run>
+				</instance>
+				<instance id="0">
+					<run number="1">
+						<measure name="atoms" type="float" val="23851.0"/>
+						<measure name="bodies" type="float" val="48875.0"/>
+						<measure name="calls" type="float" val="1.0"/>
+						<measure name="choices" type="float" val="1295.0"/>
+						<measure name="conflicts" type="float" val="958.0"/>
+						<measure name="cons" type="float" val="29995.0"/>
+						<measure name="csolve" type="float" val="0.1"/>
+						<measure name="ctime" type="float" val="0.414"/>
+						<measure name="equiv" type="float" val="13771.0"/>
+						<measure name="error" type="float" val="0"/>
+						<measure name="mem" type="float" val="97400.0"/>
+						<measure name="memout" type="float" val="0"/>
+						<measure name="models" type="float" val="0.0"/>
+						<measure name="ngadded" type="float" val="0.0"/>
+						<measure name="optimal" type="float" val="0.0"/>
+						<measure name="rchoices" type="float" val="253.0"/>
+						<measure name="restarts" type="float" val="7.0"/>
+						<measure name="roriginal" type="float" val="64374.0"/>
+						<measure name="rules" type="float" val="71718.0"/>
+						<measure name="status" type="float" val="0"/>
+						<measure name="time" type="float" val="1.12975"/>
+						<measure name="timeout" type="float" val="0"/>
+						<measure name="vars" type="float" val="8532.0"/>
+					</run>
+				</instance>
+				<instance id="2">
+					<run number="1">
+						<measure name="atoms" type="float" val="23851.0"/>
+						<measure name="bodies" type="float" val="48875.0"/>
+						<measure name="calls" type="float" val="1.0"/>
+						<measure name="choices" type="float" val="156566.0"/>
+						<measure name="conflicts" type="float" val="14394.0"/>
+						<measure name="cons" type="float" val="30005.0"/>
+						<measure name="csolve" type="float" val="3.89"/>
+						<measure name="ctime" type="float" val="4.21"/>
+						<measure name="equiv" type="float" val="13771.0"/>
+						<measure name="error" type="float" val="0"/>
+						<measure name="mem" type="float" val="97400.0"/>
+						<measure name="memout" type="float" val="0"/>
+						<measure name="models" type="float" val="141220.0"/>
+						<measure name="ngadded" type="float" val="0.0"/>
+						<measure name="optimal" type="float" val="0.0"/>
+						<measure name="rchoices" type="float" val="253.0"/>
+						<measure name="restarts" type="float" val="317.0"/>
+						<measure name="roriginal" type="float" val="64374.0"/>
+						<measure name="rules" type="float" val="71718.0"/>
+						<measure name="status" type="float" val="1"/>
+						<measure name="time" type="float" val="4.88988"/>
+						<measure name="timeout" type="float" val="0"/>
+						<measure name="vars" type="float" val="8532.0"/>
+					</run>
+				</instance>
+			</class>
+		</runspec>
+	</project>
+</result>
