@@ -40,6 +40,8 @@ python plot.py --approach nc  --approach afw --approach telingo --approach dfa -
 python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa --prefix="elevator-cons-9" --models 0 --table --stat cons --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=11
 
 
+python plot.py  --approach proj-afw --approach proj-telingo --approach proj-dfa-mso --approach proj-dfa-stm --prefix="asprilo-proj-9" --models 0 --table --stat models --env asprilo --horizon 7 
+
 # 11 floors
 # python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa --prefix="elevator-models-11" --models 0 --table --stat models --env elevator --horizon 17 --horizon 18 --horizon 19 --horizon 20 --horizon 21 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=9
 
