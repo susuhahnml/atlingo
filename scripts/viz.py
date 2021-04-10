@@ -46,8 +46,8 @@ if app=="afw":
     automaton = afw
 elif app in ["dfa-mso","dfa-stm"]:
     ldlfformulas = LDLfFormula.from_lp(files=[constraint_path])
-    print(constraint_path)
-    automaton = ldlfformulas[0].dfa(translation=args.app.split('-')[1])
+    conj_formula = LDLfFormula.join_formulas(ldlfformulas)
+    automaton = conj_formula.dfa(translation=args.app.split('-')[1])
 elif app=="nfa":
     automaton = afw.to_nfa()
 

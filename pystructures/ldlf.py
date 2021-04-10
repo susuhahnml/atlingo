@@ -138,6 +138,16 @@ class LDLfFormula():
             class_name = "LDLfProp"
         return getattr(sys.modules[__name__], class_name).from_symbol(symbol,id2prop)
     
+    @classmethod
+    def join_formulas(cls, formulas):
+        """
+        Returns the conjuction of all the formulas
+        """
+        formula = formulas[0]
+        for f in formulas[1:]:
+            formula= LDLfDiamond(CheckPath(f),formula)
+        return formula
+
     # --------------- Translations
 
     def mso_main(self, time_step=0):

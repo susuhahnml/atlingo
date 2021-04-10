@@ -306,7 +306,6 @@ class AFW(Automata):
 
         return cls(id2prop,states,transitions,initial_state,set(),"")
     
-
     def to_nfa(self):
         id2state = {}
         tuple2state = {}

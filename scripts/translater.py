@@ -21,6 +21,11 @@ if __name__ == "__main__":
                         help='Path for output automata file')
     parser.add_argument('--in-files', type=str, 
                         help='Path for ldlf constraint or afw representation')
+    
+    parser.add_argument("--viz", default=False, action='store_true',
+        help="Save automaton vizualization")
+    parser.add_argument('--labels', action='store_const', const=True)
+    parser.add_argument('--latex', action='store_const', const=True)
 
     args = parser.parse_args()
     in_files = args.in_files.split(" ")
@@ -28,17 +33,16 @@ if __name__ == "__main__":
     if args.input=="afw":
         assert args.app == "nfa"
         afw = AFW.from_lp(files = in_files, inline_data= "")
-        automata = afw.to_nfa()
-        automata_lp = automata.to_lp()
+        automaton = afw.to_nfa()
+        automata_lp = automaton.to_lp()
 
     elif args.input=="ldlf":
         assert args.app in ["dfa-mso","dfa-stm"]
         ldlfformulas = LDLfFormula.from_lp(files=in_files,inline_data="")
-        automata_lp= ""
-        for i,f in enumerate(ldlfformulas):
-            dfa = f.dfa(translation=args.app.split('-')[1])
-            automata_lp+="\n%========== AUTOMATA {} ==========\n".format(i)
-            automata_lp+=dfa.to_lp(state_prefix= "a{}_".format(i))
+        conj_formula = LDLfFormula.join_formulas(ldlfformulas)
+        print(conj_formula)
+        automaton = conj_formula.dfa(translation=args.app.split('-')[1])
+        automata_lp=automaton.to_lp()
     # elif args.input=="telingo":
     #     program = ""
     #     for fn in sys.argv[3:]:
@@ -53,7 +57,13 @@ if __name__ == "__main__":
 
     with open(args.out_file, 'w') as f:
         f.write(automata_lp)
-            
+
+    if args.viz:
+        print("Saving visualization of automata")
+        automaton.save_png(file=args.out_file[:-3]+".png",labels=args.labels,latex=args.latex)
+        if(args.latex):
+            automaton.to_tex(file=args.out_file[:-3]+".tex",labels=args.labels)
+
     import sys
     sys.exit()
 

@@ -16,6 +16,7 @@ $(eval PATH_FROM_TELINGO = ../..)
 $(eval PATH_INPUT = env/$(ENV_APP)/temporal_constraints/$(LOGIC)/$(CONSTRAINT))
 ZSH_RESULT:=$(shell mkdir -p $(PATH_OUT))
 $(eval EXTRA = $(PATH_INPUT).extra.lp)
+$(eval PY_PARAMS ?= )
 
 # ------- Files needed for each app
 $(eval RUN_APP_FILES_afw = automata_run/run.lp env/$(ENV_APP)/glue.lp)
@@ -47,8 +48,11 @@ clean:
 
 viz:
 	@ printf "$BVisualizing APP=$(APP) ENV=$(ENV_APP) CONSTRAINT=$(CONSTRAINT)$ INSTANCE=$(NAME_INSTANCE) HORIZON=$(HORIZON) $(NC)\n"
+	make translate PY_PARAMS=--viz;
 
-	python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex --labels
+	# python ./scripts/translater.py --input=afw --app=$(APP) --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
+
+	# python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex --labels
 	
 	@ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
 
@@ -114,7 +118,7 @@ translate-run:
 		fi;\
 	fi
 
-	@ make translate
+	# @ make translate
 	
 	@ make run
 
@@ -168,14 +172,14 @@ translate-telingo:
 translate-dfa-mso:
 	
 
-	python ./scripts/translater.py --input=ldlf --app=dfa-mso --out-file=$(PATH_OUT)/dfa-mso_automata.lp --in-files='./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP)) $(INSTANCE)'
+	python ./scripts/translater.py --input=ldlf --app=dfa-mso --out-file=$(PATH_OUT)/dfa-mso_automata.lp --in-files='./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP)) $(INSTANCE)' $(PY_PARAMS)
 
 	@printf "$(G) Translation from ldlf 2 dfa successfull $(NC)\n";
 
 translate-dfa-stm:
 	
 
-	python ./scripts/translater.py --input=ldlf --app=dfa-stm --out-file=$(PATH_OUT)/dfa-stm_automata.lp --in-files="./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP)) $(INSTANCE)"
+	python ./scripts/translater.py --input=ldlf --app=dfa-stm --out-file=$(PATH_OUT)/dfa-stm_automata.lp --in-files="./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(ENV_APP)) $(INSTANCE)" $(PY_PARAMS)
 	@printf "$(G) Translation from ldlf 2 dfa successfull $(NC)\n";
 
 ######################  NFA ########################
@@ -183,7 +187,7 @@ translate-dfa-stm:
 
 translate-nfa:
 	
-	@ make translate-afw APP=afw CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP) TRANSLATE_FILES=$(TRANSLATE_FILES_$(APP))
+	@ make translate-afw APP=afw CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP) TRANSLATE_FILES=$(TRANSLATE_FILES_$(APP)) $(PY_PARAMS)
 
 	python ./scripts/translater.py --input=afw --app=nfa --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
 
