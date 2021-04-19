@@ -26,6 +26,9 @@ $ pip install pygraphviz
 $ pip install tikzplotlib
 ```
 
+```
+python -m pip install -e git+https://github.com/insmdl00/LTLf2DFA.git@master#egg=ltlf2dfa
+```
 The installation can be checked my running the tests.
 
 ```

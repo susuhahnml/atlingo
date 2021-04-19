@@ -105,6 +105,7 @@ do
 		fi
 	else
 		#Ignore the rest of the resut and saave only stats
+		#echo $f
 		echo "$(tail -34 $f)" > $f
 	fi
 done

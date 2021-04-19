@@ -1,4 +1,4 @@
-<runscript output="output/asprilo/{APP}_del__h-{H}__n-{N}">
+<runscript output="output/asprilo/{APP}__h-{H}__n-{N}">
 
 	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
 	
@@ -7,12 +7,6 @@
 	<system name="general_compute" version="1" measures="clingo" config="seq-asprilo">
 
 		<setting name="horizontal_before_vertical" cmdline="{APP} asprilo {H} {N} del horizontally_before_vertically {CLINGO_ARGS}" tag="basic" />
-		<!--
-		<setting name="vertical_before_horizontal" cmdline="{H} {N} del vertically_before_horizontally {CLINGO_ARGS}" tag="basic" />
-		<setting name="never_both_direction" cmdline="{H} {N} del never_both_directions {CLINGO_ARGS}" tag="basic" />
-		<setting name="eventually_5xright" cmdline="{H} {N} del eventually_r_r_r_r_r" tag="basic" />
-		<setting name="square_release" cmdline="{H} {N} del square_release" tag="basic" />
--->
     </system>
 
 	<pbsjob name="pbs-gen" partition="short" timeout="1200" runs="1" script_mode="timeout" walltime="00:50:00" cpt="4"/>

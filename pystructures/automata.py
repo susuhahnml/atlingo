@@ -25,7 +25,6 @@ class State():
 
 class Condition():
     def __init__(self, included, not_included):
-        
         self._included = reduce_and(included,False)
         self._not_included = reduce_and(not_included,False)
 
@@ -57,7 +56,7 @@ class Condition():
         if len(self._not_included)>0:
             elems.append("& ".join(["~ "+ names[i] for i in self._not_included]))
         
-        return "& ".join(elems)
+        return "& ".join(elems).replace('"','')
 
     def is_taut(self):
         return len(self._included)+len(self._not_included)==0
@@ -108,6 +107,8 @@ class Automata():
             if labels and latex:
                 label = label.replace("<","\\deventually{").replace("[","\\dalways{")
                 label = label.replace("&skip","\\top")
+                label = label.replace("&true","\\top")
+                label = label.replace("&false","\\bot")
                 label = label.replace("~","\\neg")
                 label = label.replace(";;",";").replace("*","^*")
                 label = label.replace("]","}").replace(">","}")
@@ -118,7 +119,7 @@ class Automata():
             dot += 'node [shape = {} label= "{}"] {};\n'.format(shape, label,s._id)
         dot += 'init [shape = plaintext, label = " "];\n'
         
-        branch_format = 'shape = point width = .05 height = .05 label=" "'
+        branch_format = 'shape = point width = .05 height = .05 label=" " '
         # True transition for AFW
         if isinstance(self,AFW):
             if latex:
@@ -142,7 +143,7 @@ class Automata():
                     dot += 'and{} [{}];\n'.format(and_id,branch_format)
                     dot += '{} -> and{} [label="{}" arrowhead=none];\n'.format(s_from, and_id, label)
                     for s in s_to:
-                        dot += 'and{} -> {};\n'.format(and_id, s)
+                        dot += "and{} -> {};\n".format(and_id, s)
                     and_id+=1
 
         dot += '}'
@@ -159,8 +160,10 @@ class Automata():
             f.write(macros)
             f.write(texcode.replace("wedge","\\wedge").replace("join=bevel,","join=bevel,scale=0.4"))
 
-    def save_png(self, file="outputs/automata_viz",labels =True):
-        s = Source(self.dot(labels=labels))
+    def save_png(self, file="outputs/automata_viz",labels =True, latex=False):
+        dot = self.dot(labels=labels,latex=latex)
+        print(dot)
+        s = Source(dot)
         s.render(file, format="png")
 
     def __str__(self):
@@ -303,7 +306,6 @@ class AFW(Automata):
 
         return cls(id2prop,states,transitions,initial_state,set(),"")
     
-
     def to_nfa(self):
         id2state = {}
         tuple2state = {}

@@ -138,6 +138,16 @@ class LDLfFormula():
             class_name = "LDLfProp"
         return getattr(sys.modules[__name__], class_name).from_symbol(symbol,id2prop)
     
+    @classmethod
+    def join_formulas(cls, formulas):
+        """
+        Returns the conjuction of all the formulas
+        """
+        formula = formulas[0]
+        for f in formulas[1:]:
+            formula= LDLfDiamond(CheckPath(f),formula)
+        return formula
+
     # --------------- Translations
 
     def mso_main(self, time_step=0):
@@ -210,6 +220,7 @@ class LDLfFormula():
             mso_string = self.mso_main()
         elif translation == "stm":
             mso_string = self.stm_main()
+        print(mso_string)
         createMonafile(mso_string)
 
         mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
