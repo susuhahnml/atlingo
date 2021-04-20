@@ -42,7 +42,6 @@ clingo_re = {
     "ngadded"     : ("float",  re.compile(r"total nogoods added:[ ]*(?P<val>[0-9]+)\+?[ ]*$")),
 }
 
-
 status_mapping = {"SATISFIABLE": 1, "UNSATISFIABLE": 0, "UNKNOWN": 2, "OPTIMUM FOUND": 3}
 
 
@@ -102,5 +101,8 @@ def clingo(root, runspec, instance):
         res["ngadded"] = ("float", 0.0)
 
     for key, val in res.items(): result.append((key, val[0], val[1]))
+
+    if "ctime" in res:
+        result.append(("ptime","float",res["time"][1]-res["ctime"][1]))
 
     return result

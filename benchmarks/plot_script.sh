@@ -1,57 +1,35 @@
-# python plot.py --approach afw --approach asp --approach afw --prefix="time-7"  --horizon 7  --stat ctime --models 0 --y="time (sec)" --mean --ignore_prefix structured/x10  --approach nc --tikz
+HORIZON_R2='--horizon 24 --horizon 25 --horizon 26 --horizon 27 --horizon 28'
+HORIZON_R3='--horizon 26 --horizon 27 --horizon 28 --horizon 29 --horizon 30'
+HORIZON_ALL='--horizon 24 --horizon 25 --horizon 26 --horizon 27 --horizon 28 --horizon 29 --horizon 30'
+AUTOMATA_APP='--approach nfa --approach telingo --approach afw --approach dfa-stm --approach dfa-mso'
+ALL_APP='--approach nc '${AUTOMATA_APP}
+BASE='--models 1 --x #robots --env asprilo-abc '
+R2='--instance _r2_'
+R3='--instance _r3_'
+############ Models (Just for test)
+# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat models --prefix="models-" --y 'models'
+# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat models --prefix="models-" --y 'models'
 
-# python plot.py --approach afw --approach asp --approach afw --prefix="rules-bodies-20"  --horizon 20  --stat rules --models 1 --approach nc  --stat bodies --mean --tikz --group
+############ Processing Time
+# python plot.py  ${BASE} ${ALL_APP} ${R2} --horizon 24 --type bar --stat ptime --prefix="ptime-" --y 'Processing time (sec)'
+# python plot.py  ${BASE} ${ALL_APP} ${R3} --horizon 24 --type bar --stat ptime --prefix="ptime-" --y 'Processing time (sec)'
 
+############ Clingo Times
+# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat ctime --prefix="time-" --y 'Clingo time (sec)'
+# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat ctime --prefix="time-" --y 'Clingo time (sec)'
 
-# python plot.py --approach afw --prefix="scale"  --horizon 20 --horizon 25 --horizon 30 --horizon  35  --stat ctime --models 1 --y="time (sec)" --mean --group --plot_type=line  --approach afw  --tikz
+############ Clingo Times
+# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat ctime --prefix="time-" --y 'Clingo time (sec)'
+python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_ALL} --type bar --stat ctime --prefix="alltime-" --y 'Clingo time (sec)'
 
-# python plot.py --approach grid-afw  --approach grid-afw --approach grid-asp --approach grid-nc --prefix="grid-conflicts-5"  --horizon 5 --models 0 --table --stat conflicts --mean
+############ Choices
+# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat choices --prefix="choices-" --y '#choices'
+# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat choices --prefix="choices-" --y '#choices'
 
-# python plot.py --approach grid-afw  --approach grid-afw --approach grid-asp --approach grid-nc --prefix="grid-choices-5"  --horizon 5 --models 0 --table --stat choices --mean  --ignore_prefix structured/x10 
+############ Constraints
+# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat cons --prefix="cons-" --y '#cons'
+# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat cons --prefix="cons-" --y '#cons'
 
-
-
-# python plot.py --approach nc --approach afw --prefix="elevator-5-models" --models 0 --table --stat models --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9
-
-# python plot.py --approach nc --approach afw --prefix="elevator-5-choices" --models 0 --table --stat choices --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9
-
-# python plot.py --approach nc --approach afw --prefix="elevator-5-cons" --models 0 --table --stat cons --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9
-
-# 5 floors
-# python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa --prefix="elevator-models-5" --models 0 --table --stat models --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9 --ignore_any=11
-
-# python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa  --prefix="elevator-choices-5" --models 0 --table --stat choices --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9 --ignore_any=11
-
-# python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa  --prefix="elevator-cons-5" --models 0 --table --stat cons --env elevator --horizon 8 --horizon 9 --horizon 10 --horizon 11 --horizon 12 --plot_type=line --ignore_any=7 --ignore_any=9 --ignore_any=11
-
-# # 7 floors
-
-# python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa  --prefix="elevator-models-7" --models 0 --table --stat models --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line --ignore_any=5 --ignore_any=9 --ignore_any=11
-
-# python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa  --prefix="elevator-choices-7" --models 0 --table --stat choices --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line --ignore_any=5 --ignore_any=9 --ignore_any=11
-
-# python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa  --prefix="elevator-cons-7" --models 0 --table --stat cons --env elevator --horizon 11 --horizon 12 --horizon 13 --horizon 14 --horizon 15 --plot_type=line --ignore_any=5 --ignore_any=9 --ignore_any=11
-
-# # 9 floors
-python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa --prefix="elevator-models-9" --models 0 --table --stat models --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=11
-
-python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa --prefix="elevator-choices-9" --models 0 --table --stat choices --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=11
-
-python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa --prefix="elevator-cons-9" --models 0 --table --stat cons --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=11
-
-
-python plot.py  --approach proj-afw --approach proj-telingo --approach proj-dfa-mso --approach proj-dfa-stm --prefix="asprilo-proj-9" --models 0 --table --stat models --env asprilo --horizon 7 
-
-# 11 floors
-# python plot.py --approach nc  --approach afw --approach telingo --approach dfa --approach nfa --prefix="elevator-models-11" --models 0 --table --stat models --env elevator --horizon 17 --horizon 18 --horizon 19 --horizon 20 --horizon 21 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=9
-
-# python plot.py  --approach afw --approach telingo --approach dfa --approach nfa --prefix="elevator-choices-11" --models 0 --table --stat choices --env elevator --horizon 17 --horizon 18 --horizon 19 --horizon 20 --horizon 21 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=9
-
-# python plot.py  --approach afw --approach telingo --approach dfa --approach nfa --prefix="elevator-cons-11" --models 0 --table --stat cons --env elevator --horizon 17 --horizon 18 --horizon 19 --horizon 20 --horizon 21 --plot_type=line --ignore_any=5 --ignore_any=7 --ignore_any=9
-
-
-# python plot.py --approach nc --approach afw --prefix="elevator-9-models" --models 0 --table --stat models --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7
-
-# python plot.py --approach nc --approach afw --prefix="elevator-9-choices" --models 0 --table --stat choices --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7
-
-# python plot.py --approach nc --approach afw --prefix="elevator-9-cons" --models 0 --table --stat cons --env elevator --horizon 14 --horizon 15 --horizon 16 --horizon 17 --horizon 18 --plot_type=line --ignore_any=5 --ignore_any=7
+############ Rules
+# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat rules --prefix="rules-" --y '#rules'
+# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat rules --prefix="rules-" --y '#rules'

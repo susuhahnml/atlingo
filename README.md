@@ -4,31 +4,24 @@ This project contains the ASP encodings to transform temporal logic formulas int
 
 ## Dependencies 
 
-Update git-submodules. We use `https` instead of `sh` to facilitate the installation in the cluster.
+Install dependencies using [conda](https://anaconda.org) with the [environment.yml](environment.yml) file.
 
-dot2tex
+```shell
+conda env create -f environment.yml
+```
+
+Install manually `ltlf2dfa` from a github fork.
+
+```
+python -m pip install -e git+https://github.com/insmdl00/LTLf2DFA.git@master#egg=ltlf2dfa
+```
+
+Update git-submodules. We use `https` instead of `sh` to facilitate the installation in the cluster.
 
 ```shell
 $ git submodule update --init --recursive
 ```
 
-Install [clingo](https://potassco.org/doc/start/) preferably using `conda`.
-We use version `5.4.0`
-
-```shell
-$ conda install -c potassco clingo
-```
-
-For the tests, plotting and visualization of automata we require an installation of python version `3.7.3` and the following dependencies that can be installed using `pip`:
-```shell
-$ pip install networkx
-$ pip install pygraphviz
-$ pip install tikzplotlib
-```
-
-```
-python -m pip install -e git+https://github.com/insmdl00/LTLf2DFA.git@master#egg=ltlf2dfa
-```
 The installation can be checked my running the tests.
 
 ```

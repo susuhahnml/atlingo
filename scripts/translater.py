@@ -24,6 +24,8 @@ if __name__ == "__main__":
     
     parser.add_argument("--viz", default=False, action='store_true',
         help="Save automaton vizualization")
+    parser.add_argument("--multiple-dfa", default=True, action='store_true',
+        help="Use multiple DFAs instead of conjunction")
     parser.add_argument('--labels', action='store_const', const=True)
     parser.add_argument('--latex', action='store_const', const=True)
 
@@ -39,10 +41,21 @@ if __name__ == "__main__":
     elif args.input=="ldlf":
         assert args.app in ["dfa-mso","dfa-stm"]
         ldlfformulas = LDLfFormula.from_lp(files=in_files,inline_data="")
-        conj_formula = LDLfFormula.join_formulas(ldlfformulas)
-        print(conj_formula)
-        automaton = conj_formula.dfa(translation=args.app.split('-')[1])
-        automata_lp=automaton.to_lp()
+        if args.multiple_dfa:
+            automata_lp=""
+            id2prop = {}
+            n_old_states = 0
+            for i,f in enumerate(ldlfformulas):
+                automaton = f.dfa(translation=args.app.split('-')[1],n_old_states=n_old_states, state_prefix=f"a{i}_", id2prop=id2prop)
+                id2prop = automaton._props
+                n_old_states = n_old_states+ len(automaton._states)
+                automata_lp+=f"\n%%%%%%%%%%% Automata {i}\n"
+                automata_lp+=automaton.to_lp()
+        else:
+            conj_formula = LDLfFormula.join_formulas(ldlfformulas)
+            automaton = conj_formula.dfa(translation=args.app.split('-')[1])
+            automata_lp=automaton.to_lp()
+    
     # elif args.input=="telingo":
     #     program = ""
     #     for fn in sys.argv[3:]:
