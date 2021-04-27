@@ -242,7 +242,9 @@ class LDLfFormula():
         
         with open(name, "w+") as file:
             file.write(mso_string)
+        print(mso_string)
         mona_dfa = invoke_mona(f"mona -q -w {name}")
+        print(mona_dfa)
 
         return NFA.from_mona(mona_dfa, n_old_states=n_old_states, state_prefix=state_prefix, id2prop=id2prop, mona2prop=mona2prop)
 
