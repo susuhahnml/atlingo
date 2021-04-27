@@ -15,6 +15,20 @@ def reduce_and(a,keep_true=True):
         a.append('true')
     return a
 
+def de_tuple_str_symbol(term):
+    if (term.type ==  _clingo.SymbolType.String):
+        return str(term)
+    elif (term.type ==  _clingo.SymbolType.Number):
+        return str(term)
+    elif (term.type ==  _clingo.SymbolType.Function):
+        args = term.arguments
+        assert term.name=="" and len(args)>0
+        args_str = ",".join([de_tuple_str_symbol(a) for a in args[1:]])
+        return f"{str(args[0])}({args_str})".replace('"',"")
+    else:
+        print("Found an invalid form of prop")
+        assert False
+
 class State():
     def __init__(self, s_id, label):
         self._label = label
@@ -69,16 +83,16 @@ class Condition():
 
 class Automata():
 
-    def __init__(self, props, states, transitions, initial_state_id, final_states_ids, dot = None):
-        self._props = props 
+    def __init__(self, props, states, transitions, initial_states_ids, final_states_ids, dot = None):
+        self._props = {i:p.replace('"',"").replace("'","") for i,p in props.items()}
         self._states = states
         self._transitions = transitions
-        self._initial_state_id = initial_state_id
+        self._initial_states_ids = initial_states_ids
         self._final_states_ids = final_states_ids
 
     @property
-    def initial_state(self):
-        return self._states[self._initial_state_id]
+    def initial_states(self):
+        return [self._states[s] for s in self._initial_states_ids]
 
     def tikz(self):
         pass
@@ -87,7 +101,7 @@ class Automata():
         j = {
             'props': self._props,
             'states': {i:str(s) for i, s in self._states.items()},
-            'initial_state': self._initial_state_id,
+            'initial_states': self._initial_states_ids,
             'transition': {i : {str(c) : n for c, n in v.items()} for i, v in self._transitions.items()},
             'final_states': list(self._final_states_ids),
         } 
@@ -97,7 +111,7 @@ class Automata():
         dot = 'digraph ATLINGO {\n'
         dot += 'rankdir = LR;\n'
         dot += 'center = true;\n'
-        dot += 'size = "15,15";\n'
+        dot += 'size = "50,50";\n'
         # General def
         dot += 'edge [fontname = Courier arrowhead=vee arrowsize=0.5 penwidth= .8 lblstyle="font=\\small"];\n'
         dot += 'node [height = .5, width = .5];\n'
@@ -114,7 +128,7 @@ class Automata():
                 label = label.replace("]","}").replace(">","}")
                 label = "q_{{{}}}".format(label)
             shape= 'circle'
-            if str(s._id) in self._final_states_ids:
+            if s._id in self._final_states_ids:
                 shape = 'doublecircle'
             dot += 'node [shape = {} label= "{}"] {};\n'.format(shape, label,s._id)
         dot += 'init [shape = plaintext, label = " "];\n'
@@ -126,7 +140,8 @@ class Automata():
                 branch_format = 'color=white shape = circle width = .3 height = .3 label="\\forall"'
             dot += 'true [{}];\n'.format(branch_format)
         # Initial Node
-        dot += 'init -> {};\n'.format(self._initial_state_id)
+        for init_i in self._initial_states_ids:
+            dot += f'init -> {init_i};\n'
         # Transitions
         and_id=0
         for s_from, v in self._transitions.items():
@@ -162,7 +177,7 @@ class Automata():
 
     def save_png(self, file="outputs/automata_viz",labels =True, latex=False):
         dot = self.dot(labels=labels,latex=latex)
-        print(dot)
+        # print(dot)
         s = Source(dot)
         s.render(file, format="png")
 
@@ -176,41 +191,58 @@ class NFA(Automata):
         super(NFA,self).__init__(*args)
 
     @classmethod
-    def from_mona(cls, mona):
+    def from_mona(cls, mona, n_old_states=0, state_prefix="", id2prop=None, mona2prop=None):
+        if mona == False:
+            raise Exception("Error in mona: \n{}".format(mona))
         if "Execution aborted" in mona:
             raise Exception("Error in mona: \n{}".format(mona))
+        id2prop = {} if id2prop is None else id2prop
+        states = {}
 
-        def get_state(states, state_name):
-            s_id = int(state_name)
+        def get_state(state_name):
+            s_id = int(state_name)+n_old_states
             if s_id not in states:
-                states[s_id] = State(s_id, state_name)
+                states[s_id] = State(s_id, f"{state_prefix}{state_name}")
             return states[s_id]
 
-        states = {}
-        transitions = {}
+        # Alphabet
         vrs = re.findall(r'(?<=DFA for formula with free variables:\s).*?(?=\s\n)',mona)
         vrs = vrs[0].split(" ") if len(vrs)>0 else []
+        id2prop = id2prop
+        prop2id = {v:k for k,v in id2prop.items()}
+        newid2oldid = {}
         
+        for new_id,prop in enumerate(vrs):
+            prop = mona2prop[prop]
+            if prop in prop2id:
+                newid2oldid[new_id]=prop2id[prop]
+            else:
+                next_id = len(id2prop)
+                id2prop[next_id]=prop
+                newid2oldid[new_id]=next_id
+        if not "last" in prop2id:
+            id2prop[len(id2prop)]="last"
+
+        # Final states
         f_states = re.findall(r'(?<=Accepting states:\s).*?(?=\s\n)',mona)
-        final = f_states[0].split(" ") if len(f_states)>0 else []
-        
+        final = [get_state(f_id)._id for f_id in f_states[0].split(" ")] if len(f_states)>0 else []
+
+        # Transitions and states
         trans = re.findall(r'(?<=State\s).*?(?=\n)',mona)
         t_reg = r'(\d+):\s([X01]*)\s\->\sstate\s(.+)'
+        transitions = {}
         for t in trans[1:]:
             res = re.match(t_reg,t).groups()
-            n_from = get_state(states, res[0])
-            n_to = get_state(states, res[2])
-            in_prop = [i for i,v in enumerate(res[1]) if v=='1']
-            out_prop = [i for i,v in enumerate(res[1]) if v=='0']
+            n_from = get_state(res[0])
+            n_to = get_state(res[2])
+            in_prop = [newid2oldid[i] for i,v in enumerate(res[1]) if v=='1']
+            out_prop = [newid2oldid[i] for i,v in enumerate(res[1]) if v=='0']
             c = Condition(in_prop,out_prop)
             transitions.setdefault(n_from._id,{})[c]=[n_to._id]
 
-        def str2pred(k):
-            return k.replace("_1_","(").replace("_2_",")").replace("_3_",",").lower()
-        id2prop = {v:str2pred(k) for v,k in enumerate(vrs)}
-        id2prop[len(id2prop)]="last"
+        initial_states_ids = [n_old_states+1]
         # (id2prop)
-        return cls(id2prop,states,transitions,1,set(final),"")
+        return cls(id2prop,states,transitions,initial_states_ids,set(final),"")
 
     def to_lp(self, state_prefix = ""):
         def tos(s_id):
@@ -222,7 +254,8 @@ class NFA(Automata):
 
         for i, s in self._states.items():
             p+=('state({},"{}").\n').format(tos(s._id),s._label)
-        p+=('initial_state({}).\n').format(tos(self._initial_state_id))
+        for init_i in self._initial_states_ids:
+            p+=('initial_state({}).\n').format(tos(init_i))
         
         for s_from, v in self._transitions.items():
             c_id = 0
@@ -268,16 +301,16 @@ class AFW(Automata):
         ctl.ground([("base", [])])
         states = {}
         trans = {}
-        initial_state = None
+        initial_states = []
         id2prop = {}
         cases = {}
         for sa in ctl.symbolic_atoms:
             s = sa.symbol
             i = s.arguments[0].number
             if s.name == 'initial_state':
-                initial_state = s.arguments[0].number
+                initial_states.append(s.arguments[0].number)
             elif s.name == 'prop':
-                id2prop[i] = str(s.arguments[1]).strip('\\"')
+                id2prop[i] = de_tuple_str_symbol(s.arguments[1]).replace('"','')
             elif s.name == 'state':
                 formula = LDLfFormula.from_symbol(s.arguments[1],id2prop)
                 states[i] = State(i,str(formula))
@@ -303,8 +336,7 @@ class AFW(Automata):
                 con = cases_classes[s_from][c_id]
                 transitions[s_from].setdefault(con,[]).append(reduce_and(s2,True))
 
-
-        return cls(id2prop,states,transitions,initial_state,set(),"")
+        return cls(id2prop,states,transitions,initial_states,set(),"")
     
     def to_nfa(self):
         id2state = {}
@@ -322,7 +354,7 @@ class AFW(Automata):
             return tuple2state[t]
 
         final = get_state([])._id
-        initial_state = get_state([self._initial_state_id])
+        initial_states = [get_state([i]) for i in self._initial_states_ids]
         transitions = {}
         while not len(new_states)==0:
 
@@ -358,5 +390,6 @@ class AFW(Automata):
             state._label = "{{ {} }}".format(", ".join([str(x) for x in state._label]))
 
         id2state = {s._id:s for s in tuple2state.values()}
-        return NFA({i:p for i,p in self._props.items()},id2state,transitions,initial_state._id,set([final]),"")
+        print(id2state)
+        return NFA({i:p for i,p in self._props.items()},id2state,transitions,[i._id for i in initial_states],set([final]),"")
 

@@ -8,14 +8,15 @@ $(eval ENV_APP ?= asprilo)
 $(eval APP ?= afw)
 $(eval LOGIC ?= del)
 $(eval MODELS ?= 1)
-$(eval FORCE_TRANSLATE ?= 0)
+$(eval FORCE_TRANSLATE ?= 1)
 $(eval NAME_INSTANCE = $(basename $(notdir $(INSTANCE))))
 $(eval PATH_OUT = ./outputs/$(ENV_APP)/$(APP)/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE))
 $(eval PATH_TO_TELINGO = benchmarks/telingo)
 $(eval PATH_FROM_TELINGO = ../..)
 $(eval PATH_INPUT = env/$(ENV_APP)/temporal_constraints/$(LOGIC)/$(CONSTRAINT))
 ZSH_RESULT:=$(shell mkdir -p $(PATH_OUT))
-$(eval EXTRA = $(PATH_INPUT).extra.lp)
+$(eval EXTRA = env/$(ENV_APP)/extra.lp)
+# $(eval EXTRA = $(PATH_INPUT).extra.lp)
 $(eval PY_PARAMS ?= )
 
 # ------- Files needed for each app
@@ -27,12 +28,14 @@ $(eval RUN_APP_FILES_nfa = automata_run/run.lp)
 
 
 # ------- Files needed for each env
-$(eval RUN_ENV_FILES_asprilo = env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp $(RUN_FILES))
+$(eval RUN_ENV_FILES_asprilo-md = env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp $(RUN_FILES))
+$(eval RUN_ENV_FILES_asprilo-abc = env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/encoding-a.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/quantities.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_elevator = env/elevator/encoding.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_test = $(RUN_FILES))
 $(eval RUN_ENV_FILES_nc = $(RUN_FILES))
 
-$(eval TRANSLATE_FILES_asprilo = env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $(TRANSLATE_FILES))
+$(eval TRANSLATE_FILES_asprilo-abc = env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $(TRANSLATE_FILES))
+$(eval TRANSLATE_FILES_asprilo-md = env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $(TRANSLATE_FILES))
 $(eval TRANSLATE_FILES_elevator = $(TRANSLATE_FILES))
 $(eval TRANSLATE_FILES_test = $(TRANSLATE_FILES))
 
@@ -48,21 +51,22 @@ clean:
 
 viz:
 	@ printf "$BVisualizing APP=$(APP) ENV=$(ENV_APP) CONSTRAINT=$(CONSTRAINT)$ INSTANCE=$(NAME_INSTANCE) HORIZON=$(HORIZON) $(NC)\n"
-	make translate PY_PARAMS=--viz;
+	
+	make translate;
 
 	# python ./scripts/translater.py --input=afw --app=$(APP) --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
 
-	# python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex --labels
+	python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) 
 	
 	@ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
 
 	@ printf "$BCompiling latex...$(NC)\n"
 
-	# pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex 
-	pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex > /dev/null 2>&1
+	# pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex  > /dev/null
+	# pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex > /dev/null 2>&1
 
 
-	open $(PATH_OUT)/$(APP)_automata.pdf
+	# open $(PATH_OUT)/$(APP)_automata.pdf
 
 tests:
 	@ printf "$(B)Running 'del' tests...$(NC)"
@@ -102,7 +106,7 @@ translate-run:
 
 	@if [ "$(APP)" = "nc" ]; then\
 		echo "$(Y)No constrain option$(NC)";\
-		clingo --stats $(INSTANCE) $(RUN_ENV_FILES_$(ENV_APP)) -c horizon=$(HORIZON) -n $(MODELS);\
+		clingo --stats $(INSTANCE) $(RUN_ENV_FILES_$(ENV_APP)) -c horizon=$(HORIZON) -n $(MODELS) | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt;\
 		exit 1;\
 	fi
 	@if [ "$(FORCE_TRANSLATE)" = "1" ]; then \

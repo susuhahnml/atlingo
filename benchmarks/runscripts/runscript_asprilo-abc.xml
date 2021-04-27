@@ -1,0 +1,30 @@
+<runscript output="output/asprilo-abc/{APP}__h-{H}__n-{N}">
+
+	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
+	
+	<config name="seq-asprilo" template="../programs/seq-asprilo.sh"/>
+  
+	<system name="general_compute" version="1" measures="clingo" config="seq-asprilo">
+
+		<setting name="best" cmdline="{APP} asprilo-abc {H} {N} del best {CLINGO_ARGS}" tag="basic" />
+		<setting name="best_plus_move" cmdline="{APP} asprilo-abc {H} {N} del best_plus_move {CLINGO_ARGS}" tag="basic" />
+		<setting name="no_dir_change" cmdline="{APP} asprilo-abc {H} {N} del no_dir_change {CLINGO_ARGS}" tag="basic" />
+		<setting name="process_picked" cmdline="{APP} asprilo-abc {H} {N} del process_picked {CLINGO_ARGS}" tag="basic" />
+		<setting name="wait_end" cmdline="{APP} asprilo-abc {H} {N} del wait_end {CLINGO_ARGS}" tag="basic" />
+
+
+    </system>
+
+	<pbsjob name="pbs-gen" partition="short" timeout="1200" runs="1" script_mode="timeout" walltime="00:50:00" cpt="4"/>
+
+	<benchmark name="asprilo-abc-benchmark">
+		<folder path="/home/hahnmartinlu/temporal-automata/atlingo/benchmarks/instances/asprilo/abc"> 
+		</folder> 
+	</benchmark>
+	
+	<project name="temporal-automata" job="pbs-gen">
+		<runtag machine="komputer" benchmark="asprilo-abc-benchmark" tag="basic"/>
+	</project>
+
+</runscript>
+

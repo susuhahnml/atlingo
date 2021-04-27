@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # libraries and data
+import os
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,25 +10,15 @@ import seaborn as sns
 from pandas_ods_reader import read_ods
 import tikzplotlib
 
-
-
-yellow = '#ffff00'
-blue= '#009BFF'
-green = '#009B33'
-red = '#FF7F00'
-purple = '#9B9BC8'
-colors = [blue,green,purple,red,yellow]
-linestyles = ['-', '--', '-.',':','-','-', '--', '-.',':','-','-', '--', '-.',':','-']
-
 import argparse
 
 parser = argparse.ArgumentParser(description='Plot obs files from benchmark tool',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("--plot_type", type=str, default='bar',
-        help="Plot type, bar or line" )
 parser.add_argument("--stat", type=str, action='append',
-        help="Status: choices,conflicts,cons,csolve,ctime,error,mem,memout,models,ngadded,optimal,restarts,status,time,timeout,vars" )
+        help="Status: choices,conflicts,cons,csolve,ctime,error,mem,memout,models,ngadded,optimal,restarts,status,time,timeout,vars,ptime" )
 parser.add_argument("--approach", type=str, action='append',
         help="Approach to be plotted awf, asp, nc or dfa. Can pass multiple",required=True)
+parser.add_argument("--env",type=str, default='asprilo',
+        help="Name of environment, asprilo or elevator" )
 parser.add_argument("--constraint", type=str, action='append',
         help="Contraint to be plotted, if non is passed all constraints will be plotted. Can pass multiple")
 parser.add_argument("--horizon", type=int, action='append',
@@ -38,263 +29,220 @@ parser.add_argument("--prefix", type=str, default="",
         help="Prefix for output files" )
 parser.add_argument("--plotmodels", default=False, action='store_true',
     help="When this flag is passed, the number of models in plotted")
-parser.add_argument("--group", default=False, action='store_true',
-    help="When this flag is passed, instances are grouped")
-parser.add_argument("--mean", default=False, action='store_true',
-    help="When this flag is passed, only average will be computed per instance.Necessary for no-constraint")
-parser.add_argument("--bars", default=False, action='store_true',
-    help="When this flag is passed, will print bar for one approach with all times")
-parser.add_argument("--y", type=str, default=None,
-        help="Name for the y axis" )
-parser.add_argument("--ignore_timeout", action='store_true', default=False,
-        help="If passed the timeouts will not be ploted like dots" )
-parser.add_argument("--zero_timeout", action='store_true', default=False,
-        help="If passed the timeouts will be ploted with 0" )
-parser.add_argument("--tikz", action='store_true', default=False,
-        help="If passed tikz file will be saved" )
-parser.add_argument("--table", action='store_true', default=False,
-        help="If passed a csv with information file will be saved" )
+parser.add_argument("--type", type=str, default="bar",
+        help="Bar or table" )
+parser.add_argument("--instance", type=str, default=None,
+        help="The name of a single instance" )
 parser.add_argument("--ignore_prefix",type=str, action='append',
         help="Prefix to ignore in the instances" )
 parser.add_argument("--ignore_any",type=str, action='append',
         help="Any to ignore in the instances" )
-parser.add_argument("--env",type=str, default='asprilo',
-        help="Name of environment, asprilo or elevator" )
+parser.add_argument("--y", type=str, default=None,
+        help="Name for the y axis" )
+parser.add_argument("--x", type=str, default="Horizon",
+        help="Name for the x axis" )
 args = parser.parse_args()
 
 #PARAMS
-handle_timeout = not args.ignore_timeout
-zero_timeout = args.zero_timeout
+# handle_timeout = not args.ignore_timeout
+# zero_timeout = args.zero_timeout
+
+# Env
+env = args.env
+
+# Approaches
 approaches = args.approach
 n_approaches = len(args.approach)
-horizons = args.horizon
-models = args.models
-out_value = args.stat
-plot_n_models = args.plotmodels
-group_instances = args.group
-constraints = args.constraint
-mean = args.mean
-prefix = args.prefix
-ignore_prefix = args.ignore_prefix
-env = args.env
-if ignore_prefix is None:
-    ignore_prefix = []
-ignore_any = args.ignore_any
-if ignore_any is None:
-    ignore_any = []
-if args.y is None:
-    args.y="-".join(args.stat)
-
 approaches.sort()
+if "nc" in approaches:
+    approaches.remove("nc")
+    approaches.append("nc")
 
-# assert not 'nc' in approaches or mean and constraints is None, 'No constraint only with average'
-assert not plot_n_models or not mean, "Only mean or models ploted"
-assert not plot_n_models or not group_instances, "Only plot or group"
+# Horizon
+horizons = args.horizon
+horizons.sort()
+h2idx = {h:i for i,h in enumerate(horizons)}
 
-approaches = ["{}__h-{}".format(a,h) for a,h in list(itertools.product(approaches, horizons))]
-base_path = "results/"+env+"/{}__n-{}/{}__n-{}.ods"
-files = [base_path.format(a,models,a,models) for a in approaches]
-dfs = []
+models = args.models
 
-for f in files:
-    try:
-        dfs.append(read_ods(f,1))
-    except:
-        print("Error reading file {}".format(f))
-        print("Make sure the file exists".format(f))
-        sys.exit(1)
-out_options = set(dfs[0].iloc[0][:])
-out_options.remove('')
-out_options=list(out_options)
-n_out_options = len(out_options)
+# Statistics
+stats = args.stat + ["status"]
+constraints = args.constraint
 
+prefix = args.prefix
+# plot_n_models = args.plotmodels
+
+# Instances
+single_instance = False
+if args.instance:
+    single_instance = True
+    instance = args.instance
+else:
+    ignore_prefix = [] if args.ignore_prefix is None else args.ignore_prefix
+    ignore_any = [] if args.ignore_any is None else args.ignore_any
+
+summary = f"""
+PLOT
+    ENV: {env}
+    APPROACHES: {approaches}
+    HORIZONS : {horizons}
+    STATS: {stats}
+    CONSTRAINTS: {"ALL" if constraints is None else constraints}
+"""
+
+if single_instance:
+    summary +=f"    ONLY INSTANCE: {instance}\n"
+else:
+    summary +=f"    IGNORE INSTANCE: {ignore_any} {ignore_prefix}\n"
+
+print(summary)
+
+# ------ Clean ods
 def clean_df(df):
+    
+    all_stats = set(df.iloc[0][:])
+    all_stats.remove('')
+    all_stats=list(all_stats)
+    n_all_stats = len(all_stats)
     #Drop min max median
-    # print(df.iloc[0])
-    # print("Pa")
-    # print(df.iloc[0][1:n_out_options+1])
-    df.drop(df.columns[-3*n_out_options:], axis=1, inplace=True) 
+    df.drop(df.columns[-3*n_all_stats:], axis=1, inplace=True) 
     
     #Rename columns
-    cols = df.columns[1:]
-    cols = [c.split("/")[-1] for i,c in enumerate(cols) if i%n_out_options==0]
-    params = df.iloc[0][1:n_out_options+1]
-    new_cols = ["{}-{}".format(c,p) for c,p in list(itertools.product(cols, params))]
+    all_constraints = df.columns[1:]
+    all_constraints = [c.split("/")[-1] for i,c in enumerate(all_constraints) if i%n_all_stats==0]
+    all_stats = df.iloc[0][1:n_all_stats+1]
+
+    new_cols = ["{}--{}".format(c,p) for c,p in list(itertools.product(all_constraints, all_stats))]
     new_cols = ["instance-name"] + new_cols
-    # print(new_cols)
-    # print(df.columns)
-    # print(df.iloc[0])
     df.drop(df.index[0], inplace=True) #Remove unused out values
     df.drop(df.tail(9).index,inplace=True) #Remove last computed values
-    # print(df.columns)
-    # print(new_cols)
-    # print("Pb")
-    # print(params)
     df.columns = new_cols
+    if args.constraint is None:
+        constraints = all_constraints
+    else:
+        constraints = args.constraint
 
+    required_colums = ["instance-name"] + [f"{c}--{s}" for c in constraints for s in stats]
+
+    df = df.loc[:,df.columns.intersection(required_colums)]
+
+    # Convert all to floats
     for i in range(1,len(df.columns)):
         df.iloc[:,i] = pd.to_numeric(df.iloc[:,i], downcast="float")
     
     ###### Handle rows (INSTANCES)
     
-    #Rename instances with shorter name
-    instances = df['instance-name']
-    instances_to_drop = [i for i,c in enumerate(instances) if any([ c.find(i)==0 for i in ignore_prefix])]
-    df.drop(df.index[instances_to_drop], inplace=True)
-    instances_to_drop = [i for i,c in enumerate(instances) if any([ c.find(i)!=-1 for i in ignore_any])]
-    df.drop(df.index[instances_to_drop], inplace=True)
+    #Choose selected instances
+    all_instances = df['instance-name']
+    if single_instance:
+        instances_to_drop = [i for i,c in enumerate(all_instances) if c.find(instance)==-1 ]
+        df.drop(df.index[instances_to_drop], inplace=True)
+    else:
+        instances_to_drop = [i for i,c in enumerate(all_instances) if any([ c.find(i)==0 for i in ignore_prefix])]
+        df.drop(df.index[instances_to_drop], inplace=True)
+        instances_to_drop = [i for i,c in enumerate(all_instances) if any([ c.find(i)!=-1 for i in ignore_any])]
+        df.drop(df.index[instances_to_drop], inplace=True)
 
-    #ASPRILO
-    # df.iloc[:,0]=df.iloc[:,0].apply(lambda x: "{}-{}-{}".format(x.split('/')[0][0],x.split('/')[1] , x[-5:-3]))
-
-    if group_instances:
-        df['instance-group']=df['instance-name'].apply(lambda x: x.split('-0')[0])
-        df = df.groupby(['instance-group'], as_index=False).mean()
-        df['instance-name'] = df['instance-group']
-        df.drop(['instance-group'], axis=1, inplace=True) 
-
-    
-    #Order instances by complexity
-    def instance_complexity(s):
-        #ASPRILO
-        # s = s.split('-')[1]
-        # s = s.split('_')
-        # x,y,r = (int(s[0][1:]),int(s[1][1:]),int(s[2][1:]))
-        # return x*y + r
-        return 0
-    df['instance-value'] = df['instance-name'].apply(instance_complexity)
-    df = df.sort_values(by=['instance-value'], ascending=True)
-    df = df.reset_index(drop=True)
-    df.drop(['instance-value'], axis=1, inplace=True) 
-
-    for a in out_options:
-        col_name = 'mean-'+a
-        is_a = [x.split('-')[-1]==a for x in df.columns]
-        df[col_name] = df.loc[:,is_a].mean(axis = 1)
+    #Rename
+    def rename_robots(i):
+        return i.split("/")[1].split("_")[3]
+    df['instance-name']=df['instance-name'].apply(rename_robots)
 
     return df
 
-cleaned_dfs = [clean_df(df) for df in dfs]
-all_cols = list(itertools.chain(*[d.columns for d in cleaned_dfs]))
-columns = set([s.split('-')[0] for s in all_cols])
-columns.remove('instance')
-if 'without_constraint' in columns and (not approaches[0][:2]=='nc'):
-    columns.remove('without_constraint')
-# plt.style.use("ggplot")
-if mean:
-    columns = ['mean']
-else:
-    columns.remove('mean')
-columns = list(columns)
-instances = cleaned_dfs[0]['instance-name']
-n_columns = len(columns)
-n_instances = len(instances)
-x_instances = np.arange(len(instances))  # the label locations
-for i in instances:
-    print(i)
-width = 0.35  # the width of the bars
-for column in columns:
-    reduced_df = pd.DataFrame()
-    old_col = column
-    final_plots = []
-    for i, df in enumerate(cleaned_dfs):
-        if "nc" in approaches[i]:
-            column="mean"
-        plots_approach = []
-        to_plt = None
-        if handle_timeout:
-            timed_out = df[column + '-timeout'].copy()
-            # print(timed_out.iterrows()) 
-            for i_o, t_o in enumerate(timed_out):
-                if t_o >0:
-                    to_plt = plt.axvline(x_instances[i_o]-(width*(i-1)/2), color='gray', linestyle='dashed', linewidth=0.7,label="Timeout")
-        for i_out,out in enumerate(out_value):
-            col_plt = df[column + '-'+out]
-            if zero_timeout: col_plt.loc[df[column + '-timeout']==1]=0
-            # if mean: col_plt.loc[df[column + '-timeout']>0]=0
-            label = '{} ({})'.format(approaches[i],out) if len(out_value)>1 else approaches[i]
-            if args.plot_type=="bar":
-                next_plt = plt.bar(x_instances-(width*(i-1)/2), col_plt, label=label,width=width-0.5,color=colors[i],alpha=(i_out+1)/len(out_value))
-                plots_approach.append(next_plt)
-            elif args.plot_type=="line":
-                color=colors[int(i/len(horizons))]
-                linestyle = linestyles[i%len(horizons)]
-                # print(x_instances)
-                # print(col_plt)
-                # next_plt = plt.plot(x_instances, col_plt, alpha=1, label=label,color=color,linestyle=linestyle)
-                # plots_approach.append(next_plt[0])
-            reduced_df[label] = col_plt
+
+# -------- Read DFS
+dfs = {}
+last_df = None
+for a in approaches:
+    for h in horizons:
+        path = f"results/{env}/{a}__h-{h}__n-{models}/{a}__h-{h}__n-{models}.ods"
+        try:
+            print(f"Reading path {path}")
+            df = read_ods(path,1)
+            df = clean_df(df)
+            dfs.setdefault(a,{})[h]=df
+
+            last_df = df
+        except e:
+            print("Error reading file {}".format(path))
+
+            sys.exit(1)
+
+
+# -------- Reorder dfs
+
+fin_colums = last_df.columns
+constraints = list(set([s.split('--')[0] for s in fin_colums[1:]]))
+constraints.sort()
+stats = list(set([s.split('--')[1] for s in fin_colums[1:]]))
+stats.sort()
+instances = last_df['instance-name']
+dfs_per_cons = {}
+for cons in constraints:
+    for instance in instances:
+        rows = []
+        for s in stats:
+
+            for h in horizons:
+                row = [s,h]
+                for a in approaches:
+                    current_df = dfs[a][h]
+                    current_row = current_df.loc[df['instance-name'] == instance]
+                    current_col = f'{cons}--{s}'
+                    row.append(current_row[current_col].item())
+
+                rows.append(row)
+
+        df_row = pd.DataFrame(rows, columns=["Stat","Horizon"]+approaches)
         
-        final_plots += plots_approach
-        # space = 1-0.02-i*(0.07*len(out_value))
-        # legend = plt.legend(handles = plots_approach,loc='upper left',bbox_to_anchor=(1, space))    
-        # # Add the legend manually to the current Axes.
-        # ax = plt.gca().add_artist(legend)
-        column = old_col
-    if not to_plt is None: final_plots.append(to_plt)
-    plt.legend(handles = final_plots, loc='upper left',bbox_to_anchor=(1, 1))
-    # Add titles
-    plt.ylim(bottom=0)
-    plt.title(column.replace('_',' ').title(),  fontsize=12, fontweight=0)
-    plt.xticks(x_instances,instances,rotation='vertical')
-    plt.xlabel("instance")
-    plt.ylabel(args.y)
-    
-    #Change color of instance based on status
-    df=cleaned_dfs[0]
-    if not group_instances:
-        for idx,i  in enumerate(plt.gca().get_xticklabels()):
-            #{"SATISFIABLE": 1, "UNSATISFIABLE": 0, "UNKNOWN": 2, "OPTIMUM FOUND": 3}
-            if df[column+'-'+'status'][idx]==0:
-                i.set_color("gray")
-            # elif df[column+'-'+'status'][idx]==2:
-            #     i.set_color("grey")
+        #Edit horizon if unsat
+        df_stat = df_row.loc[df_row['Stat'] == 'status']
+        unsat_horizons = df_stat[df_stat[df_stat.columns[2]]==0]['Horizon'].tolist()
+        df_row['Horizon'] = np.where(df_row['Horizon'].isin(unsat_horizons),df_row['Horizon'].astype(str)+"*",df_row['Horizon'])
+        df_row = df_row[df_row['Stat'] != "status"]
+        dfs_per_cons.setdefault(cons,{})[instance]= df_row
 
-    file_name_img = 'plots/img/{}-{}.png'.format(prefix,column)
-    
-    if args.table:
-        file_name_csv = 'plots/tables/{}-{}.csv'.format(prefix,column)
-        file_name_tex_csv = 'plots/tables/{}-{}.tex'.format(prefix,column)
-        reduced_df = reduced_df.rename(index={idx:i for idx,i in enumerate(instances)})
+
+if args.type == "table":
+    # -------- Save CVS
+    for cons, v in dfs_per_cons.items():
+        for ins, df in v.items():
+            file_name_csv = f'plots/tables/{env}/{prefix}-{cons}-{ins}.csv'
+            file_name_tex_csv = file_name_csv[:-3]+"tex"
+            dir_name = os.path.dirname(file_name_csv)
+            if not os.path.exists(dir_name): os.makedirs(dir_name)
+            
+
+            # df["SAT"] = df["Horizon"].astype(str) + df["status"]
+            df.to_csv(file_name_csv,float_format='%.0f')
+            tex_table = df.to_latex(float_format='%.0f')
+            f = open(file_name_tex_csv, "w")
+            f.write(tex_table)
+            f.close()
+            print("Saved {}".format(file_name_csv))
+            print("Saved {}".format(file_name_tex_csv))
+
+elif args.type == "bar":
+    # -------- Plot
+    for cons, v in dfs_per_cons.items():
+        for ins, df in v.items():
+            file_name_img = f'plots/img/{env}/{prefix}-{cons}-{ins}.png'
+            dir_name = os.path.dirname(file_name_img)
+            if not os.path.exists(dir_name): os.makedirs(dir_name)
+            plotting_stats = [s for s in stats if s !="status"]
+            for i, s in enumerate(plotting_stats):
+                stats_row = df.loc[df['Stat'] == s]
+                stats_row.plot(x="Horizon", y=approaches, kind="bar", colormap="Set3")
+
+            plt.title(f"{cons} ({ins})",  fontsize=12, fontweight=0)
+            plt.xlabel(args.x)
+            plt.xticks(rotation='horizontal')
+            plt.ylabel(args.y)
+            plt.ylim(bottom=0)
+
+                    
+            plt.savefig(file_name_img,dpi=300,bbox_inches='tight')
+            print("Saved {}".format(file_name_img))
+            plt.clf()
         
-        
-        # ELEVATOR
-        table_df = pd.DataFrame(columns = args.approach, index=["h-{}".format(h) for h in horizons])
-
-        for s in reduced_df.columns:
-            s_split=s.split("__")
-            # h= int(s_split[1].split("-")[1])
-            table_df[s_split[0]][s_split[1]]=reduced_df[s][0].astype(int)
-        
-        table_df.to_csv(file_name_csv,float_format='%.0f')
-        tex_table = table_df.to_latex(float_format='%.0f')
-
-        # reduced_df.to_csv(file_name_csv,float_format='%.0f')
-        # tex_table = reduced_df.to_latex(float_format='%.0f')
-
-
-        f = open(file_name_tex_csv, "w")
-        f.write(tex_table)
-        f.close()
-        print("Saved {}".format(file_name_csv))
-        print("Saved {}".format(file_name_tex_csv))
-
-    if args.tikz:
-        file_name_tikz = 'plots/tikz/{}-{}.tex'.format(prefix,column)
-        tikz = tikzplotlib.get_tikz_code()
-        tikz = tikz.replace("__"," ")
-        tikz = tikz.replace("legend style={","legend style={font=\\scriptsize,")
-        tikz = tikz.replace("xticklabel style = {","xticklabel style = {font=\\scriptsize,")
-        tikz = tikz.replace("tick pos=both","tick pos=left")
-        # tikz = tikz.replace("afw ","afw ltl ")
-        # tikz = tikz.replace("afw","afw ldl")
-        f = open(file_name_tikz, "w")
-        f.write(tikz)
-        f.close()
-        print("Saved {}".format(file_name_tikz))
-
-
-
-    plt.savefig(file_name_img,dpi=300,bbox_inches='tight')
-    print("Saved {}".format(file_name_img))
-    plt.clf()

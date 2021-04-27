@@ -14,14 +14,14 @@ id_map(ID,(P)):-
 % ------- Sequence
 
 % Arity 1
-id_map(ID,(MAP_0)):-
+id_map(ID,("",MAP_0)):-
     theory_sequence(ID,tuple,ID_T),
     theory_tuple(ID_T,0,ID_0),
     not theory_tuple(ID_T,1,_), 
     id_map(ID_0,MAP_0).
 
 % Arity 2
-id_map(ID,(MAP_0,MAP_1)):-
+id_map(ID,("",MAP_0,MAP_1)):-
     theory_sequence(ID,tuple,ID_T),
     theory_tuple(ID_T,0,ID_0),
     theory_tuple(ID_T,1,ID_1),
@@ -30,7 +30,7 @@ id_map(ID,(MAP_0,MAP_1)):-
     id_map(ID_1,MAP_1).
 
 % Arity 3
-id_map(ID,(MAP_0,MAP_1,MAP_2)):-
+id_map(ID,("",MAP_0,MAP_1,MAP_2)):-
     theory_sequence(ID,tuple,ID_T),
     theory_tuple(ID_T,0,ID_0),
     theory_tuple(ID_T,1,ID_1),

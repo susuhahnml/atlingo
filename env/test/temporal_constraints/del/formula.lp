@@ -6,9 +6,18 @@
 % :- not &del{ &true }.
 % :- not &del{ ?a ;..>* b }.
 % :- not &del{ &false }.
-:- not &del{ * &true .>? p}.
+% :- not &del{ * &true .>? p}.
 % :- not &del{  ? (* &true .>? p) ;; &true .>? q }.
 % :- not &del{  ? (* &true .>? p) ;; &true .>? q }.
 % :- not &del{  * ( ?p  + ?q ;; &true) .>? q }.
 
-% :- not &del{ (*(?p ;; &true) + *(?q ;; &true)) .>? &true .>* &false }.
+% :- not &del{ (*(&true ;; ?p) ;; ?b ;; *(&true ;; ?q)) .>? &true .>* &false }.
+
+:- not &del{ * &true .>* 
+            ?p ;; &true .>*  
+               *( ? ~ q;; &true) .>? 
+               (?a + ?b + ?c) 
+               .>? &true
+            }.
+
+% :- not &del{ p }.

@@ -53,6 +53,7 @@ elif app=="nfa":
 
 png_path = "outputs/{}/{}/del/{}/{}/{}_automata".format(env_app, app,constraint,instance,app)
 
+print(f"Saving png {png_path}")
 automaton.save_png(file=png_path,labels=labels,latex=latex)
 if(latex):
     automaton.to_tex(file=png_path+".tex",labels=labels)
