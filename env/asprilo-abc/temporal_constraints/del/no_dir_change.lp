@@ -3,10 +3,19 @@ left((-1,0)).
 up((0,-1)).
 down((0,1)).
 
-:- not &del{ * &true .>* 
-            ?move(robot(R),D_R) ;; &true .>*  
-               *( ? ~ move(robot(R),D_L);; &true) .>? 
-               (?pickup_atlingo(robot(R)) + ?process_atlingo(robot(R)) + ?putdown_atlingo(robot(R))) 
+:- not &del{ * &true .>* % Always
+            ?move(robot(R),D_R) ;; &true .>*  %Goining right implies 
+               *( ? ~ move(robot(R),D_L);; &true) .>? % Not going left
+               (?pickup_atlingo(robot(R)) + ?process_atlingo(robot(R)) + ?putdown_atlingo(robot(R))) %Until can change
+               .>? &true
+            
+            },
+            robot(R),right(D_R),left(D_L).
+
+:- not &del{ * &true .>* % Always
+            ?move(robot(R),D_L) ;; &true .>*  %Goining right implies 
+               *( ? ~ move(robot(R),D_R);; &true) .>? % Not going left
+               (?pickup_atlingo(robot(R)) + ?process_atlingo(robot(R)) + ?putdown_atlingo(robot(R))) %Until can change
                .>? &true
             
             },
@@ -15,6 +24,15 @@ down((0,1)).
 :- not &del{ * &true .>* 
             ?move(robot(R),D_U) ;; &true .>*  
                *( ? ~ move(robot(R),D_D);; &true) .>? 
+               (?pickup_atlingo(robot(R)) + ?process_atlingo(robot(R)) + ?putdown_atlingo(robot(R))) 
+               .>? &true
+            
+            },
+            robot(R),up(D_U),down(D_D).
+
+:- not &del{ * &true .>* 
+            ?move(robot(R),D_D) ;; &true .>*  
+               *( ? ~ move(robot(R),D_U);; &true) .>? 
                (?pickup_atlingo(robot(R)) + ?process_atlingo(robot(R)) + ?putdown_atlingo(robot(R))) 
                .>? &true
             

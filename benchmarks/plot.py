@@ -146,8 +146,11 @@ def clean_df(df):
     #Rename
     def rename_robots(i):
         return i.split("/")[1].split("_")[3]
+    # def rename_floors(i):
+    #     return i.split("/")[1].split("_")[0]
     df['instance-name']=df['instance-name'].apply(rename_robots)
 
+    # print(df)
     return df
 
 
@@ -193,7 +196,7 @@ for cons in constraints:
                     row.append(current_row[current_col].item())
 
                 rows.append(row)
-
+        # print(rows)
         df_row = pd.DataFrame(rows, columns=["Stat","Horizon"]+approaches)
         
         #Edit horizon if unsat
@@ -224,6 +227,15 @@ if args.type == "table":
             print("Saved {}".format(file_name_tex_csv))
 
 elif args.type == "bar":
+    approaches_colors = {
+        "nc":"#C8F69B",
+        "afw":"#FFB1AF",
+        "dfa-mso":"#D6D4FF",
+        "dfa-stm":"#B3EEFF",
+        "nfa":"#FFCBA5",
+        "telingo":"#FFEEA5"
+    }
+    colors = [approaches_colors[a] for a in approaches]
     # -------- Plot
     for cons, v in dfs_per_cons.items():
         for ins, df in v.items():
@@ -233,7 +245,8 @@ elif args.type == "bar":
             plotting_stats = [s for s in stats if s !="status"]
             for i, s in enumerate(plotting_stats):
                 stats_row = df.loc[df['Stat'] == s]
-                stats_row.plot(x="Horizon", y=approaches, kind="bar", colormap="Set3")
+                stats_row.plot(x="Horizon", y=approaches, kind="bar", color=colors)
+                # stats_row.plot(x="Horizon", y=approaches, kind="bar", colormap="Set3")
 
             plt.title(f"{cons} ({ins})",  fontsize=12, fontweight=0)
             plt.xlabel(args.x)

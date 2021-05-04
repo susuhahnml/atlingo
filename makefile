@@ -29,7 +29,7 @@ $(eval RUN_APP_FILES_nfa = automata_run/run.lp)
 
 # ------- Files needed for each env
 $(eval RUN_ENV_FILES_asprilo-md = env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp $(RUN_FILES))
-$(eval RUN_ENV_FILES_asprilo-abc = env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/encoding-a.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/quantities.lp $(RUN_FILES))
+$(eval RUN_ENV_FILES_asprilo-abc = env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/encoding-a.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/quantities.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/control/highways.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_elevator = env/elevator/encoding.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_test = $(RUN_FILES))
 $(eval RUN_ENV_FILES_nc = $(RUN_FILES))

@@ -196,6 +196,10 @@ class NFA(Automata):
             raise Exception("Error in mona: \n{}".format(mona))
         if "Execution aborted" in mona:
             raise Exception("Error in mona: \n{}".format(mona))
+        if "BDD too large " in mona[:20]:
+            raise Exception("Error in mona: \n{}".format(mona))
+
+
         id2prop = {} if id2prop is None else id2prop
         states = {}
 

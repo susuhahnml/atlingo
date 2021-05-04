@@ -13,7 +13,7 @@ DIR=$(dirname -- $f)
 rm -f $DIR/*.ods
 echo "$Y Computing .ods... for $f $NC"
 if [ -s $f ]; then
-    ./bconv -m time,ctime,csolve,ground0,groundN,models,timeout,restarts,conflicts,choices,domain,vars,cons,mem,error,memout,status,atoms,rules,roriginal,bodies,equiv,rchoices $f > $DIR/$NAME.ods 2> $DIR/$NAME.error
+    ./bconv -m time,ctime,csolve,ground0,groundN,models,timeout,restarts,conflicts,choices,domain,vars,cons,mem,error,memout,status,atoms,rules,roriginal,bodies,equiv,rchoices,ptime $f > $DIR/$NAME.ods 2> $DIR/$NAME.error
     cat $DIR/$NAME.error
 else
     echo "$R.beval is empty$NC"
