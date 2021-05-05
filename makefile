@@ -91,6 +91,12 @@ translate:
 		exit 1;\
     fi;
 
+empty:
+
+	@make translate;
+
+	clingo $(PATH_OUT)/$(APP)_automata.lp automata_run/empty.lp --warn=none
+
 
 run:
 
