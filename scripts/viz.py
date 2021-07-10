@@ -10,13 +10,13 @@ import clingo
 import itertools
 import pdb
 import subprocess
-from pystructures.automata import AFW
+from pystructures.automata import AFW, NFA
 from pystructures.ldlf import LDLfFormula
 parser = argparse.ArgumentParser(description='Viz automata')
 
 parser.add_argument('--constraint', help='Constaint name',required=True)
 parser.add_argument('--env_app', help='Env app: atlingo, test, elevator...',required=True)
-parser.add_argument('--app', help='App: afw, dfa, nfa',required=True)
+parser.add_argument('--app', help='App: afw, dfa, nfa, nfa-afw',required=True)
 parser.add_argument('--instance', help='Instance name',required=True)
 parser.add_argument('--instance_path', help='Instance path',required=True)
 parser.add_argument('--labels', action='store_const', const=True)
@@ -34,7 +34,7 @@ latex= args.latex
 
 command = 'make translate APP=afw LOGIC=del CONSTRAINT={} ENV_APP={} INSTANCE={}'.format(constraint,env_app,instance_path) 
 print(command)
-subprocess.check_output(command.split())
+# subprocess.check_output(command.split())
 constraint_path = "env/{}/temporal_constraints/del/{}.lp".format(env_app,constraint)
 
 afw_automata_path = "outputs/{}/afw/del/{}/{}/afw_automata.lp".format(env_app,constraint,instance)
@@ -50,6 +50,8 @@ elif app in ["dfa-mso","dfa-stm"]:
     automaton = conj_formula.dfa(translation=args.app.split('-')[1])
 elif app=="nfa":
     automaton = afw.to_nfa()
+elif app=="nfa-afw":
+    automaton = NFA.from_lp(files = [automata_path])
 
 png_path = "outputs/{}/{}/del/{}/{}/{}_automata".format(env_app, app,constraint,instance,app)
 

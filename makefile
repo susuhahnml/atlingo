@@ -25,6 +25,7 @@ $(eval RUN_APP_FILES_afw = automata_run/run.lp env/$(ENV_APP)/glue.lp)
 $(eval RUN_APP_FILES_dfa-mso = automata_run/run.lp)
 $(eval RUN_APP_FILES_dfa-stm = automata_run/run.lp)
 $(eval RUN_APP_FILES_nfa = automata_run/run.lp)
+$(eval RUN_APP_FILES_nfa-afw = automata_run/run.lp env/$(ENV_APP)/glue.lp)
 
 
 # ------- Files needed for each env
@@ -49,24 +50,35 @@ clean:
 	(cd benchmarks ; make clean)
 
 
-viz:
+viz-latex:
 	@ printf "$BVisualizing APP=$(APP) ENV=$(ENV_APP) CONSTRAINT=$(CONSTRAINT)$ INSTANCE=$(NAME_INSTANCE) HORIZON=$(HORIZON) $(NC)\n"
 	
 	make translate;
 
 	# python ./scripts/translater.py --input=afw --app=$(APP) --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
 
-	python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) 
+	python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex --labels
 	
-	@ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
+	# @ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
 
 	@ printf "$BCompiling latex...$(NC)\n"
 
-	# pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex  > /dev/null
-	# pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex > /dev/null 2>&1
+	pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex > /dev/null 2>&1
 
 
-	# open $(PATH_OUT)/$(APP)_automata.pdf
+	open $(PATH_OUT)/$(APP)_automata.pdf
+
+viz-png:
+	@ printf "$BVisualizing APP=$(APP) ENV=$(ENV_APP) CONSTRAINT=$(CONSTRAINT)$ INSTANCE=$(NAME_INSTANCE) HORIZON=$(HORIZON) $(NC)\n"
+	
+	make translate;
+
+	# python ./scripts/translater.py --input=afw --app=$(APP) --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
+
+	python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE)
+	
+	@ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
+
 
 tests:
 	@ printf "$(B)Running 'del' tests...$(NC)"
@@ -104,7 +116,8 @@ run:
 
 	@rm -f $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
 
-	clingo $(PATH_OUT)/$(APP)_automata.lp $(INSTANCE) $(RUN_APP_FILES_$(APP)) $(RUN_ENV_FILES_$(ENV_APP)) $(EXTRA) -c horizon=$(HORIZON) -n $(MODELS) --stats | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
+	# clingo $(PATH_OUT)/$(APP)_automata.lp $(INSTANCE) $(RUN_APP_FILES_$(APP)) $(RUN_ENV_FILES_$(ENV_APP)) $(EXTRA) -c horizon=$(HORIZON) -n $(MODELS) --stats | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
+	clingo $(PATH_OUT)/$(APP)_automata.lp $(INSTANCE) $(RUN_APP_FILES_$(APP)) $(RUN_ENV_FILES_$(ENV_APP)) $(EXTRA) -c horizon=$(HORIZON) -n $(MODELS) --stats --lemma-out=outputs/nogoods_$(APP).txt --lemma-out-txt --lemma-out-dom=output | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt 
 
 	@printf "$(G)Run of $(APP) successfull $(NC)\n";
 
@@ -200,6 +213,12 @@ translate-nfa:
 	@ make translate-afw APP=afw CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP) TRANSLATE_FILES=$(TRANSLATE_FILES_$(APP)) $(PY_PARAMS)
 
 	python ./scripts/translater.py --input=afw --app=nfa --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
+
+translate-nfa-afw:
+	
+	@ make translate-afw APP=afw CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP) TRANSLATE_FILES=$(TRANSLATE_FILES_$(APP)) $(PY_PARAMS)
+
+	clingo ./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp ./afw2nfa/afw2nfa.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/nfa-afw_automata.lp
 
 ###################### ASPRILO EXTRA ###################
 

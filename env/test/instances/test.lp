@@ -4,3 +4,6 @@
 % q(1).
 % q(2).
 % p(0).
+time(0..horizon).
+{p(T)}:-time(T).
+{q(T)}:-time(T).
