@@ -79,31 +79,11 @@ state_nfa(X,L):-state_nfa_reachable(X,L,T), state_nfa_set_size(X,T).
 delta_nfa(ID,(0,in,true),ID) :-  state_nfa(ID,()).
 final_state_nfa(ID) :-  state_nfa(ID,()).
 
-% initial_state(0).
-% prop(9,"b").
-% prop(13,"a").
-% prop(15,"last").
-% state(0,diamond(sequence(test(diamond(star(top),prop(9))),top),prop(13))).
-% state(2,diamond(star(top),prop(9))).
-% state(1,prop(13)).
-% delta(2,(1,out,15),2).
-% delta(0,(1,out,15),2).
-% delta(0,(1,out,15),1).
-% delta(0,(0,out,15),1).
-% delta(0,(0,in,9),true).
-% delta(2,(0,in,9),true).
-% delta(1,(0,in,13),true).
 
-% #show state_nfa_reachable/1.
-% #show state_nfa_reachable/3.
-% #show state_nfa_set/2.
-% #show state_nfa_set/3.
-% #show delta_nfa_set/5.
-% #show delta_nfa_set/3.
 
-#show state_nfa/2.
-#show initial_state_nfa/1.
-#show delta_nfa/3.
+#show state(X,L) : state_nfa(X,L).
+#show initial_state(ID) : initial_state_nfa(ID).
+#show delta(ID,O,N) : delta_nfa(ID,O,N).
 #show prop/2.
-#show final_state_nfa/1.
+#show final_state(ID) : final_state_nfa(ID).
 

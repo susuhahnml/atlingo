@@ -136,6 +136,11 @@ class LDLfFormula():
         """
         Creates an LDLfFormula from a symbol used in the Automta Encoding. 
         """
+        print(symbol)
+        if symbol.type == _clingo.SymbolType.Function and symbol.name =="":
+            print("WARNING: Loading unkown symbol, treated as string")
+            print(symbol)
+            return LDLfFormula(str(symbol))
         if symbol.name in del_operators_names:
             class_name = "LDLf" + del_operators_names[symbol.name]
         else:

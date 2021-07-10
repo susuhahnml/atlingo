@@ -107,6 +107,58 @@ class Automata():
         } 
         return j
 
+    @classmethod
+    def from_lp(cls, files=[], inline_data=""):
+        from pystructures.ldlf import LDLfFormula
+
+        ctl = _clingo.Control([], message_limit=0)
+        ctl.add("base", [], "")
+        for f in files:
+            ctl.load(f)
+        ctl.add("base", [], inline_data)
+        ctl.ground([("base", [])])
+        states = {}
+        trans = {}
+        initial_states = []
+        final_states = []
+        id2prop = {}
+        cases = {}
+        for sa in ctl.symbolic_atoms:
+            s = sa.symbol
+            i = s.arguments[0].number
+            if s.name == 'initial_state':
+                initial_states.append(s.arguments[0].number)
+            elif s.name == 'prop':
+                id2prop[i] = de_tuple_str_symbol(s.arguments[1]).replace('"','')
+            elif s.name == 'state':
+                formula = LDLfFormula.from_symbol(s.arguments[1],id2prop)
+                states[i] = State(i,str(formula))
+            elif s.name == 'delta':
+                n_to = "true"  if s.arguments[2].number is None  else s.arguments[2].number
+                case = str(s.arguments[1].arguments[0])
+                cases.setdefault(i,{}).setdefault(case,([],[]))
+                pos = 0 if s.arguments[1].arguments[1].name == "in" else 1
+                prop = s.arguments[1].arguments[2].number if s.arguments[1].arguments[2].number else "true"
+                cases[i][case][pos].append(prop)
+                trans.setdefault(i,{}).setdefault(case,[]).append(n_to)
+            elif s.name == "final_state":
+                final_states.append(s.arguments[0].number)
+
+        cases_classes = {}
+        for s_from, dic_c in cases.items():
+            cases_classes[s_from] = {}
+            for c_id, tup in dic_c.items():
+                cases_classes[s_from][c_id]=Condition(tup[0],tup[1])
+
+        transitions = {}
+        for s_from, dic_c in trans.items():
+            transitions[s_from]={}
+            for c_id,s2 in dic_c.items():
+                con = cases_classes[s_from][c_id]
+                transitions[s_from].setdefault(con,[]).append(reduce_and(s2,True))
+
+        return cls(id2prop,states,transitions,initial_states,set(final_states),"")
+        
     def dot(self, latex = False, labels =True):
         dot = 'digraph ATLINGO {\n'
         dot += 'rankdir = LR;\n'
@@ -293,54 +345,6 @@ class AFW(Automata):
     def __init__(self, *args):
         super(AFW,self).__init__(*args)
 
-    @classmethod
-    def from_lp(cls, files=[], inline_data=""):
-        from pystructures.ldlf import LDLfFormula
-
-        ctl = _clingo.Control([], message_limit=0)
-        ctl.add("base", [], "")
-        for f in files:
-            ctl.load(f)
-        ctl.add("base", [], inline_data)
-        ctl.ground([("base", [])])
-        states = {}
-        trans = {}
-        initial_states = []
-        id2prop = {}
-        cases = {}
-        for sa in ctl.symbolic_atoms:
-            s = sa.symbol
-            i = s.arguments[0].number
-            if s.name == 'initial_state':
-                initial_states.append(s.arguments[0].number)
-            elif s.name == 'prop':
-                id2prop[i] = de_tuple_str_symbol(s.arguments[1]).replace('"','')
-            elif s.name == 'state':
-                formula = LDLfFormula.from_symbol(s.arguments[1],id2prop)
-                states[i] = State(i,str(formula))
-            elif s.name == 'delta':
-                n_to = "true"  if s.arguments[2].number is None  else s.arguments[2].number
-                case = str(s.arguments[1].arguments[0])
-                cases.setdefault(i,{}).setdefault(case,([],[]))
-                pos = 0 if s.arguments[1].arguments[1].name == "in" else 1
-                prop = s.arguments[1].arguments[2].number if s.arguments[1].arguments[2].number else "true"
-                cases[i][case][pos].append(prop)
-                trans.setdefault(i,{}).setdefault(case,[]).append(n_to)
-
-        cases_classes = {}
-        for s_from, dic_c in cases.items():
-            cases_classes[s_from] = {}
-            for c_id, tup in dic_c.items():
-                cases_classes[s_from][c_id]=Condition(tup[0],tup[1])
-
-        transitions = {}
-        for s_from, dic_c in trans.items():
-            transitions[s_from]={}
-            for c_id,s2 in dic_c.items():
-                con = cases_classes[s_from][c_id]
-                transitions[s_from].setdefault(con,[]).append(reduce_and(s2,True))
-
-        return cls(id2prop,states,transitions,initial_states,set(),"")
     
     def to_nfa(self):
         id2state = {}
