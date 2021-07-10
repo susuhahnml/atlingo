@@ -108,6 +108,7 @@ def run_check(constraint,trace="",horizon=3,app="afw",generate=False,extra_files
         "dfa-mso": ['./automata_run/run.lp'],
         "dfa-stm": ['./automata_run/run.lp'],
         "nfa": ['./automata_run/run.lp'],
+        "nfa-afw": ['./automata_run/run.lp',"./env/test/glue.lp"],
         "telingo": []
     }
     paths = [automata_path]+run_files[app]+extra_files
@@ -680,7 +681,6 @@ class TestMain(TestCase):
     def test_translation(self):
 
         constraints = [
-            ":- not &del{ &true .>? p }. :- not &del{ &true .>? q }.",
             ":- not &del{ &true }.",
             ":- not &del{ &false }.",
             # Atoms
@@ -727,7 +727,8 @@ class TestMain(TestCase):
         for cons in constraints:
             for h in range(1,4):
                 print("Testing {} with h = {}".format(cons,h))
-                comapre_apps(cons,h,apps=['afw','dfa-mso','dfa-stm','nfa'],test_instance=self)
+                comapre_apps(cons,h,apps=['afw','nfa-afw'],test_instance=self)
+                # comapre_apps(cons,h,apps=['afw','dfa-mso','dfa-stm','nfa','nfa-afw'],test_instance=self)
 
     def test_closure(self):
         formula = LDLfFormula.from_lp(inline_data= ":-not &del{ * ((?p + ?q) ;; &true)  .>* ?r .>? &true}.")[0]

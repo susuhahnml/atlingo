@@ -25,6 +25,7 @@ $(eval RUN_APP_FILES_afw = automata_run/run.lp env/$(ENV_APP)/glue.lp)
 $(eval RUN_APP_FILES_dfa-mso = automata_run/run.lp)
 $(eval RUN_APP_FILES_dfa-stm = automata_run/run.lp)
 $(eval RUN_APP_FILES_nfa = automata_run/run.lp)
+$(eval RUN_APP_FILES_nfa-afw = automata_run/run.lp env/$(ENV_APP)/glue.lp)
 
 
 # ------- Files needed for each env
