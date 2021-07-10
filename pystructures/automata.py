@@ -165,7 +165,7 @@ class Automata():
         dot += 'center = true;\n'
         dot += 'size = "50,50";\n'
         # General def
-        dot += 'edge [fontname = Courier arrowhead=vee arrowsize=0.5 penwidth= .8 lblstyle="font=\\small"];\n'
+        dot += 'edge [fontname = Courier arrowhead=vee arrowsize=0.5 penwidth= .8 lblstyle="font=\\tiny"];\n'
         dot += 'node [height = .5, width = .5];\n'
         # Nodes
         for i, s in self._states.items():
