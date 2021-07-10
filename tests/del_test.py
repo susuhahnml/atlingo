@@ -63,6 +63,9 @@ def parse_model(m):
     for sym in m.symbols(shown=True):
         if sym.name=="holds_map":
             ret.append((sym.arguments[0].number, '"{}"'.format(tuple2str(sym.arguments[1])) ))
+        if str(sym) in ["empty","not_empty","error_branching","error_contradiction"]:
+            ret.append(str(sym))
+            
     return sort_trace(ret)
 
 def solve(const=[], files=[],inline_data=[]):
@@ -87,6 +90,14 @@ def translate(constraint,extra=[],app='afw',horizon=3):
     print(command)
     subprocess.check_output(command.split())
 
+
+def empty_check(constraint,horizon=3,app="afw"):
+    translate(constraint,app=app,horizon=horizon)
+
+    automata_path = "outputs/test/{}/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app, logic,app)
+    paths = [automata_path, "automata_run/empty.lp"]
+
+    return solve(["--warn=none"],paths,[])
 
 def run_check(constraint,trace="",horizon=3,app="afw",generate=False,extra_files=[]):
     translate(constraint,app=app,horizon=horizon)
@@ -385,6 +396,216 @@ class TestMain(TestCase):
         result = run_check(":-not &del{ * (?q) .>* p}.",trace="p(0).",horizon=2)
         self.assert_sat(result)
 
+    def test_check_telingo(self):
+        self.maxDiff=None
+
+        ######### Examples using simple env starting actions in timepoint 0.
+
+        # Boolean constats
+
+        result = run_check(":- not &del{ &true }.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":- not &del{ &true }.",trace="",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":- not &del{ &true }.",trace="",horizon=0,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":- not &del{ &false }.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        result = run_check(":- not &del{ &false }.",trace="",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        result = run_check(":- not &del{ &false }.",trace="",horizon=0,app="telingo")
+        self.assert_unsat(result)
+
+
+        # Atoms
+
+        result = run_check(":- not &del{ p }.",trace="p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":- not &del{ p }.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        # Step (Diamond)
+        result = run_check(":- not &del{ &true .>? p}.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+        
+        result = run_check(":-not &del{ &true .>? p}.",trace="",horizon=2,app="telingo")
+        self.assert_unsat(result)   
+        
+        result = run_check(":-not &del{ &true .>? p}.",trace="",horizon=0,app="telingo")
+        self.assert_unsat(result)   
+
+        result = run_check(":-not &del{ &true .>? p}.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+        
+        # Step (Box)
+        result = run_check(":-not &del{ &true .>* p}.",trace="",horizon=2,app="telingo")
+        self.assert_unsat(result)   
+        
+        result = run_check(":-not &del{ &true .>* p}.",trace="p(1).",horizon=2,app="telingo")
+        ## self.assert_all([[(1,'"p"')]],result)   
+        
+        result = run_check(":-not &del{ &true .>* p}.",trace="q(2).",horizon=2,app="telingo")
+        self.assert_unsat(result)   
+
+        result = run_check(":-not &del{ &true .>* p}.",trace="",horizon=0,app="telingo")
+        #self.assert_all([[(0,'"last"')]],result)
+        self.assert_sat(result)   
+        
+
+        # Test construct (Diamond)
+        
+        result = run_check(":-not &del{ ?q .>? p}.",trace="q(0). p(0).",horizon=2,app="telingo")
+        ## self.assert_all([[(0,'"q"'),(0,'"p"')]],result)
+
+        result = run_check(":-not &del{ ?q .>? p}.",trace="",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        #TODO add tests for test on negation
+        
+        # Test construct (Box)
+
+        result = run_check(":-not &del{ ?q .>* p}.",trace="",horizon=2,app="telingo")
+        #self.assert_all([[(2,'"last"')]],result)     
+
+        result = run_check(":-not &del{ ?q .>* p}.",trace="q(2).",horizon=2,app="telingo")
+        ## self.assert_all([[(2,'"q"')]],result)     
+
+
+        # Sequence (Diamond)
+
+        result = run_check(":-not &del{ ?q ;; &true .>? p}.",trace="q(0). p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; ?p .>? &true}.",trace="q(0). p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; ?p .>? &true}.",trace="q(0).",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        # Sequence (Box)
+
+        result = run_check(":-not &del{ ?q ;; &true .>* p}.",trace="q(0). p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; &true .>* p}.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; &true .>* p}.",trace="",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0). p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        # Choice (Diamond)
+
+        result = run_check(":-not &del{ ?q + &true .>? p}.",trace="q(0). p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + &true .>? p}.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="p(0).q(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+
+        # Choice (Box)
+
+        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="q(0). p(0).",horizon=0,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="",horizon=0,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).q(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        # Star (Diamond)
+        
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="p(0).",horizon=0,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="",horizon=0,app="telingo")
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="q(0).p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="q(0).q(1).p(2).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="q(0).q(1).",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q) .>? p}.",trace="p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        # Star (Box)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="p(0).",horizon=0,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="",horizon=0,app="telingo")
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="p(1).",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).p(1).p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).q(1).p(2).p(0).p(1).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).q(1).",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).q(1).p(1).",horizon=2,app="telingo")
+        self.assert_unsat(result)
+
+        result = run_check(":-not &del{ * (?q) .>* p}.",trace="p(0).",horizon=2,app="telingo")
+        self.assert_sat(result)
+
+
+    
     def test_asprilo(self):
 
         ######### Examples using asprilo env starting actions in timepoint 1.
@@ -601,213 +822,61 @@ class TestMain(TestCase):
             """
 
         result = run_check(a,trace="",horizon=3,generate=True)
-    def test_check_telingo(self):
-        self.maxDiff=None
-
-        ######### Examples using simple env starting actions in timepoint 0.
-
-        # Boolean constats
-
-        result = run_check(":- not &del{ &true }.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":- not &del{ &true }.",trace="",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":- not &del{ &true }.",trace="",horizon=0,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":- not &del{ &false }.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        result = run_check(":- not &del{ &false }.",trace="",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        result = run_check(":- not &del{ &false }.",trace="",horizon=0,app="telingo")
-        self.assert_unsat(result)
-
-
-        # Atoms
-
-        result = run_check(":- not &del{ p }.",trace="p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":- not &del{ p }.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        # Step (Diamond)
-        result = run_check(":- not &del{ &true .>? p}.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-        
-        result = run_check(":-not &del{ &true .>? p}.",trace="",horizon=2,app="telingo")
-        self.assert_unsat(result)   
-        
-        result = run_check(":-not &del{ &true .>? p}.",trace="",horizon=0,app="telingo")
-        self.assert_unsat(result)   
-
-        result = run_check(":-not &del{ &true .>? p}.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-        
-        # Step (Box)
-        result = run_check(":-not &del{ &true .>* p}.",trace="",horizon=2,app="telingo")
-        self.assert_unsat(result)   
-        
-        result = run_check(":-not &del{ &true .>* p}.",trace="p(1).",horizon=2,app="telingo")
-        ## self.assert_all([[(1,'"p"')]],result)   
-        
-        result = run_check(":-not &del{ &true .>* p}.",trace="q(2).",horizon=2,app="telingo")
-        self.assert_unsat(result)   
-
-        result = run_check(":-not &del{ &true .>* p}.",trace="",horizon=0,app="telingo")
-        #self.assert_all([[(0,'"last"')]],result)
-        self.assert_sat(result)   
-        
-
-        # Test construct (Diamond)
-        
-        result = run_check(":-not &del{ ?q .>? p}.",trace="q(0). p(0).",horizon=2,app="telingo")
-        ## self.assert_all([[(0,'"q"'),(0,'"p"')]],result)
-
-        result = run_check(":-not &del{ ?q .>? p}.",trace="",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        #TODO add tests for test on negation
-        
-        # Test construct (Box)
-
-        result = run_check(":-not &del{ ?q .>* p}.",trace="",horizon=2,app="telingo")
-        #self.assert_all([[(2,'"last"')]],result)     
-
-        result = run_check(":-not &del{ ?q .>* p}.",trace="q(2).",horizon=2,app="telingo")
-        ## self.assert_all([[(2,'"q"')]],result)     
-
-
-        # Sequence (Diamond)
-
-        result = run_check(":-not &del{ ?q ;; &true .>? p}.",trace="q(0). p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q ;; ?p .>? &true}.",trace="q(0). p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q ;; ?p .>? &true}.",trace="q(0).",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        # Sequence (Box)
-
-        result = run_check(":-not &del{ ?q ;; &true .>* p}.",trace="q(0). p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q ;; &true .>* p}.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q ;; &true .>* p}.",trace="",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0). p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        # Choice (Diamond)
-
-        result = run_check(":-not &del{ ?q + &true .>? p}.",trace="q(0). p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + &true .>? p}.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="p(0).q(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + ?p .>? &true}.",trace="",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-
-        # Choice (Box)
-
-        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="q(0). p(0).",horizon=0,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + &true .>* p}.",trace="",horizon=0,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).q(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        # Star (Diamond)
-        
-        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="p(0).",horizon=0,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="",horizon=0,app="telingo")
-        self.assert_unsat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="q(0).p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="q(0).q(1).p(2).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>? p}.",trace="q(0).q(1).",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        result = run_check(":-not &del{ * (?q) .>? p}.",trace="p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        # Star (Box)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="p(0).",horizon=0,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="",horizon=0,app="telingo")
-        self.assert_unsat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="p(1).",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).p(1).p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).q(1).p(2).p(0).p(1).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).q(1).",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        result = run_check(":-not &del{ * (?q ;; &true) .>* p}.",trace="q(0).q(1).p(1).",horizon=2,app="telingo")
-        self.assert_unsat(result)
-
-        result = run_check(":-not &del{ * (?q) .>* p}.",trace="p(0).",horizon=2,app="telingo")
-        self.assert_sat(result)
-
 
     
+
+    def test_empty(self):
+
+        a = ":- not &del{ ?((* &true) .>* &true .>? b) .>? a }."
+        result = empty_check(a,horizon=3,app="dfa-mso")[0]
+        assert "empty" in result
+
+        a = ":- not &del{ ?((* &true) .>* &true .>? b) .>? a }."
+        result = empty_check(a,horizon=3,app="dfa-stm")[0]
+        assert "empty" in result
+
+        a = ":- not &del{ ?((* &true) .>* &true .>? b) .>? a }."
+        result = empty_check(a,horizon=3,app="nfa")[0]
+        assert "empty" in result
+
+        a = ":- not &del{ ?((* &true) .>* &true .>? b) .>? a }."
+        result = empty_check(a,horizon=3,app="afw")[0]
+        assert "error_branching" in result
+
+        a = ":- not &del{ ?a .>? &false}."
+        result = empty_check(a,horizon=3,app="afw")[0]
+        assert "empty" in result
+
+
+        a = ":- not &del{ ? ((* &true) .>* b) +  ? (&true .>? a) .>? &true }."
+        result = empty_check(a,horizon=3,app="afw")[0]
+        assert "not_empty" in result
+
+        a = ":- not &del{ ? ((* &true) .>* b) +  ? (&true .>? a) .>? &true }."
+        result = empty_check(a,horizon=3,app="afw")[0]
+        assert "not_empty" in result
+
+        a = ":- not &del{ ? ((* &true) .>* b) +  ? (&true .>? a) .>? &true }."
+        result = empty_check(a,horizon=3,app="nfa")[0]
+        assert "not_empty" in result
+
+        a = ":- not &del{ ? ((* &true) .>* b) +  ? (&true .>? a) .>? &true }."
+        result = empty_check(a,horizon=3,app="dfa-mso")[0]
+        assert "not_empty" in result
+
+
+        a = ":- not &del{ (* &true) .>* ?a ;; ? ~a .>? &true }."
+        result = empty_check(a,horizon=3,app="afw")[0]
+        assert "empty" in result
+
+        a = ":- not &del{ (* &true) .>* ?a ;; ? ~a .>? &true }."
+        result = empty_check(a,horizon=3,app="nfa")[0]
+        assert "empty" in result
+
+        a = ":- not &del{ (* &true) .>* ?a + ? ~a .>? &true }."
+        result = empty_check(a,horizon=3,app="afw")[0]
+        assert "not_empty" in result
+
+        a = ":- not &del{ (* &true) .>* ?a + ? ~a .>? &true }."
+        result = empty_check(a,horizon=3,app="nfa")[0]
+        assert "not_empty" in result

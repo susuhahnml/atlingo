@@ -23,7 +23,7 @@
 % :- not &del{ p }.
 
 
-:- not &del{ ? ((* &true) .>* b) +  ? (&true .>? a) .>? &true }.
+% :- not &del{ ? ((* &true) .>* b) +  ? (&true .>? a) .>? &true }.
 
 
-% :- not &del{ ? ((* &true) .>* ? b ;; &true .>? b) +  ? (&true .>? ?a ;; ?c ;; &true .>? a) .>? &true }.
+:- not &del{ ? ((* &true) .>* ? b ;; &true .>? b) +  ? (&true .>? ?a ;; ?c ;; &true .>? a) .>? &true }.
