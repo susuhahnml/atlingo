@@ -136,10 +136,8 @@ class LDLfFormula():
         """
         Creates an LDLfFormula from a symbol used in the Automta Encoding. 
         """
-        print(symbol)
         if symbol.type == _clingo.SymbolType.Function and symbol.name =="":
             print("WARNING: Loading unkown symbol, treated as string")
-            print(symbol)
             return LDLfFormula(str(symbol))
         if symbol.name in del_operators_names:
             class_name = "LDLf" + del_operators_names[symbol.name]
@@ -247,9 +245,9 @@ class LDLfFormula():
         
         with open(name, "w+") as file:
             file.write(mso_string)
-        print(mso_string)
+        # print(mso_string)
         mona_dfa = invoke_mona(f"mona -q -w {name}")
-        print(mona_dfa)
+        # print(mona_dfa)
 
         return NFA.from_mona(mona_dfa, n_old_states=n_old_states, state_prefix=state_prefix, id2prop=id2prop, mona2prop=mona2prop)
 

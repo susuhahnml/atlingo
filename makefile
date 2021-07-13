@@ -57,7 +57,7 @@ viz-latex:
 
 	# python ./scripts/translater.py --input=afw --app=$(APP) --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
 
-	python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex --labels
+	python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex
 	
 	# @ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
 
@@ -78,6 +78,8 @@ viz-png:
 	python scripts/viz.py --app=$(APP) --env_app=$(ENV_APP) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE)
 	
 	@ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
+
+	open $(PATH_OUT)/$(APP)_automata.png
 
 
 tests:
