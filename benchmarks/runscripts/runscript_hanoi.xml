@@ -1,12 +1,12 @@
-<runscript output="output/elevator-abc/{APP}__h-{H}__n-{N}">
+<runscript output="output/hanoi-abc/{APP}__h-{H}__n-{N}">
 
 	<machine name="komputer" cpu="24x8xE5520@2.27GHz" memory="24GB"/>
 	
-	<config name="seq-elevator" template="../programs/seq-elevator.sh"/>
+	<config name="seq-hanoi" template="../programs/seq-hanoi.sh"/>
   
-	<system name="general_compute" version="1" measures="clingo" config="seq-elevator">
+	<system name="general_compute" version="1" measures="clingo" config="seq-hanoi">
 
-		<setting name="alternate" cmdline="{APP} elevator {H} {N} del alternate {CLINGO_ARGS}" tag="basic" />
+		<setting name="alternate" cmdline="{APP} hanoi {H} {N} del alternate {CLINGO_ARGS}" tag="basic" />
 		
     </system>
 

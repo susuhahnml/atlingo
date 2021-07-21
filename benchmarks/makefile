@@ -74,12 +74,12 @@ asprilo-abc-all-instance:
 hanoi-clean-instances:
 	rm -rf ./instances/hanoi/*
 	rm -rf ./instances/hanoi/*
-hanoi-small-instances:
+hanoi-small-instance:
 	mkdir -p ./instances/hanoi
 	cp -r ../env/hanoi/instances/4_disks.lp ./instances/hanoi
-hanoi-medium-instances:
+hanoi-medium-instance:
 	mkdir -p ./instances/hanoi
 	cp -r ../env/hanoi/instances/5_disks.lp ./instances/hanoi
-hanoi-big-instances:
+hanoi-big-instance:
 	mkdir -p ./instances/hanoi
 	cp -r ../env/hanoi/instances/6_disks.lp ./instances/hanoi
