@@ -19,9 +19,15 @@ state_nfa_set_indexed(X,N,D) :- state_nfa_set(X,N),
                                 #count{N': state_nfa_set(X,N'), N<N'}=D.
 
 % Initial is set containing only initial afw
-initial_state_nfa(X):- state_nfa_set(X), state_nfa_set(X,ID), 
-                        initial_state(ID), 
-                        #count{ID': state_nfa_set(X,ID'), ID'!=ID}=0. 
+% initial_state_nfa(X):- state_nfa_set(X), state_nfa_set(X,ID), 
+%                         initial_state(ID), 
+%                         #count{ID': state_nfa_set(X,ID'), ID'!=ID}=0. 
+
+% Initial is set containing all initial afw states
+initial_state_nfa(X):- state_nfa_set(X), 
+                        #false: state_nfa_set(X,ID), not initial_state(ID);
+                        #false: not state_nfa_set(X,ID), initial_state(ID).
+
 % initial_state_nfa(1).
 
 % Use only reacheble

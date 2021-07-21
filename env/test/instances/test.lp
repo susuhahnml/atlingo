@@ -7,3 +7,6 @@
 time(0..horizon).
 {p(T)}:-time(T).
 {q(T)}:-time(T).
+
+#show p/1.
+#show q/1.

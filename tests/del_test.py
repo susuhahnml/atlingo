@@ -82,11 +82,11 @@ def solve(const=[], files=[],inline_data=[]):
     ctl.solve(on_model= lambda m: r.append(parse_model(m)))
     return sorted(r)
 
-def translate(constraint,extra=[],app='afw',horizon=3):
+def translate(constraint,extra="",app='afw',horizon=3):
     cons_file = "env/test/temporal_constraints/{}/cons_tmp.lp".format(logic)
     with open(cons_file, 'w') as f:
         f.write(constraint)
-    command = 'make translate APP={} LOGIC={} CONSTRAINT=cons_tmp ENV_APP=test INSTANCE=env/test/instances/instance_tmp.lp APP={} HORIZON={}'.format(app,logic,app,horizon) 
+    command = 'make translate APP={} LOGIC={} CONSTRAINT=cons_tmp ENV_APP=test INSTANCE=env/test/instances/instance_tmp.lp APP={} HORIZON={} {}'.format(app,logic,app,horizon,extra) 
     print(command)
     subprocess.check_output(command.split())
 
@@ -99,8 +99,8 @@ def empty_check(constraint,horizon=3,app="afw"):
 
     return solve(["--warn=none"],paths,[])
 
-def run_check(constraint,trace="",horizon=3,app="afw",generate=False,extra_files=[]):
-    translate(constraint,app=app,horizon=horizon)
+def run_check(constraint,trace="",horizon=3,app="afw",generate=False,extra_files=[],extra_args=""):
+    translate(constraint,app=app,horizon=horizon,extra=extra_args)
 
     automata_path = "outputs/test/{}/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app, logic,app)
     run_files = {
@@ -615,7 +615,7 @@ class TestMain(TestCase):
         result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,extra_files=["env/asprilo-md/glue.lp"])
         self.assert_sat(result)
 
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=2,extra_files=["env/asprilo-md/glue.lp"])
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=3,extra_files=["env/asprilo-md/glue.lp"])
         self.assert_unsat(result)
 
     def test_multiple(self):
@@ -630,6 +630,15 @@ class TestMain(TestCase):
         result = run_check(":- not &del{ &true .>? p }. :- not &del{ &true .>? q }.",trace="p(1).",horizon=2)
         self.assert_unsat(result)
 
+        #Test with join 
+        result = run_check(":- not &del{ &true .>? p }. :- not &del{ &true .>? q }.",trace="p(1).q(1).",horizon=2,extra_args="JOIN=1")
+        self.assert_sat(result)
+
+        result = run_check(":- not &del{ &true .>? p }. :- not &del{ &true .>? q }.",trace="q(1).",horizon=2,extra_args="JOIN=1")
+        self.assert_unsat(result)
+
+        result = run_check(":- not &del{ &true .>? p }. :- not &del{ &true .>? q }.",trace="p(1).",horizon=2,extra_args="JOIN=1")
+        self.assert_unsat(result)
 
     def test_special(self):
         self.maxDiff=None
@@ -650,33 +659,35 @@ class TestMain(TestCase):
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")
         self.assertEqual(formulas[0]._rep,"<(&skip)>b")
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a ;; * (? a + ?b ;; &true) .>? b}.")
-        self.assertEqual(formulas[0]._rep,"<a?;;a?+b?;;(&skip)*>b")
+        self.assertEqual(formulas[0]._rep,"<a?;;(a?+b?;;(&skip))*>b")
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a(X) .>* &true}, p(X). p(1). p(2).")
         self.assertEqual(len(formulas),2)
         self.assertEqual(formulas[0]._rep,"[a(1)?] &true ")
         self.assertEqual(formulas[1]._rep,"[a(2)?] &true ")
-          
-    def test_ldl2ltl(self):
 
-        formula = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")[0]
-        ltlf_formula = formula.ltlf_main()
+    # Outdated 
+
+    # def test_ldl2ltl(self):
+
+    #     formula = LDLfFormula.from_lp(inline_data= ":- not &del{&true .>? b}.")[0]
+    #     ltlf_formula = formula.ltlf_main()
         
-        a_0 = LTLfAtomic('l_0')
-        b = LTLfAtomic('b')
-        next_b = LTLfNext(b)
-        self.assertEqual(ltlf_formula,next_b)
+    #     a_0 = LTLfAtomic('l_0')
+    #     b = LTLfAtomic('b')
+    #     next_b = LTLfNext(b)
+    #     self.assertEqual(ltlf_formula,next_b)
 
-        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ? a ;; &true .>? b}.")[0]
-        ltlf_formula = formula.ltlf_main()
-        self.assertEqual(str(ltlf_formula),"(l_0 & G((l_0 <-> (a & X(b)))))")
+    #     formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ? a ;; &true .>? b}.")[0]
+    #     ltlf_formula = formula.ltlf_main()
+    #     self.assertEqual(str(ltlf_formula),"(l_0 & G((l_0 <-> (a & X(b)))))")
 
 
-        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
-        ltlf_formula = formula.ltlf_main()
-        self.assertEqual(str(ltlf_formula),"((l_0 & G((l_0 <-> (b | l_1)))) & G((l_1 <-> (a & X(l_0)))))")
+    #     formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *(? a;; &true) .>? b}.")[0]
+    #     ltlf_formula = formula.ltlf_main()
+    #     self.assertEqual(str(ltlf_formula),"((l_0 & G((l_0 <-> (b | l_1)))) & G((l_1 <-> (a & X(l_0)))))")
 
-        formula = LDLfFormula.from_lp(inline_data= ":- not &del{ &true }.")[0]
-        ltlf_formula = formula.ltlf_main()
+    #     formula = LDLfFormula.from_lp(inline_data= ":- not &del{ &true }.")[0]
+    #     ltlf_formula = formula.ltlf_main()
 
     def test_translation(self):
 
@@ -732,18 +743,20 @@ class TestMain(TestCase):
     def test_closure(self):
         formula = LDLfFormula.from_lp(inline_data= ":-not &del{ * ((?p + ?q) ;; &true)  .>* ?r .>? &true}.")[0]
         # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ * (?q) .>* ?p .>? &true .>? q}.")[0]
-        closure = [c._rep.replace(" ","") for c in formula.closure(set([]))]
+        s = set([])
+        formula.closure(s)
+        closure = [c._rep.replace(" ","") for c in s]
         assert "p" in closure
-        assert "[(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
-        assert "[p?+q?;;(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
-        assert "[p?+q?][(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
-        assert "[p?][(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
-        assert "[q?][(&skip)][p?+q?;;(&skip)*]<r?>&true" in closure
+        assert "[(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
+        assert "[p?+q?;;(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
+        assert "[p?+q?][(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
+        assert "[p?][(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
+        assert "[q?][(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
         assert "r" in closure
         assert "<r?>&true" in closure
         assert "&true" in closure
         assert "q" in closure
-        assert "[p?+q?;;(&skip)*]<r?>&true" in closure
+        assert "[(p?+q?;;(&skip))*]<r?>&true" in closure
 
     def test_ldlf2mona(self):
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ( ?a + ?c ) ;; &true .>? ?b .>? &true .>* &false }.")[0]
@@ -770,11 +783,12 @@ class TestMain(TestCase):
 
 
         print("----------- Vardi using closure --------------")
-        mona_string = formula.mso_main()
+        mona_string, mona2prop = formula.mso_main()
         createMonafile(mona_string)
         print(mona_string)
         mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        nfa = NFA.from_mona(mona_dfa)
+
+        nfa = NFA.from_mona(mona_dfa,mona2prop=mona2prop)
         nfa.save_png(file="outputs/automata_mso_viz")
 
 
@@ -789,11 +803,11 @@ class TestMain(TestCase):
 
 
         print("----------- Blue book no star --------------")
-        mona_string = formula.stm_main()
+        mona_string, mona2prop = formula.stm_main()
         createMonafile(mona_string)
         print(mona_string)
         mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        nfa = NFA.from_mona(mona_dfa)
+        nfa = NFA.from_mona(mona_dfa, mona2prop=mona2prop)
         nfa.save_png(file="outputs/automata_blue_viz")
         
 

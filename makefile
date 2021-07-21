@@ -9,6 +9,7 @@ $(eval APP ?= afw)
 $(eval LOGIC ?= del)
 $(eval MODELS ?= 1)
 $(eval FORCE_TRANSLATE ?= 1)
+$(eval JOIN ?= 0)
 $(eval NAME_INSTANCE = $(basename $(notdir $(INSTANCE))))
 $(eval PATH_OUT = ./outputs/$(ENV_APP)/$(APP)/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE))
 $(eval PATH_TO_TELINGO = benchmarks/telingo)
@@ -32,6 +33,9 @@ $(eval RUN_APP_FILES_nfa-afw = automata_run/run.lp env/$(ENV_APP)/glue.lp)
 $(eval RUN_ENV_FILES_asprilo-md = env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp env/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp env/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_asprilo-abc = env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/encoding-a.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/quantities.lp env/asprilo/asprilo-abstraction-encodings/asprilo-encodings/control/highways.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_elevator = env/elevator/encoding.lp $(RUN_FILES))
+$(eval RUN_ENV_FILES_hanoi = env/hanoi/encoding.lp $(RUN_FILES))
+$(eval RUN_ENV_FILES_river = env/river/encoding.lp $(RUN_FILES))
+$(eval RUN_ENV_FILES_yale = env/yale/encoding.lp $(RUN_FILES))
 $(eval RUN_ENV_FILES_test = $(RUN_FILES))
 $(eval RUN_ENV_FILES_nc = $(RUN_FILES))
 
@@ -168,11 +172,21 @@ translate-afw:
 	@ printf "$(B)Translating.... $(NC)\n"
 	clingo $(PATH_OUT)/reified.lp ./formula_to_automaton/automata_$(LOGIC).lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/afw_automata.lp
 
+
+	@if [ "$(JOIN)" = "1" ]; then \
+		printf "$(Y)Joining afw... $(NC)\n";\
+		clingo afw2nfa/joinafw.lp $(PATH_OUT)/afw_automata.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none  | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/tmp_afw_automata.lp ;\
+		cat $(PATH_OUT)/tmp_afw_automata.lp >   $(PATH_OUT)/afw_automata.lp;\
+		rm $(PATH_OUT)/tmp_afw_automata.lp;\
+		printf "$(G)Join afw successfull $(NC)\n";\
+	fi;
+
+
 generate-traces:
 
 	@ printf "$BGenerating traces for automaton... $(NC)\n"
 
-	clingo $(PATH_OUT)/afw_automata.lp automata_run/run.lp  automata_run/trace_generator.lp -c horizon=$(HORIZON)
+	clingo $(PATH_OUT)/$(APP)_automata.lp automata_run/run.lp  automata_run/trace_generator.lp -c horizon=$(HORIZON) -n $(MODELS)
 
 
 ######################  TELINGO ########################
@@ -226,3 +240,4 @@ translate-nfa-afw:
 
 viz-asprilo:
 	sed -n "4,5p" $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt | viz
+

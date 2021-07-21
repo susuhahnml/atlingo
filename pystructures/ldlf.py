@@ -219,6 +219,8 @@ class LDLfFormula():
         """
         Obtains the equivalent LTLf formula using the classes from whitemensh
         """
+        # This is outdated
+        return NotImplementedError
         eqs = []
         rep2lit = {}
         ltl = self.ltlf(eqs,rep2lit)
@@ -283,12 +285,14 @@ class LDLfFormula():
         Returns: 
             The new introduced variable as a string
         """
+        print("ERROR: {}".format(self) )
         raise NotImplementedError
 
     def closure(self, subformulas):
         """
         Adds the closure of the formula to the set of subformulas
         """
+        print("ERROR: {}".format(self) )
         raise NotImplementedError
 
     def __str__(self):
