@@ -57,7 +57,7 @@ make hanoi-small-instance
 ./run_bm.sh hanoi dfa-mso 17 0 proj --project=show
 ./run_bm.sh hanoi dfa-stm 17 0 proj --project=show
 
-
+make hanoi-clean-instances
 make hanoi-medium-instance
 
 ./run_bm.sh hanoi nc 30 0
@@ -96,6 +96,7 @@ make hanoi-medium-instance
 ./run_bm.sh hanoi dfa-stm 33 0
 ./run_bm.sh hanoi dfa-stm 34 0
 
+make hanoi-clean-instances
 make hanoi-big-instance
 
 ./run_bm.sh hanoi nc 62 0
