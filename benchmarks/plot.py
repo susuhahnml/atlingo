@@ -144,11 +144,13 @@ def clean_df(df):
         df.drop(df.index[instances_to_drop], inplace=True)
 
     #Rename
-    def rename_robots(i):
-        return i.split("/")[1].split("_")[3]
-    # def rename_floors(i):
-    #     return i.split("/")[1].split("_")[0]
-    df['instance-name']=df['instance-name'].apply(rename_robots)
+    # def rename_robots(i):
+    #     return i.split("/")[1].split("_")[3]
+    def rename(i):
+        return i.split("/")[1].split("_")[0]
+    def rename(i):
+        return i[:-3]
+    df['instance-name']=df['instance-name'].apply(rename)
 
     # print(df)
     return df
@@ -233,6 +235,7 @@ elif args.type == "bar":
         "dfa-mso":"#D6D4FF",
         "dfa-stm":"#B3EEFF",
         "nfa":"#FFCBA5",
+        "nfa-afw":"#FFE2A5",
         "telingo":"#FFEEA5"
     }
     colors = [approaches_colors[a] for a in approaches]
