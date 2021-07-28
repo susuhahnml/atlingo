@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument('--in-files', type=str, 
                         help='Path for ldlf constraint or afw representation')
     
-    parser.add_argument("--viz", default=False, action='store_true',
+    parser.add_argument("--viz", default=True, action='store_true',
         help="Save automaton vizualization")
     parser.add_argument("--multiple-dfa", default=True, action='store_true',
         help="Use multiple DFAs instead of conjunction")

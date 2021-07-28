@@ -21,4 +21,4 @@
 % force dead
 :- not &del{ * &true .>* ?( &true .>* &false) .>* ~alive }.
 % force never load
-% :- not &del{ * &true .>* ~load }.
+:- not &del{ * &true .>* ~load }.

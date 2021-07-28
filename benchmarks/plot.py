@@ -144,12 +144,12 @@ def clean_df(df):
         df.drop(df.index[instances_to_drop], inplace=True)
 
     #Rename
-    # def rename_robots(i):
-    #     return i.split("/")[1].split("_")[3]
     def rename(i):
-        return i.split("/")[1].split("_")[0]
-    def rename(i):
-        return i[:-3]
+        return i.split("/")[1].split("_")[3]
+    # def rename(i):
+    #     return i.split("/")[1].split("_")[0]
+    # def rename(i):
+    #     return i[:-3]
     df['instance-name']=df['instance-name'].apply(rename)
 
     # print(df)
