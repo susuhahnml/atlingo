@@ -245,11 +245,14 @@ class NFA(Automata):
     @classmethod
     def from_mona(cls, mona, n_old_states=0, state_prefix="", id2prop=None, mona2prop=None):
         if mona == False:
-            raise Exception("Error in mona: \n{}".format(mona))
+            print("Error in mona: \n{}".format(mona))
+            raise TimeoutError(mona)
         if "Execution aborted" in mona:
-            raise Exception("Error in mona: \n{}".format(mona))
+            print("Error in mona: \n{}".format(mona))
+            raise TimeoutError(mona)
         if "BDD too large " in mona[:20]:
-            raise Exception("Error in mona: \n{}".format(mona))
+            print("Error in mona: \n{}".format(mona))
+            raise TimeoutError(mona)
 
 
         id2prop = {} if id2prop is None else id2prop
