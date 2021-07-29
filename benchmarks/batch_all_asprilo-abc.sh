@@ -10,45 +10,45 @@ cd benchmarks
 make asprilo-clean-instances
 make asprilo-abc-robots-instance
 
-./run_bm.sh asprilo-abc afw 24 0
-./run_bm.sh asprilo-abc afw 25 0
-./run_bm.sh asprilo-abc afw 26 0
-./run_bm.sh asprilo-abc afw 27 0
-./run_bm.sh asprilo-abc afw 28 0
-./run_bm.sh asprilo-abc afw 29 0
-./run_bm.sh asprilo-abc afw 30 0
+# ./run_bm.sh asprilo-abc afw 24 0
+# ./run_bm.sh asprilo-abc afw 25 0
+# ./run_bm.sh asprilo-abc afw 26 0
+# ./run_bm.sh asprilo-abc afw 27 0
+# ./run_bm.sh asprilo-abc afw 28 0
+# ./run_bm.sh asprilo-abc afw 29 0
+# ./run_bm.sh asprilo-abc afw 30 0
 
-./run_bm.sh asprilo-abc telingo 24 0
-./run_bm.sh asprilo-abc telingo 25 0
-./run_bm.sh asprilo-abc telingo 26 0
-./run_bm.sh asprilo-abc telingo 27 0
-./run_bm.sh asprilo-abc telingo 28 0
-./run_bm.sh asprilo-abc telingo 29 0
-./run_bm.sh asprilo-abc telingo 30 0
+# ./run_bm.sh asprilo-abc telingo 24 0
+# ./run_bm.sh asprilo-abc telingo 25 0
+# ./run_bm.sh asprilo-abc telingo 26 0
+# ./run_bm.sh asprilo-abc telingo 27 0
+# ./run_bm.sh asprilo-abc telingo 28 0
+# ./run_bm.sh asprilo-abc telingo 29 0
+# ./run_bm.sh asprilo-abc telingo 30 0
 
-./run_bm.sh asprilo-abc dfa-mso 24 0
-./run_bm.sh asprilo-abc dfa-mso 25 0
-./run_bm.sh asprilo-abc dfa-mso 26 0
-./run_bm.sh asprilo-abc dfa-mso 27 0
-./run_bm.sh asprilo-abc dfa-mso 28 0
-./run_bm.sh asprilo-abc dfa-mso 29 0
-./run_bm.sh asprilo-abc dfa-mso 30 0
+# ./run_bm.sh asprilo-abc dfa-mso 24 0
+# ./run_bm.sh asprilo-abc dfa-mso 25 0
+# ./run_bm.sh asprilo-abc dfa-mso 26 0
+# ./run_bm.sh asprilo-abc dfa-mso 27 0
+# ./run_bm.sh asprilo-abc dfa-mso 28 0
+# ./run_bm.sh asprilo-abc dfa-mso 29 0
+# ./run_bm.sh asprilo-abc dfa-mso 30 0
 
-./run_bm.sh asprilo-abc dfa-smt 24 0
-./run_bm.sh asprilo-abc dfa-smt 25 0
-./run_bm.sh asprilo-abc dfa-smt 26 0
-./run_bm.sh asprilo-abc dfa-smt 27 0
-./run_bm.sh asprilo-abc dfa-smt 28 0
-./run_bm.sh asprilo-abc dfa-smt 29 0
-./run_bm.sh asprilo-abc dfa-smt 30 0
+./run_bm.sh asprilo-abc dfa-stm 24 0
+./run_bm.sh asprilo-abc dfa-stm 25 0
+./run_bm.sh asprilo-abc dfa-stm 26 0
+./run_bm.sh asprilo-abc dfa-stm 27 0
+./run_bm.sh asprilo-abc dfa-stm 28 0
+./run_bm.sh asprilo-abc dfa-stm 29 0
+./run_bm.sh asprilo-abc dfa-stm 30 0
 
-./run_bm.sh asprilo-abc nc 24 0
-./run_bm.sh asprilo-abc nc 25 0
-./run_bm.sh asprilo-abc nc 26 0
-./run_bm.sh asprilo-abc nc 27 0
-./run_bm.sh asprilo-abc nc 28 0
-./run_bm.sh asprilo-abc nc 29 0
-./run_bm.sh asprilo-abc nc 30 0
+# ./run_bm.sh asprilo-abc nc 24 0
+# ./run_bm.sh asprilo-abc nc 25 0
+# ./run_bm.sh asprilo-abc nc 26 0
+# ./run_bm.sh asprilo-abc nc 27 0
+# ./run_bm.sh asprilo-abc nc 28 0
+# ./run_bm.sh asprilo-abc nc 29 0
+# ./run_bm.sh asprilo-abc nc 30 0
 
 
 # make clean -s
