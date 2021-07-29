@@ -34,13 +34,13 @@ make asprilo-abc-robots-instance
 # ./run_bm.sh asprilo-abc dfa-mso 29 0
 # ./run_bm.sh asprilo-abc dfa-mso 30 0
 
-./run_bm.sh asprilo-abc dfa-stm 24 0
-./run_bm.sh asprilo-abc dfa-stm 25 0
-./run_bm.sh asprilo-abc dfa-stm 26 0
-./run_bm.sh asprilo-abc dfa-stm 27 0
-./run_bm.sh asprilo-abc dfa-stm 28 0
-./run_bm.sh asprilo-abc dfa-stm 29 0
-./run_bm.sh asprilo-abc dfa-stm 30 0
+# ./run_bm.sh asprilo-abc dfa-stm 24 0
+# ./run_bm.sh asprilo-abc dfa-stm 25 0
+# ./run_bm.sh asprilo-abc dfa-stm 26 0
+# ./run_bm.sh asprilo-abc dfa-stm 27 0
+# ./run_bm.sh asprilo-abc dfa-stm 28 0
+# ./run_bm.sh asprilo-abc dfa-stm 29 0
+# ./run_bm.sh asprilo-abc dfa-stm 30 0
 
 # ./run_bm.sh asprilo-abc nc 24 0
 # ./run_bm.sh asprilo-abc nc 25 0
@@ -49,6 +49,47 @@ make asprilo-abc-robots-instance
 # ./run_bm.sh asprilo-abc nc 28 0
 # ./run_bm.sh asprilo-abc nc 29 0
 # ./run_bm.sh asprilo-abc nc 30 0
+
+
+./run_bm.sh asprilo-abc afw 24 1
+./run_bm.sh asprilo-abc afw 25 1
+./run_bm.sh asprilo-abc afw 26 1
+./run_bm.sh asprilo-abc afw 27 1
+./run_bm.sh asprilo-abc afw 28 1
+./run_bm.sh asprilo-abc afw 29 1
+./run_bm.sh asprilo-abc afw 30 1
+
+./run_bm.sh asprilo-abc telingo 24 1
+./run_bm.sh asprilo-abc telingo 25 1
+./run_bm.sh asprilo-abc telingo 26 1
+./run_bm.sh asprilo-abc telingo 27 1
+./run_bm.sh asprilo-abc telingo 28 1
+./run_bm.sh asprilo-abc telingo 29 1
+./run_bm.sh asprilo-abc telingo 30 1
+
+./run_bm.sh asprilo-abc dfa-mso 24 1
+./run_bm.sh asprilo-abc dfa-mso 25 1
+./run_bm.sh asprilo-abc dfa-mso 26 1
+./run_bm.sh asprilo-abc dfa-mso 27 1
+./run_bm.sh asprilo-abc dfa-mso 28 1
+./run_bm.sh asprilo-abc dfa-mso 29 1
+./run_bm.sh asprilo-abc dfa-mso 30 1
+
+./run_bm.sh asprilo-abc dfa-stm 24 1
+./run_bm.sh asprilo-abc dfa-stm 25 1
+./run_bm.sh asprilo-abc dfa-stm 26 1
+./run_bm.sh asprilo-abc dfa-stm 27 1
+./run_bm.sh asprilo-abc dfa-stm 28 1
+./run_bm.sh asprilo-abc dfa-stm 29 1
+./run_bm.sh asprilo-abc dfa-stm 30 1
+
+./run_bm.sh asprilo-abc nc 24 1
+./run_bm.sh asprilo-abc nc 25 1
+./run_bm.sh asprilo-abc nc 26 1
+./run_bm.sh asprilo-abc nc 27 1
+./run_bm.sh asprilo-abc nc 28 1
+./run_bm.sh asprilo-abc nc 29 1
+./run_bm.sh asprilo-abc nc 30 1
 
 
 # make clean -s

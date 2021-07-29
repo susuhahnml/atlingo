@@ -33,8 +33,8 @@ R3='--instance _r3_'
 # python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type table --stat rules --prefix="rules-" --y '#rules'
 
 # ############ ALL
-python plot.py  ${BASE} ${ALL_APP} ${R3} --horizon 24 --horizon 25 --type table --stat cons --stat ptime --stat ctime --stat choices --stat rules --prefix="all-" --y '#rules'
-# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type table --stat cons --stat ptime --stat ctime --stat choices --stat rules --prefix="all-" --y '#rules'
+python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-"
+python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-"
 
 ############ Clingo Times
 # python plot.py  --models 0 --x horizon --env asprilo-abc ${CLINGO_APP} ${R2} --horizon 26 --horizon 27 --horizon 28 --horizon 29 --type bar --stat models --prefix="all-models-models-" --y 'Num models'

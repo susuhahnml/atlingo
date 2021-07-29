@@ -207,24 +207,6 @@ for cons in constraints:
         unsat_horizons = df_stat[df_stat[df_stat.columns[2]]==0]['Horizon'].tolist()
         df_row['Horizon'] = np.where(df_row['Horizon'].isin(unsat_horizons),df_row['Horizon'].astype(str)+"~",df_row['Horizon'])
 
-        # # TIMEOUT set to NAN
-        # print(df_row)
-        # df_stat = df_row.loc[df_row['Stat'] == 'status']
-        
-        # for c in df_row.columns:
-            # for row in df_row.index:
-                
-        # print(df_stat)
-        # print(df_stat==2)
-        # print(df_stat[df_stat==2['']])
-        # bad_horizons = df_stat[df_stat[df_stat.columns[2]]==2]['Horizon'].tolist()
-
-        # df_row.loc[df_stat==2,:]="holi"
-        # print(bad_horizons)
-
-        # unsat_horizons = df_stat[df_stat[df_stat.columns[2]]==2]['Horizon'].tolist()
-        # print(unsat_horizons)
-        
         df_row = df_row[df_row['Stat'] != "status"]
 
         #times to milli seconds
@@ -251,13 +233,14 @@ if args.type == "table":
             for c in min_mx.columns:
                 for row in df.index:
                     str_value = "\\color{red}{-}" if math.isnan(df.loc[row,c]) else str(f'{int(df.loc[row,c]):,}')
-                    
                     # df.loc[row,c]= "\\textbf{\\color{blue}{"+str_value+"}}" if min_mx.loc[row,c] else str_value
                     df.loc[row,c]= str_value+"*" if min_mx.loc[row,c] else str_value
 
             formatted_stats = []
             def f_tex(x):
                 if isinstance(x, np.floating):
+                    if np.isnan(x):
+                        return "\\color{red}{-}"
                     return "\\color{black!60}{"+str(f'{int(x):,}')+"}"
                 if x in stats:
                     if x in formatted_stats:
@@ -278,7 +261,7 @@ if args.type == "table":
             df.to_csv(file_name_csv,float_format='%.0f')
             tex_table = df.to_latex(
                 index=False,
-                caption=f"Table for constraint ``{cons}\" and instance ``{ins}\".",
+                caption=f"Table for constraint ``{cons.replace('_',' ')}\" and instance ``{ins.replace('_',' ')}\".",
                 formatters=[f_tex]*len(df.columns), 
                 escape=False, 
                 header=headers,
