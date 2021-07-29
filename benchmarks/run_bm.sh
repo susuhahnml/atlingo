@@ -130,7 +130,7 @@ then
 	echo $LINE_ERR
 	cat $LINE_ERR
 	echo "$NC"
-	exit 1
+	#exit 1
 fi
 
 echo "$G Evaluation results saved in  "

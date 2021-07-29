@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument('--in-files', type=str, 
                         help='Path for ldlf constraint or afw representation')
     
-    parser.add_argument("--viz", default=True, action='store_true',
+    parser.add_argument("--viz", default=False, action='store_true',
         help="Save automaton vizualization")
     parser.add_argument("--multiple-dfa", default=True, action='store_true',
         help="Use multiple DFAs instead of conjunction")
@@ -71,11 +71,11 @@ if __name__ == "__main__":
     with open(args.out_file, 'w') as f:
         f.write(automata_lp)
 
-    if args.viz:
-        print("Saving visualization of automata")
-        automaton.save_png(file=args.out_file[:-3]+".png",labels=args.labels,latex=args.latex)
-        if(args.latex):
-            automaton.to_tex(file=args.out_file[:-3]+".tex",labels=args.labels)
+#    if args.viz:
+#        print("Saving visualization of automata")
+#        automaton.save_png(file=args.out_file[:-3]+".png",labels=args.labels,latex=args.latex)
+#        if(args.latex):
+#            automaton.to_tex(file=args.out_file[:-3]+".tex",labels=args.labels)
 
     import sys
     sys.exit()
