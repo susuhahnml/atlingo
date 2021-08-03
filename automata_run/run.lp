@@ -14,8 +14,8 @@ possible_case(Case,S) :- delta(S,(Case,_,_),_).
 
 node(S',T+1) :- select_case(Case,S,T), delta(S,(Case,_,_),S'), S'!=true.
 
-:- select_case(Case,S,T), delta(S,(Case,in,A),_), not in_trace_at(A,T).
-:- select_case(Case,S,T), delta(S,(Case,out,A),_), in_trace_at(A,T).
+:- select_case(Case,S,T), delta(S,(Case,in,A),_), not in_trace_at(A,T), A!=true.
+:- select_case(Case,S,T), delta(S,(Case,out,A),_), in_trace_at(A,T), A!=true.
 
 :- node(ID,horizon+1), not final_state(ID).
 

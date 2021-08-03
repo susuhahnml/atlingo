@@ -199,7 +199,6 @@ for cons in constraints:
                     row.append(current_row[current_col].item())
 
                 rows.append(row)
-        # print(rows)
         df_row = pd.DataFrame(rows, columns=["Stat","Horizon"]+approaches)
         
         #Edit horizon if unsat
@@ -258,10 +257,11 @@ if args.type == "table":
             
             headers = ["","H"]  + ["\\textbf{"+str(c)+"}" for c in df.columns[2:]]
 
-            df.to_csv(file_name_csv,float_format='%.0f')
+            # df.to_csv(file_name_csv,float_format='%.0f')
+            models_str = f"getting {'one model' if models==1 else 'all_models'}"
             tex_table = df.to_latex(
                 index=False,
-                caption=f"Table for constraint ``{cons.replace('_',' ')}\" and instance ``{ins.replace('_',' ')}\".",
+                caption=f"Statistics for constraint ``{cons.replace('_',' ')}\" and instance ``{ins.replace('_',' ')}\" {models_str}.",
                 formatters=[f_tex]*len(df.columns), 
                 escape=False, 
                 header=headers,
