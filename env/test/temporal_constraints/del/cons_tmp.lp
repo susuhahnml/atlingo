@@ -1,1 +1,1 @@
-:-not &del{ * &true  .>* ? ~p .>* ~q}.
+:-not &del{ * (?q) .>* p}.

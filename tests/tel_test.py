@@ -48,7 +48,7 @@ def translate(constraint,file,extra=[]):
 
 def run_generate(constraint,mapping=None,horizon=3,file="formula_test.lp"):
     translate(constraint,file)
-    files = ["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./automata_run/run.lp","./automata_run/trace_generator.lp"]
+    files = ["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./encodings/automata_run/run.lp","./encodings/automata_run/trace_generator.lp"]
     if not mapping is None:
         files.append(mapping)
     return solve(["-c horizon={}".format(horizon)],files)
@@ -59,7 +59,7 @@ def run_check(constraint,trace="",mapping="./env/test/glue.lp",encoding="",file=
         command = "python scripts/viz.py {} {}".format(logic,file[:-3]) 
         subprocess.check_output(command.split())
 
-    return solve(["-c horizon={}".format(horizon)],["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./automata_run/run.lp",mapping],[trace,encoding])
+    return solve(["-c horizon={}".format(horizon)],["outputs/test/{}/formula_test/empty/automaton.lp".format(logic),"./encodings/automata_run/run.lp",mapping],[trace,encoding])
 
 
 

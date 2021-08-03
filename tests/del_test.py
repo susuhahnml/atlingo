@@ -95,7 +95,7 @@ def empty_check(constraint,horizon=3,app="afw"):
     translate(constraint,app=app,horizon=horizon)
 
     automata_path = "outputs/test/{}/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app, logic,app)
-    paths = [automata_path, "automata_run/empty.lp"]
+    paths = [automata_path, "encodings/automata_run/empty.lp"]
 
     return solve(["--warn=none"],paths,[])
 
@@ -104,16 +104,16 @@ def run_check(constraint,trace="",horizon=3,app="afw",generate=False,extra_files
 
     automata_path = "outputs/test/{}/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app, logic,app)
     run_files = {
-        "afw": ['./automata_run/run.lp',"./env/test/glue.lp"],
-        "dfa-mso": ['./automata_run/run.lp'],
-        "dfa-stm": ['./automata_run/run.lp'],
-        "nfa": ['./automata_run/run.lp'],
-        "nfa-afw": ['./automata_run/run.lp',"./env/test/glue.lp"],
+        "afw": ['./encodings/automata_run/run.lp',"./env/test/glue.lp"],
+        "dfa-mso": ['./encodings/automata_run/run.lp'],
+        "dfa-stm": ['./encodings/automata_run/run.lp'],
+        "nfa": ['./encodings/automata_run/run.lp'],
+        "nfa-afw": ['./encodings/automata_run/run.lp',"./env/test/glue.lp"],
         "telingo": []
     }
     paths = [automata_path]+run_files[app]+extra_files
     if generate:
-        paths.append("./automata_run/trace_generator.lp")
+        paths.append("./encodings/automata_run/trace_generator.lp")
     return solve(["-c horizon={}".format(horizon)],paths,[trace])
 
 def comapre_apps(constraint,horizon=3,apps=[],test_instance=None):

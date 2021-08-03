@@ -53,7 +53,7 @@ for root, dirs, files in os.walk(directory):
     file_path = os.path.join(root, automata_file_name)
     ctl = clingo.Control([0])
     ctl.load(file_path)
-    ctl.load("../formula_to_automaton/size.lp")
+    ctl.load("../encodings/translations/size.lp")
     ctl.ground([('base',[])])
     ctl.solve(on_model= lambda m: save(env,app,cons,instance,m))
     

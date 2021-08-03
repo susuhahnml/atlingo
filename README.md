@@ -53,8 +53,8 @@ We work with two different types of formulas:
 We will use in this document `del` as an example but it can be substituted by `tel`.
 
 We think of this approach in two steps:
-1.  Generation of a declarative representation of an automaton from a theory formula representing a temporal formula. All files for this step are found in the directory [formula_to_automaton](./formula_to_automaton).
-2.  Using a declarative representation of an automaton, we check if a trace is valid in the automaton by generating all accepted runs. All files for this step are found in the directory  [automata_run](./automata_run). This process has two options.
+1.  Generation of a declarative representation of an automaton from a theory formula representing a temporal formula. All files for this step are found in the directory [encodings/translations](./encodings/translations).
+2.  Using a declarative representation of an automaton, we check if a trace is valid in the automaton by generating all accepted runs. All files for this step are found in the directory  [encodings/automata_run](./encodings/automata_run). This process has two options.
     1. The trace is explicitly provided via facts, or an external encoding (such as asprilo). 
     2. Traces are generated using a choice rule, thus computing all valid traces for a given horizon.
 
@@ -79,14 +79,14 @@ We now explain the encodings used and provide examples. The presented commands u
 :- not &del{<formula here>}, <additional atoms>.
 ```
 
-- **Theory definition** defining the syntax for the formulas [formula_to_automaton/del/theory.lp](./formula_to_automaton/del/theory.lp).
+- **Theory definition** defining the syntax for the formulas [encodings/translations/del/grammar.lp](./encodings/translations/del/grammar.lp).
 
 Temporal constraints are passed trough `gringo` along with the theory definition to unfold their structure. They are saved in its reified format to represent the syntax tree that will by the automaton construction. 
 
 The process can be done with the following command:
 
 ```shell
-$ gringo formula_to_automaton/$LOGIC/theory.lp env/$APP/temporal_constraints/$LOGIC/$CONSTRAINT.lp $INSTANCE $TRANSLATE_FILES --output=reify > $PATH_OUT/reified.lp
+$ gringo encodings/translations/$LOGIC/grammar.lp env/$APP/temporal_constraints/$LOGIC/$CONSTRAINT.lp $INSTANCE $TRANSLATE_FILES --output=reify > $PATH_OUT/reified.lp
 ```
 
 Where:
@@ -96,22 +96,22 @@ Where:
 
 ### Step 1.2: Translation of reified formula to automaton representation
 
-We transform the reified formula to an automaton with the file [formula_to_automaton/automata_del.lp](./formula_to_automaton/automata_del.lp).
+We transform the reified formula to an automaton with the file [encodings/translations/automata_del.lp](./encodings/translations/automata_del.lp).
 
 #### Used files:
 
-- **Last propostion** We define the proposition for the last step using [last_prop.lp](./formula_to_automaton/last_prop.lp)
-- **Atomic propositions** Gather all atomic propositions used in the formula from the reified output with [propositional_atoms.lp](./formula_to_automaton/propositional_atoms.lp)
-- **States** Compute the states of the automaton. This process depends on the type of logic we use. [del/states.lp](./formula_to_automaton/del/states.lp).
-- **Delta** Compute the transition function. This process depends on the type of logic we use. [del/delta.lp](./formula_to_automaton/del/delta.lp).
-- **Map** Create a mapping from ids used in the reification with [id_map.lp](./formula_to_automaton/id_map.lp). This is used in the traces and for visualization.
+- **Last propostion** We define the proposition for the last step using [last_prop.lp](./encodings/translations/last_prop.lp)
+- **Atomic propositions** Gather all atomic propositions used in the formula from the reified output with [propositional_atoms.lp](./encodings/translations/propositional_atoms.lp)
+- **States** Compute the states of the automaton. This process depends on the type of logic we use. [del/states.lp](./encodings/translations/del/states.lp).
+- **Delta** Compute the transition function. This process depends on the type of logic we use. [del/delta.lp](./encodings/translations/del/delta.lp).
+- **Map** Create a mapping from ids used in the reification with [id_map.lp](./encodings/translations/id_map.lp). This is used in the traces and for visualization.
 
 
 The process can be done with the following command:
 
 Example:
 ```shell
-$ clingo $(PATH_OUT)/reified.lp ./formula_to_automaton/automata_$(LOGIC).lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/automaton.lp
+$ clingo $(PATH_OUT)/reified.lp ./encodings/translations/automata_$(LOGIC).lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/automaton.lp
 ```
 
 #### *Using make file*
@@ -125,13 +125,13 @@ $ make translate LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$
 
 ## 2. Runs of the automaton
 
-Given an automaton representation, to compute the runs we require a trace defining which atomic propositions hold in what instant. Given the trace, all accepted runs for the automaton are computed using [run.lp](./automata_run/run.lp). 
+Given an automaton representation, to compute the runs we require a trace defining which atomic propositions hold in what instant. Given the trace, all accepted runs for the automaton are computed using [run.lp](./encodings/automata_run/run.lp). 
 
 #### Used files:
 
 - **Automata instance** the previously generated instance inside the output folder with extension .automaton 
 
-- **Automata run** encoding to run the automaton with the given trace, it will generate the accepted runs. [automata_run/run](./automata_run/run.lp)
+- **Automata run** encoding to run the automaton with the given trace, it will generate the accepted runs. [encodings/automata_run/run](./encodings/automata_run/run.lp)
   
 
 The trace can be obtain in two ways:
@@ -139,13 +139,13 @@ The trace can be obtain in two ways:
 
 ### Validation of trace randomly generated
 
-The trace is randomly generated using a choice rule [automata_run/trace_generator.lp](./automata_run/trace_generator.lp)
+The trace is randomly generated using a choice rule [encodings/automata_run/trace_generator.lp](./encodings/automata_run/trace_generator.lp)
 
 
 The process is done with the command:
 
 ```shell
-$ clingo $PATH_OUT/automaton.lp automata_run/run.lp  automata_run/trace_generator.lp -c horizon=$HORIZON
+$ clingo $PATH_OUT/automaton.lp encodings/automata_run/run.lp  encodings/automata_run/trace_generator.lp -c horizon=$HORIZON
 ```
 
 Where:
@@ -173,7 +173,7 @@ The trace is defined by a planning problem. Instead of the files for the plannin
 The process is done with the command:
 
 ```shell
-$ clingo $PATH_OUT/automaton.lp automata_run/run.lp env/$APP/glue.lp $INSTANCE $RUN_FILES -c horizon=$HORIZON --stats | tee $OUT_PATH/plan.txt
+$ clingo $PATH_OUT/automaton.lp encodings/automata_run/run.lp env/$APP/glue.lp $INSTANCE $RUN_FILES -c horizon=$HORIZON --stats | tee $OUT_PATH/plan.txt
 ```
 
 Where:

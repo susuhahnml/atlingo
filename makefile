@@ -21,12 +21,12 @@ $(eval EXTRA = env/$(ENV_APP)/extra.lp)
 $(eval PY_PARAMS ?= )
 
 # ------- Files needed for each app
-$(eval RUN_APP_FILES_afw = automata_run/run.lp env/$(ENV_APP)/glue.lp)
+$(eval RUN_APP_FILES_afw = encodings/automata_run/run.lp env/$(ENV_APP)/glue.lp)
 # $(eval RUN_APP_FILES_telingo = env/elevator/encoding.lp )
-$(eval RUN_APP_FILES_dfa-mso = automata_run/run.lp)
-$(eval RUN_APP_FILES_dfa-stm = automata_run/run.lp)
-$(eval RUN_APP_FILES_nfa = automata_run/run.lp)
-$(eval RUN_APP_FILES_nfa-afw = automata_run/run.lp env/$(ENV_APP)/glue.lp)
+$(eval RUN_APP_FILES_dfa-mso = encodings/automata_run/run.lp)
+$(eval RUN_APP_FILES_dfa-stm = encodings/automata_run/run.lp)
+$(eval RUN_APP_FILES_nfa = encodings/automata_run/run.lp)
+$(eval RUN_APP_FILES_nfa-afw = encodings/automata_run/run.lp env/$(ENV_APP)/glue.lp)
 
 
 # ------- Files needed for each env
@@ -113,7 +113,7 @@ empty:
 
 	@make translate;
 
-	clingo $(PATH_OUT)/$(APP)_automata.lp automata_run/empty.lp --warn=none
+	clingo $(PATH_OUT)/$(APP)_automata.lp encodings/automata_run/empty.lp --warn=none
 
 
 run:
@@ -159,7 +159,7 @@ translate-afw:
 
 	@ printf "$BReifying constraint... $(NC)\n"
 
-	gringo formula_to_automaton/$(LOGIC)/theory.lp $(PATH_INPUT).lp $(INSTANCE) $(TRANSLATE_FILES_$(ENV_APP)) --output=reify > $(PATH_OUT)/reified.lp 
+	gringo encodings/translations/$(LOGIC)/grammar.lp $(PATH_INPUT).lp $(INSTANCE) $(TRANSLATE_FILES_$(ENV_APP)) --output=reify > $(PATH_OUT)/reified.lp 
 
 
 	@if grep theory_atom $(PATH_OUT)/reified.lp -q; then\
@@ -170,12 +170,12 @@ translate-afw:
     fi;
 
 	@ printf "$(B)Translating.... $(NC)\n"
-	clingo $(PATH_OUT)/reified.lp ./formula_to_automaton/automata_$(LOGIC).lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/afw_automata.lp
+	clingo $(PATH_OUT)/reified.lp ./encodings/translations/ldl2afw.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/afw_automata.lp
 
 
 	@if [ "$(JOIN)" = "1" ]; then \
 		printf "$(Y)Joining afw... $(NC)\n";\
-		clingo afw2nfa/joinafw.lp $(PATH_OUT)/afw_automata.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none  | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/tmp_afw_automata.lp ;\
+		clingo encodings/translations/joinafw.lp $(PATH_OUT)/afw_automata.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none  | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/tmp_afw_automata.lp ;\
 		cat $(PATH_OUT)/tmp_afw_automata.lp >   $(PATH_OUT)/afw_automata.lp;\
 		rm $(PATH_OUT)/tmp_afw_automata.lp;\
 		printf "$(G)Join afw successfull $(NC)\n";\
@@ -186,7 +186,7 @@ generate-traces:
 
 	@ printf "$BGenerating traces for automaton... $(NC)\n"
 
-	clingo $(PATH_OUT)/$(APP)_automata.lp automata_run/run.lp  automata_run/trace_generator.lp -c horizon=$(HORIZON) -n $(MODELS)
+	clingo $(PATH_OUT)/$(APP)_automata.lp encodings/automata_run/run.lp  encodings/automata_run/trace_generator.lp -c horizon=$(HORIZON) -n $(MODELS)
 
 
 ######################  TELINGO ########################
@@ -234,7 +234,7 @@ translate-nfa-afw:
 	
 	@ make translate-afw APP=afw CONSTRAINT=$(CONSTRAINT) LOGIC=$(LOGIC) INSTANCE=$(INSTANCE) ENV_APP=$(ENV_APP) TRANSLATE_FILES=$(TRANSLATE_FILES_$(APP)) $(PY_PARAMS)
 
-	clingo ./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp ./afw2nfa/afw2nfa.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/nfa-afw_automata.lp
+	clingo ./outputs/$(ENV_APP)/afw/$(LOGIC)/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp ./encodings/translations/afw2nfa.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/nfa-afw_automata.lp
 
 ###################### ASPRILO EXTRA ###################
 
