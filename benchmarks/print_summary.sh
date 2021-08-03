@@ -1,23 +1,23 @@
-ENV=$1
+DOM=$1
 
-echo "--------------------" > results/$ENV/summary.txt
-echo "Summary">> results/$ENV/summary.txt
-echo "--------------------">> results/$ENV/summary.txt
+echo "--------------------" > results/$DOM/summary.txt
+echo "Summary">> results/$DOM/summary.txt
+echo "--------------------">> results/$DOM/summary.txt
 
-echo "Successful:">> results/$ENV/summary.txt
-for f in $(find ./results/$ENV/  -type f -name "*.ods");
+echo "Successful:">> results/$DOM/summary.txt
+for f in $(find ./results/$DOM/  -type f -name "*.ods");
 do
-    echo "  $(basename $f .ods)">> results/$ENV/summary.txt
+    echo "  $(basename $f .ods)">> results/$DOM/summary.txt
 done
-echo "Error:">> results/$ENV/summary.txt
-for f in $(find ./results/$ENV/  -type f -name "*.error");
+echo "Error:">> results/$DOM/summary.txt
+for f in $(find ./results/$DOM/  -type f -name "*.error");
 do
     if [ -s "$f" ];then
-        echo "  $(basename $f .error)">> results/$ENV/summary.txt
+        echo "  $(basename $f .error)">> results/$DOM/summary.txt
     fi
 done
 
-cat results/$ENV/summary.txt
+cat results/$DOM/summary.txt
 
 # send an email to report that the experiments are done
-cat results/$ENV/summary.txt | mail -s "[Benchmark Finished]" hahnmartinlu@uni-potsdam.de
+cat results/$DOM/summary.txt | mail -s "[Benchmark Finished]" hahnmartinlu@uni-potsdam.de

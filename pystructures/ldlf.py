@@ -106,7 +106,7 @@ class LDLfFormula():
         ctl.add("base", [], "")
         for f in files:
             ctl.load(f)
-        ctl.load("./encodings/translations/del/theory.lp")
+        ctl.load("./encodings/translations/grammar.lp")
         ctl.add("base", [], inline_data)
         ctl.ground([("base", [])])
         formulas = []

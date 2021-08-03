@@ -1,1 +1,0 @@
-:- not &tel{(~ move_horizontally(robot(N)) ) >? (>* ~ move_vertically(robot(N))) }, robot(N).

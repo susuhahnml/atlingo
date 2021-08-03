@@ -5,7 +5,7 @@ HORIZON_F11='--horizon 17 --horizon 18 --horizon 19 --horizon 20 --horizon 21'
 
 AUTOMATA_APP='--approach nfa --approach telingo --approach afw --approach dfa-stm --approach dfa-mso'
 ALL_APP='--approach nc '${AUTOMATA_APP}
-BASE='--models 0 --x #horizon --env elevator '
+BASE='--models 0 --x #horizon --dom elevator '
 F5='--instance 5_'
 F7='--instance 7_'
 F9='--instance 9_'

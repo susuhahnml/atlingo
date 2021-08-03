@@ -1,1 +1,0 @@
-#include "../right_left_up_down.lp".

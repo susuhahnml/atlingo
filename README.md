@@ -63,10 +63,10 @@ We think of this approach in two steps:
 We now explain the encodings used and provide examples. The presented commands used the following share arguments:
 
 - `$LOGIC` is either 'tel' or 'del'.
-- `$APP` the application domain name. A directory with this name must exist inside the folder `\env`.
+- `$APP` the application domain name. A directory with this name must exist inside the folder `\dom`.
 - `$CONSTRAINT` the name of the file for the temporal constraint without extension. Multiple constraints for the same type of logic can be provided.
 - `$INSTANCE` the full path to the encoding of the instance for the planning problem. An empty file can also be provided.
-- `$PATH_OUT`  directory to store output files are stored in which should be constructed as `./outputs/$APP/$LOGIC/$CONSTRAINT/$NAME_INSTANCE` where `$NAME_INSTANCE` is the name of the instance file. This directory will save: Reified format, Automaton, Plans found, and image visualizations. This parameter is not required in when using the make file.
+- `$PATH_OUT`  directory to store output files are stored in which should be constructed as `./outputs/$APP/$CONSTRAINT/$NAME_INSTANCE` where `$NAME_INSTANCE` is the name of the instance file. This directory will save: Reified format, Automaton, Plans found, and image visualizations. This parameter is not required in when using the make file.
 
 ## 1. Formula to automaton
 
@@ -74,19 +74,19 @@ We now explain the encodings used and provide examples. The presented commands u
 
 #### Used Files:
 
-- **Temporal formula in an integrity constraint** such as [env/test/temporal_constraints/del/example.lp](./env/test/temporal_constraints/del/example.lp) with format:
+- **Temporal formula in an integrity constraint** such as [dom/test/temporal_constraints/example.lp](./dom/test/temporal_constraints/example.lp) with format:
 ```
 :- not &del{<formula here>}, <additional atoms>.
 ```
 
-- **Theory definition** defining the syntax for the formulas [encodings/translations/del/grammar.lp](./encodings/translations/del/grammar.lp).
+- **Theory definition** defining the syntax for the formulas [encodings/translations/grammar.lp](./encodings/translations/grammar.lp).
 
 Temporal constraints are passed trough `gringo` along with the theory definition to unfold their structure. They are saved in its reified format to represent the syntax tree that will by the automaton construction. 
 
 The process can be done with the following command:
 
 ```shell
-$ gringo encodings/translations/$LOGIC/grammar.lp env/$APP/temporal_constraints/$LOGIC/$CONSTRAINT.lp $INSTANCE $TRANSLATE_FILES --output=reify > $PATH_OUT/reified.lp
+$ gringo encodings/translations/grammar.lp dom/$APP/temporal_constraints/$CONSTRAINT.lp $INSTANCE $TRANSLATE_FILES --output=reify > $PATH_OUT/reified.lp
 ```
 
 Where:
@@ -102,8 +102,8 @@ We transform the reified formula to an automaton with the file [encodings/transl
 
 - **Last propostion** We define the proposition for the last step using [last_prop.lp](./encodings/translations/last_prop.lp)
 - **Atomic propositions** Gather all atomic propositions used in the formula from the reified output with [propositional_atoms.lp](./encodings/translations/propositional_atoms.lp)
-- **States** Compute the states of the automaton. This process depends on the type of logic we use. [del/states.lp](./encodings/translations/del/states.lp).
-- **Delta** Compute the transition function. This process depends on the type of logic we use. [del/delta.lp](./encodings/translations/del/delta.lp).
+- **States** Compute the states of the automaton. This process depends on the type of logic we use. [states.lp](./encodings/translations/states.lp).
+- **Delta** Compute the transition function. This process depends on the type of logic we use. [delta.lp](./encodings/translations/delta.lp).
 - **Map** Create a mapping from ids used in the reification with [id_map.lp](./encodings/translations/id_map.lp). This is used in the traces and for visualization.
 
 
@@ -119,7 +119,7 @@ $ clingo $(PATH_OUT)/reified.lp ./encodings/translations/automata_$(LOGIC).lp -n
 The full translation process can be made using the make file:
 
 ```shell
-$ make translate LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE 
+$ make translate  DOM=$DOM CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE 
 ```
 
 
@@ -158,7 +158,7 @@ Where:
 #### *Using make file*
 
 ```shell
-$ make generate-traces LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
+$ make generate-traces  DOM=$DOM CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
 ```
 
 ### Validation of trace from planning encoding
@@ -167,13 +167,13 @@ The trace is defined by a planning problem. Instead of the files for the plannin
 
 #### Used files: 
  
-- **Glue file** file defining the relationship between the automaton mapping and the planning problem [glue](./env/test/glue.lp). Must describe all predicates used in the temporal constraint.
+- **Glue file** file defining the relationship between the automaton mapping and the planning problem [glue](./dom/test/glue.lp). Must describe all predicates used in the temporal constraint.
 
 
 The process is done with the command:
 
 ```shell
-$ clingo $PATH_OUT/automaton.lp encodings/automata_run/run.lp env/$APP/glue.lp $INSTANCE $RUN_FILES -c horizon=$HORIZON --stats | tee $OUT_PATH/plan.txt
+$ clingo $PATH_OUT/automaton.lp encodings/automata_run/run.lp dom/$APP/glue.lp $INSTANCE $RUN_FILES -c horizon=$HORIZON --stats | tee $OUT_PATH/plan.txt
 ```
 
 Where:
@@ -187,7 +187,7 @@ Where:
 #### *Using make file*
 
 ```shell
-$ make run LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_FILES=$RUN_FILES HORIZON=$HORIZON
+$ make run  DOM=$DOM CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_FILES=$RUN_FILES HORIZON=$HORIZON
 ```
 
 ------------
@@ -197,12 +197,12 @@ $ make run LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTAN
 The representation of the automata, corresponding to the transition diagram, can be visualized on an image by running:
 
 ```shell
-$ make viz-automaton LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
+$ make viz-automaton  DOM=$DOM CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 ```
 
 Example:
 
-![](img/del/formula_test.png)
+![](img/formula_test.png)
 
 ------------
 
@@ -224,25 +224,25 @@ To make the integration with asprilo simpler, the following commands are provide
 Translate temporal constraint from asprilo.
 
 ```shell
-$ make translate-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
+$ make translate-asprilo  CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 ```
 
 Run automaton from asprilo using MD domain.
 
 ```shell
-$ make run-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
+$ make run-asprilo  CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
 ```
 
 Translate and run automaton from asprilo using MD domain.
 
 ```shell
-$ make translate-run-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
+$ make translate-run-asprilo  CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
 ```
 
 Visualize the plan found using asprilo visualizer
 
 ```shell
-$ make viz-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
+$ make viz-asprilo  CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
 ```
 
 ## Benchmarks

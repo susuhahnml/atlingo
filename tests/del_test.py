@@ -26,14 +26,13 @@ from ltlf2dfa.ltlf2dfa import createMonafile, invoke_mona, output2dot
 from ltlf2dfa.base import MonaProgram
 
 
-logic = 'del'
 
 
 # define the name of the directory to be created
-paths = ["./outputs/test/afw/del/cons_tmp/instance_tmp",
-        "./outputs/test/telingo/del/cons_tmp/instance_tmp",
-        "./outputs/test/dfa/del/cons_tmp/instance_tmp",
-        "./outputs/test/nfa/del/cons_tmp/instance_tmp"
+paths = ["./outputs/test/afw/cons_tmp/instance_tmp",
+        "./outputs/test/telingo/cons_tmp/instance_tmp",
+        "./outputs/test/dfa/cons_tmp/instance_tmp",
+        "./outputs/test/nfa/cons_tmp/instance_tmp"
         ]
 
 try:
@@ -83,10 +82,10 @@ def solve(const=[], files=[],inline_data=[]):
     return sorted(r)
 
 def translate(constraint,extra="",app='afw',horizon=3):
-    cons_file = "env/test/temporal_constraints/{}/cons_tmp.lp".format(logic)
+    cons_file = "dom/test/temporal_constraints/cons_tmp.lp"
     with open(cons_file, 'w') as f:
         f.write(constraint)
-    command = 'make translate APP={} LOGIC={} CONSTRAINT=cons_tmp ENV_APP=test INSTANCE=env/test/instances/instance_tmp.lp APP={} HORIZON={} {}'.format(app,logic,app,horizon,extra) 
+    command = 'make translate APP={} CONSTRAINT=cons_tmp DOM=test INSTANCE=dom/test/instances/instance_tmp.lp APP={} HORIZON={} {}'.format(app,app,horizon,extra) 
     print(command)
     subprocess.check_output(command.split())
 
@@ -94,21 +93,21 @@ def translate(constraint,extra="",app='afw',horizon=3):
 def empty_check(constraint,horizon=3,app="afw"):
     translate(constraint,app=app,horizon=horizon)
 
-    automata_path = "outputs/test/{}/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app, logic,app)
-    paths = [automata_path, "encodings/automata_run/empty.lp"]
+    automata_path = "outputs/test/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app,app)
+    paths = [automata_path, "encodings/empty.lp"]
 
     return solve(["--warn=none"],paths,[])
 
 def run_check(constraint,trace="",horizon=3,app="afw",generate=False,extra_files=[],extra_args=""):
     translate(constraint,app=app,horizon=horizon,extra=extra_args)
 
-    automata_path = "outputs/test/{}/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app, logic,app)
+    automata_path = "outputs/test/{}/cons_tmp/instance_tmp/{}_automata.lp".format(app,app)
     run_files = {
-        "afw": ['./encodings/automata_run/run.lp',"./env/test/glue.lp"],
+        "afw": ['./encodings/automata_run/run.lp',"./dom/test/glue.lp"],
         "dfa-mso": ['./encodings/automata_run/run.lp'],
         "dfa-stm": ['./encodings/automata_run/run.lp'],
         "nfa": ['./encodings/automata_run/run.lp'],
-        "nfa-afw": ['./encodings/automata_run/run.lp',"./env/test/glue.lp"],
+        "nfa-afw": ['./encodings/automata_run/run.lp',"./dom/test/glue.lp"],
         "telingo": []
     }
     paths = [automata_path]+run_files[app]+extra_files
@@ -612,10 +611,10 @@ class TestMain(TestCase):
         ######### Examples using asprilo env starting actions in timepoint 1.
         
     
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,extra_files=["env/asprilo-md/glue.lp"])
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),1).",horizon=2,extra_files=["dom/asprilo-md/glue.lp"])
         self.assert_sat(result)
 
-        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=3,extra_files=["env/asprilo-md/glue.lp"])
+        result = run_check(":- not &del{ &true .>? move(robot(1),(1,0))}.",trace="move(robot(1),(1,0),2).",horizon=3,extra_files=["dom/asprilo-md/glue.lp"])
         self.assert_unsat(result)
 
     def test_multiple(self):

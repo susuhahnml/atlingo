@@ -18,8 +18,8 @@ parser.add_argument("--stat", type=str, action='append',
         help="Status: choices,conflicts,cons,csolve,ctime,error,mem,memout,models,ngadded,optimal,restarts,status,time,timeout,vars,ptime" )
 parser.add_argument("--approach", type=str, action='append',
         help="Approach to be plotted awf, asp, nc or dfa. Can pass multiple",required=True)
-parser.add_argument("--env",type=str, default='asprilo',
-        help="Name of environment, asprilo or elevator" )
+parser.add_argument("--dom",type=str, default='asprilo',
+        help="Name of domain" )
 parser.add_argument("--constraint", type=str, action='append',
         help="Contraint to be plotted, if non is passed all constraints will be plotted. Can pass multiple")
 parser.add_argument("--horizon", type=int, action='append',
@@ -49,7 +49,7 @@ args = parser.parse_args()
 # zero_timeout = args.zero_timeout
 
 # Env
-env = args.env
+dom = args.dom
 
 # Approaches
 approaches = args.approach
@@ -84,7 +84,7 @@ else:
 
 summary = f"""
 PLOT
-    ENV: {env}
+    DOM: {dom}
     APPROACHES: {approaches}
     HORIZONS : {horizons}
     STATS: {stats}
@@ -162,7 +162,7 @@ dfs = {}
 last_df = None
 for a in approaches:
     for h in horizons:
-        path = f"results/{env}/{a}__h-{h}__n-{models}/{a}__h-{h}__n-{models}.ods"
+        path = f"results/{dom}/{a}__h-{h}__n-{models}/{a}__h-{h}__n-{models}.ods"
         try:
             print(f"Reading path {path}")
             df = read_ods(path,1)
@@ -220,7 +220,7 @@ if args.type == "table":
     # -------- Save CVS
     for cons, v in dfs_per_cons.items():
         for ins, df in v.items():
-            file_name_csv = f'plots/tables/{env}/{prefix}-{cons}-{ins}.csv'
+            file_name_csv = f'plots/tables/{dom}/{prefix}-{cons}-{ins}.csv'
             file_name_tex_csv = file_name_csv[:-3]+"tex"
             dir_name = os.path.dirname(file_name_csv)
             if not os.path.exists(dir_name): os.makedirs(dir_name)
@@ -287,7 +287,7 @@ elif args.type == "bar":
     # -------- Plot
     for cons, v in dfs_per_cons.items():
         for ins, df in v.items():
-            file_name_img = f'plots/img/{env}/{prefix}-{cons}-{ins}.png'
+            file_name_img = f'plots/img/{dom}/{prefix}-{cons}-{ins}.png'
             dir_name = os.path.dirname(file_name_img)
             if not os.path.exists(dir_name): os.makedirs(dir_name)
             plotting_stats = [s for s in stats if s !="status"]
