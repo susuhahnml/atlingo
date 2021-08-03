@@ -68,3 +68,18 @@ asprilo-abc-robots-instance:
 asprilo-abc-all-instance:
 	mkdir -p ./instances/asprilo/abc
 	cp -r ../env/asprilo-abc/instances/* ./instances/asprilo/abc/
+
+
+# HANOI
+hanoi-clean-instances:
+	rm -rf ./instances/hanoi/*
+	rm -rf ./instances/hanoi/*
+hanoi-small-instance:
+	mkdir -p ./instances/hanoi
+	cp -r ../env/hanoi/instances/4_disks.lp ./instances/hanoi
+hanoi-medium-instance:
+	mkdir -p ./instances/hanoi
+	cp -r ../env/hanoi/instances/5_disks.lp ./instances/hanoi
+hanoi-big-instance:
+	mkdir -p ./instances/hanoi
+	cp -r ../env/hanoi/instances/6_disks.lp ./instances/hanoi

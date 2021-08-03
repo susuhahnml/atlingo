@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # libraries and data
 import os
+import math
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
@@ -125,10 +126,10 @@ def clean_df(df):
     required_colums = ["instance-name"] + [f"{c}--{s}" for c in constraints for s in stats]
 
     df = df.loc[:,df.columns.intersection(required_colums)]
-
     # Convert all to floats
     for i in range(1,len(df.columns)):
         df.iloc[:,i] = pd.to_numeric(df.iloc[:,i], downcast="float")
+
     
     ###### Handle rows (INSTANCES)
     
@@ -144,11 +145,13 @@ def clean_df(df):
         df.drop(df.index[instances_to_drop], inplace=True)
 
     #Rename
-    def rename_robots(i):
+    def rename(i):
         return i.split("/")[1].split("_")[3]
-    # def rename_floors(i):
+    # def rename(i):
     #     return i.split("/")[1].split("_")[0]
-    df['instance-name']=df['instance-name'].apply(rename_robots)
+    # def rename(i):
+    #     return i[:-3]
+    df['instance-name']=df['instance-name'].apply(rename)
 
     # print(df)
     return df
@@ -196,15 +199,21 @@ for cons in constraints:
                     row.append(current_row[current_col].item())
 
                 rows.append(row)
-        # print(rows)
         df_row = pd.DataFrame(rows, columns=["Stat","Horizon"]+approaches)
         
         #Edit horizon if unsat
         df_stat = df_row.loc[df_row['Stat'] == 'status']
         unsat_horizons = df_stat[df_stat[df_stat.columns[2]]==0]['Horizon'].tolist()
-        df_row['Horizon'] = np.where(df_row['Horizon'].isin(unsat_horizons),df_row['Horizon'].astype(str)+"*",df_row['Horizon'])
+        df_row['Horizon'] = np.where(df_row['Horizon'].isin(unsat_horizons),df_row['Horizon'].astype(str)+"~",df_row['Horizon'])
+
         df_row = df_row[df_row['Stat'] != "status"]
+
+        #times to milli seconds
+        is_time = df_row["Stat"].str.contains('time', regex=False)
+        df_row.loc[is_time,approaches]=df_row.loc[is_time,approaches]*1000
+
         dfs_per_cons.setdefault(cons,{})[instance]= df_row
+
 
 
 if args.type == "table":
@@ -216,10 +225,48 @@ if args.type == "table":
             dir_name = os.path.dirname(file_name_csv)
             if not os.path.exists(dir_name): os.makedirs(dir_name)
             
+            # Add mark to minimum value
+            non_mc_approaches = [x for x in approaches if x!='nc']
+            mins = df[non_mc_approaches].min(axis=1)
+            min_mx=df[non_mc_approaches].astype(float).eq(mins,axis=0)
+            for c in min_mx.columns:
+                for row in df.index:
+                    str_value = "\\color{red}{-}" if math.isnan(df.loc[row,c]) else str(f'{int(df.loc[row,c]):,}')
+                    # df.loc[row,c]= "\\textbf{\\color{blue}{"+str_value+"}}" if min_mx.loc[row,c] else str_value
+                    df.loc[row,c]= str_value+"*" if min_mx.loc[row,c] else str_value
 
-            # df["SAT"] = df["Horizon"].astype(str) + df["status"]
-            df.to_csv(file_name_csv,float_format='%.0f')
-            tex_table = df.to_latex(float_format='%.0f')
+            formatted_stats = []
+            def f_tex(x):
+                if isinstance(x, np.floating):
+                    if np.isnan(x):
+                        return "\\color{red}{-}"
+                    return "\\color{black!60}{"+str(f'{int(x):,}')+"}"
+                if x in stats:
+                    if x in formatted_stats:
+                        return ""
+                    formatted_stats.append(x)
+                    return '\\hline \\textbf{' +x+ '}'
+                if type(x) is str and x[-1]== '~':
+                    return '\\sout{'+x[:-1]+'}'
+                if type(x) is str and x[-1]== '*':
+                    return x
+                if type(x) is int:
+                    return x
+                else:
+                    return "\\color{black!60}{"+x+"}"
+            
+            headers = ["","H"]  + ["\\textbf{"+str(c)+"}" for c in df.columns[2:]]
+
+            # df.to_csv(file_name_csv,float_format='%.0f')
+            models_str = f"getting {'one model' if models==1 else 'all_models'}"
+            tex_table = df.to_latex(
+                index=False,
+                caption=f"Statistics for constraint ``{cons.replace('_',' ')}\" and instance ``{ins.replace('_',' ')}\" {models_str}.",
+                formatters=[f_tex]*len(df.columns), 
+                escape=False, 
+                header=headers,
+                column_format='ll|'+'r'*len(non_mc_approaches)+'|r')
+
             f = open(file_name_tex_csv, "w")
             f.write(tex_table)
             f.close()
@@ -233,6 +280,7 @@ elif args.type == "bar":
         "dfa-mso":"#D6D4FF",
         "dfa-stm":"#B3EEFF",
         "nfa":"#FFCBA5",
+        "nfa-afw":"#FFE2A5",
         "telingo":"#FFEEA5"
     }
     colors = [approaches_colors[a] for a in approaches]

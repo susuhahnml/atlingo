@@ -5,7 +5,7 @@
 
 % -------------------- Define reachable states
 reachable(F) :- initial_state_full(F).
-reachable(S') :- delta_full(S,_,S'), reachable(S).
+reachable(S') :- delta_full(S,_,S'), reachable(S), S'!=bottom.
 
 % -------------------- Assign ids to states
 state(0,S) :- initial_state_full(S), #count{1,S':initial_state_full(S'),S'<S}=0.
@@ -20,6 +20,9 @@ drop_delta(Case,S):-
     delta_full(S,(Case,Opt,A),S'), 
     delta_full(S,(Case,NotOpt,A),S''), 
     NotOpt!=Opt.
+
+drop_delta(Case,S):- 
+    delta_full(S,(Case,_,_),bottom). 
 
 % -------------------- Keep deltas for reachable states
 delta_reachable(ID,(Case,Opt,A),ID') :- delta_full(S,(Case,Opt,A),S'), state(ID,S), state(ID',S'), not drop_delta(Case,S).

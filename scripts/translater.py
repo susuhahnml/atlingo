@@ -71,11 +71,11 @@ if __name__ == "__main__":
     with open(args.out_file, 'w') as f:
         f.write(automata_lp)
 
-    if args.viz:
-        print("Saving visualization of automata")
-        automaton.save_png(file=args.out_file[:-3]+".png",labels=args.labels,latex=args.latex)
-        if(args.latex):
-            automaton.to_tex(file=args.out_file[:-3]+".tex",labels=args.labels)
+#    if args.viz:
+#        print("Saving visualization of automata")
+#        automaton.save_png(file=args.out_file[:-3]+".png",labels=args.labels,latex=args.latex)
+#        if(args.latex):
+#            automaton.to_tex(file=args.out_file[:-3]+".tex",labels=args.labels)
 
     import sys
     sys.exit()
