@@ -8,5 +8,5 @@ no_move_horizontally(robot(N), T) :- not move_horizontally(robot(N), T), robot(N
 :- move_horizontally(R, T), no_move_horizontally(R, T).
 no_move_horizontally(robot(N), 0) :- robot(N).
 
-in_trace_at(I,T) :- no_move_vertically(robot(N),T),prop(I,("no_move_vertically",("robot",N))).
-in_trace_at(I,T) :- no_move_horizontally(robot(N),T),prop(I,("no_move_horizontally",("robot",N))).
+trace(I,T) :- no_move_vertically(robot(N),T),prop(I,("no_move_vertically",("robot",N))).
+trace(I,T) :- no_move_horizontally(robot(N),T),prop(I,("no_move_horizontally",("robot",N))).

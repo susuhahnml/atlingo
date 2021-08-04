@@ -9,18 +9,18 @@
 
 node(ID,0) :- initial_state(ID).
 
-possible_case(Case,S) :- delta(S,(Case,_,_),_).
-1{select_case(Case,S,T):possible_case(Case,S)}1 :- node(S,T),T<=horizon.
+possible_case(C,Q) :- delta(Q,(C,_,_),_).
+1{select_case(C,Q,T):possible_case(C,Q)}1 :- node(Q,T),T<=lambda-1.
 
-node(S',T+1) :- select_case(Case,S,T), delta(S,(Case,_,_),S'), S'!=true.
+node(Q',T+1) :- select_case(C,Q,T), delta(Q,(C,_,_),Q'), Q'!=true.
 
-:- select_case(Case,S,T), delta(S,(Case,in,A),_), not in_trace_at(A,T), A!=true.
-:- select_case(Case,S,T), delta(S,(Case,out,A),_), in_trace_at(A,T), A!=true.
+:- select_case(C,Q,T), delta(Q,(C,in,A),_), not trace(A,T), A!=true.
+:- select_case(C,Q,T), delta(Q,(C,out,A),_), trace(A,T), A!=true.
 
-:- node(ID,horizon+1), not final_state(ID).
+:- node(ID,lambda), not final_state(ID).
 
 % #show holds_map/2.
-% #show in_trace_at/2.
+% #show trace/2.
 % #show node/2.
 % #show select_case/3.
 % #show select_case/3.

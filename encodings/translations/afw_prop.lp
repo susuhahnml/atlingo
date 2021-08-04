@@ -46,8 +46,8 @@ prop_id(ID) :- pos_prop_id(ID),
                theory_tuple(ID_T,0,ID).
 
 % Creates special proposition "last"
-used_id(ID) :- theory_string(ID,S), S!="last".
-used_id(ID) :- theory_function(ID,IDS,_), theory_string(IDS,S), S!= "last".
+used_id(ID) :- theory_string(ID,Q), Q!="last".
+used_id(ID) :- theory_function(ID,IDS,_), theory_string(IDS,Q), Q!= "last".
 last_id(MID+1):- #max{ID:used_id(ID)}=MID.
 
 

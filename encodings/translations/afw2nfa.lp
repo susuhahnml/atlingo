@@ -3,7 +3,7 @@
 % ------- States
 
 % Power set of afw states
-bin(ID,2**(ID)):-state(ID,S).
+bin(ID,2**(ID)):-state(ID,Q).
 number_states(N):-#count{ID:state(ID,_)}=N.
 state_nfa_set(0..2**N-1):- number_states(N).
 
@@ -80,15 +80,15 @@ state_nfa_reachable(X'):-state_nfa_reachable(X), delta_nfa_final(X,_,X').
 state_nfa_reachable(X,(),0):- initial_state_nfa(X).
 state_nfa_reachable(X',(),0):-state_nfa_reachable(X,(),0), delta_nfa_final(X,_,X').
 
-state_nfa_reachable(X,(S_N,S_O),D+1):-state_nfa_set_indexed(X,S_N,D),      
-                            state_nfa_reachable(X,S_O,D).
+state_nfa_reachable(X,(Q_N,Q_O),D+1):-state_nfa_set_indexed(X,Q_N,D),      
+                            state_nfa_reachable(X,Q_O,D).
 
 % Keep labels when finsied
 state_nfa(X,L):-state_nfa_reachable(X,L,T), state_nfa_set_size(X,T).
 
 % Use ids for cases
-% delta_nfa(ID,(N,Opt,A),ID') :- delta_nfa_reachable(ID,(Case,Opt,A),ID'), 
-%                     #count{Case': Case'>Case, delta_nfa_reachable(ID,(Case',_,_),_)}=N.
+% delta_nfa(ID,(N,Opt,A),ID') :- delta_nfa_reachable(ID,(C,Opt,A),ID'), 
+%                     #count{C': C'>C, delta_nfa_reachable(ID,(C',_,_),_)}=N.
 
 % True sinking state
 delta_nfa_final(ID,(0,in,true),ID) :-  state_nfa(ID,()).

@@ -338,7 +338,7 @@ class NFA(Automata):
                 p_with_t = prop[:-1]+",T)"
             else:
                 p_with_t = prop+"(T)"
-            p+=('in_trace_at({},T):- {}.\n').format(i,p_with_t)
+            p+=('trace({},T):- {}.\n').format(i,p_with_t)
 
         return p
 
