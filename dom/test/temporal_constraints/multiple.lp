@@ -1,3 +1,3 @@
-:- not &del{ * &true .>* p }. 
-:- not &del{ * &true .>? q }.
-:- not &del{ * &true .>* ?p .>? q }.
+:- not &del{ * &t .>* p }. 
+:- not &del{ * &t .>? q }.
+:- not &del{ * &t .>* ?p .>? q }.

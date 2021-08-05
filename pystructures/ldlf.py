@@ -34,7 +34,7 @@ path_operators.update(path_binary_operators)
 
 # Used in lp encodings of automata
 del_operators_names = {"box":'Box', "diamond":'Diamond',"top": "Boolean","bottom": "Boolean","neg": "Prop"}
-path_unary_operators_names  = {"star":'KleeneStar', "test":'Check', "top": "Skip"}
+path_unary_operators_names  = {"star":'KleeneStar', "test":'Check', "stp": "Skip"}
 path_binary_operators_names = {"sequence":'Sequence', "choice":'Choice'}
 path_operators_names = dict(path_unary_operators_names)
 path_operators_names.update(path_binary_operators_names)
@@ -710,16 +710,16 @@ class Path(object):
 
 class SkipPath(Path):
     def __init__(self):
-        Path.__init__(self, "(&skip)")
+        Path.__init__(self, "(&t)")
 
     @classmethod
     def from_theory(cls,term):
-        assert term.arguments[0].name=="true"
+        assert term.arguments[0].name=="t"
         return cls()
     
     @classmethod
     def from_symbol(cls,symbol, id2prop):
-        assert symbol.name=="top"
+        assert symbol.name=="stp"
         return cls()
     
     def stp(self, v_start, v_end, all_prop_vars, all_vars,prop2mona):

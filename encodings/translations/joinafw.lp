@@ -3,7 +3,7 @@
 %--- diamond(test(F1),F2)
 
 initial_state_new(N):-#count{1,Q:state(Q,QNAME)}=N.
-state_new(N,box(top,top)):-initial_state_new(N).
+state_new(N,box(stp,top)):-initial_state_new(N).
 
 % join_initial(Q,(Q,())):-initial_state(Q), #count{1,Q2:initial_state(Q2),Q>Q2}=0.
 

@@ -1,3 +1,3 @@
-% :- not &del{ *( (*(?up ;; &true) + *(?down ;; &true)) ;; ?ready;; ?serve;; &true)
-:- not &del{ ?up ;; &true;; ?up .>? &true }.
-% :- not &del{ &true }.
+% :- not &del{ *( (*(?up ;; &t) + *(?down ;; &t)) ;; ?ready;; ?serve;; &t)
+:- not &del{ ?up ;; &t;; ?up .>? &true }.
+% :- not &del{ &t }.

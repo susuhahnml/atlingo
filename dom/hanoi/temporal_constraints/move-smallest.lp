@@ -1,10 +1,10 @@
-:- not &del{     &true ;; %One step tp start in 1
-                *( ?move(1) ;; &true ;;   %Move disk 1
+:- not &del{     &t ;; %One step tp start in 1
+                *( ?move(1) ;; &t ;;   %Move disk 1
                     ? ~smallestfree(D) + 
-                    (? smallestfree(D) ;; ?move(D)) ;; &true   %Move another disk
+                    (? smallestfree(D) ;; ?move(D)) ;; &t   %Move another disk
                 ) ;;  
-                * (? ~move ;; &true) % Dont move
+                * (? ~move ;; &t) % Dont move
               .>? 
-              &true .>* &false %Final state
+              &t .>* &false %Final state
             },
             disk(D), D!=1.

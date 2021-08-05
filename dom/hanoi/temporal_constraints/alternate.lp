@@ -1,10 +1,10 @@
-:- not &del{    &true ;; ?move(1) ;;
+:- not &del{    &t ;; ?move(1) ;;
                 *( 
-                   &true ;; ? ~move(1) ;; ?move ;;   %Move another disk
-                   &true ;; ?move(1)     %Move disk 1
+                   &t ;; ? ~move(1) ;; ?move ;;   %Move another disk
+                   &t ;; ?move(1)     %Move disk 1
                 ) ;;  
-                * (&true ;; ? ~move ) % Dont move
+                * (&t ;; ? ~move ) % Dont move
               .>? 
-              &true .>* &false %Final state
+              &t .>* &false %Final state
             }.
              

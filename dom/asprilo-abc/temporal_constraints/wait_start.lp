@@ -1,3 +1,3 @@
-:- not &del{ &true ;; ?waits(robot(R)) ;; &true ;; ?waits(robot(R)) ;; &true ;; ?waits(robot(R)) 
+:- not &del{ &t ;; ?waits(robot(R)) ;; &t ;; ?waits(robot(R)) ;; &t ;; ?waits(robot(R)) 
            .>? &true }, 
         robot(R).

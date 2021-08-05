@@ -4,12 +4,12 @@
 
 % :- not &del{
 %     (
-%         * ( &true ;; ( ? move_vertically(robot(R)) + ? wait(robot(R)))) ;; 
-%         * ( &true ;; ( ? move_horizontally(robot(R)) + ? wait(robot(R)))) 
+%         * ( &t ;; ( ? move_vertically(robot(R)) + ? wait(robot(R)))) ;; 
+%         * ( &t ;; ( ? move_horizontally(robot(R)) + ? wait(robot(R)))) 
 %     ) .>?
-%     (&true.>* &false)   }, robot(R).
+%     (&t.>* &false)   }, robot(R).
 
 :- not &del{
-       (* ( ( ? no_move_horizontally(robot(R)) ) ;; &true ))  .>? 
-        ( (* &true ) .>* no_move_vertically(robot(R)) )
+       (* ( ( ? no_move_horizontally(robot(R)) ) ;; &t ))  .>? 
+        ( (* &t ) .>* no_move_vertically(robot(R)) )
 }, robot(R).

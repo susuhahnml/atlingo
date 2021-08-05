@@ -6,36 +6,36 @@
 
 :- not &del{*(
 
-    ?move_v(robot(R)) ;; &true ;; *(?no_move(robot(R)) ;; &true) ;; 
-    ?move_h(robot(R)) ;; &true ;; *(?no_move(robot(R)) ;; &true) )
+    ?move_v(robot(R)) ;; &t ;; *(?no_move(robot(R)) ;; &t) ;; 
+    ?move_h(robot(R)) ;; &t ;; *(?no_move(robot(R)) ;; &t) )
      
-    .>? &true .>* &false}
+    .>? &t .>* &false}
 
 , robot(R).
 
 % :- not &del{*(
 
-%     ?move_h(robot(R)) ;; &true ;; 
-%     ?move_v(robot(R)) ;; &true)
+%     ?move_h(robot(R)) ;; &t ;; 
+%     ?move_v(robot(R)) ;; &t)
      
-%     .>? &true .>* &false}
+%     .>? &t .>* &false}
 
 % , robot(R).
 
 % :- not &del{*(
 
-%     ?move_h(robot(R)) ;; &true ;; 
-%     ?move_v(robot(R)) ;; &true)
+%     ?move_h(robot(R)) ;; &t ;; 
+%     ?move_v(robot(R)) ;; &t)
      
-%     .>? *(?no_move(robot(R));; &true).>? &true .>* &false}
+%     .>? *(?no_move(robot(R));; &t).>? &t .>* &false}
 
 % , robot(R).
 
 % :- not &del{*(
 
-%     ?move_h(robot(R)) ;; &true ;; 
-%     ?move_v(robot(R)) ;; &true)
+%     ?move_h(robot(R)) ;; &t ;; 
+%     ?move_v(robot(R)) ;; &t)
      
-%     .>? &true}
+%     .>? &t}
 
 % , robot(R).

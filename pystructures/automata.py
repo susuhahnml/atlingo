@@ -172,7 +172,7 @@ class Automata():
             label = s._label if labels else s._id
             if labels and latex:
                 label = label.replace("<","\\deventually{").replace("[","\\dalways{")
-                label = label.replace("&skip","\\top")
+                label = label.replace("&t","\\stp")
                 label = label.replace("&true","\\top")
                 label = label.replace("&false","\\bot")
                 label = label.replace("~","\\neg")

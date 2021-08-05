@@ -9,7 +9,7 @@
 
 #const horizon = 8. %Passed as a parameter
 #const lambda = horizon+1. %Passed as a parameter
-
+:- horizon!=lambda-1.
 % Last holds in horizon
 trace(ID,lambda-1):-prop(ID,"last").
 

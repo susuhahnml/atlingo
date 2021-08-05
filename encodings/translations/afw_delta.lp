@@ -29,11 +29,11 @@ delta_full(diamond(test(F1),F2),((CF1,CF2),OptF2,A),Q') :-
     delta_full(F2,(CF2,OptF2,A),Q'),
     delta_full(F1,(CF1,_,_),_).
 
-%--- diamond(top,F)
+%--- diamond(stp,F)
 
 %If not last then F
-delta_full(diamond(top,F),(1,out,LAQT),F) :- 
-    state_full(diamond(top,F)),
+delta_full(diamond(stp,F),(1,out,LAQT),F) :- 
+    state_full(diamond(stp,F)),
     prop(LAQT,"last").
 
 %--- diamond(sequence(P1,P2),F)
@@ -82,16 +82,16 @@ delta_full(box(test(F1),F2),((1,CF2),Opt,A),Q') :-
     state_full(box(test(F1),F2)),
     delta_full(F2,(CF2,Opt,A),Q').
 
-%--- box(top,F)
+%--- box(stp,F)
 
 %If last then true
-delta_full(box(top,F),(0,in,LAST),true) :- 
-    state_full(box(top,F)),
+delta_full(box(stp,F),(0,in,LAST),true) :- 
+    state_full(box(stp,F)),
     prop(LAST,"last").
 
 %If not last then F
-delta_full(box(top,F),(1,out,LAST),F) :- 
-    state_full(box(top,F)),
+delta_full(box(stp,F),(1,out,LAST),F) :- 
+    state_full(box(stp,F)),
     prop(LAST,"last").
 
 %--- box(sequence(P1,P2),F)

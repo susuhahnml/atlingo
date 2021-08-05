@@ -1,5 +1,5 @@
 :- not &del{ 
-    (* &true) ;; ?waits(robot(R)) .>? 
-     &true .>* &false
+    (* &t) ;; ?waits(robot(R)) .>? 
+     &t .>* &false
     }, 
     robot(R).

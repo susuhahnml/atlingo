@@ -20,6 +20,7 @@ reserved_words("holds").
 reserved_words("trace").
 reserved_words("last").
 reserved_words("true").
+reserved_words("t").
 reserved_words("false").
 
 pos_prop_id(ID) :- theory_function(ID,ID_O,ID_T),

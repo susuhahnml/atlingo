@@ -4,8 +4,8 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- not &del{* (?move(robot(X),(1,0)) ;; &true;; ? ~ move(robot(X),(1,0));; &true).>? &true .>* &false}, robot(X).
+:- not &del{* (?move(robot(X),(1,0)) ;; &t;; ? ~ move(robot(X),(1,0));; &t).>? &t .>* &false}, robot(X).
 
-% :- not &del{?move(robot(X),(1,0)) ;; &true;; ? wait(robot(X));; &true ;; * (?move(robot(X),(1,0)) ;; &true;; ? wait(robot(X))) .>? (&true .>* &false)}, robot(X).
+% :- not &del{?move(robot(X),(1,0)) ;; &t;; ? wait(robot(X));; &t ;; * (?move(robot(X),(1,0)) ;; &t;; ? wait(robot(X))) .>? (&t .>* &false)}, robot(X).
 
-% :- not &del{&true}.
+% :- not &del{&t}.

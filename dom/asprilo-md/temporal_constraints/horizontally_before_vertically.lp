@@ -4,28 +4,28 @@
 
 % :- not &del{
 %     (
-%         * ( &true ;; ( ? move_horizontally(robot(R)) + ? wait(robot(R)))) ;; 
-%         * ( &true ;; ( ? move_vertically(robot(R)) + ? wait(robot(R)))) 
+%         * ( &t ;; ( ? move_horizontally(robot(R)) + ? wait(robot(R)))) ;; 
+%         * ( &t ;; ( ? move_vertically(robot(R)) + ? wait(robot(R)))) 
 %     ) .>?
-%     (&true.>* &false)   }, robot(R).
+%     (&t.>* &false)   }, robot(R).
 
 
 % :- not &del{
-%        (* ( ( ? no_move_vertically(robot(R)) ) ;; &true ))  .>? 
-%         ( (* &true ) .>* no_move_horizontally(robot(R)) )
+%        (* ( ( ? no_move_vertically(robot(R)) ) ;; &t ))  .>? 
+%         ( (* &t ) .>* no_move_horizontally(robot(R)) )
 % }, robot(R).
 
 % :- not &del{
-%        &true .>? (* ( ( ? no_move_vertically(robot(R)) ) ;; &true ))  .>? 
-%         ( (* &true ) .>* no_move_horizontally(robot(R)) )
+%        &t .>? (* ( ( ? no_move_vertically(robot(R)) ) ;; &t ))  .>? 
+%         ( (* &t ) .>* no_move_horizontally(robot(R)) )
 % }, robot(R).
 
 :- not &del{
-       (* ( ( ? no_move_vertically(robot(R)) ) ;; &true ))  .>? 
-        ( (* &true ) .>* no_move_horizontally(robot(R)) )
+       (* ( ( ? no_move_vertically(robot(R)) ) ;; &t ))  .>? 
+        ( (* &t ) .>* no_move_horizontally(robot(R)) )
 }, robot(R).
 
 % :- not &del{
-%        (* ( ( ? no_move_vertically(robot(1)) ) ;; &true ))  .>? 
-%         ( (* &true ) .>* no_move_horizontally(robot(1)) )
+%        (* ( ( ? no_move_vertically(robot(1)) ) ;; &t ))  .>? 
+%         ( (* &t ) .>* no_move_horizontally(robot(1)) )
 % }.

@@ -21,6 +21,13 @@ initial_state_full(F) :- theory_atom(ID_A,ID_O,ID_E),
 theory_id_to_predicate(ID,prop(ID)) :- 
         prop_id(ID).
 
+% Step
+theory_id_to_predicate(ID,stp) :-                                                        
+        theory_function(ID,ID_O,ID_T), 
+        theory_string(ID_O,"&"),
+        theory_tuple(ID_T,0,ID_L),
+        theory_string(ID_L,"t").
+
 % Top
 theory_id_to_predicate(ID,top) :-                                                        
         theory_function(ID,ID_O,ID_T), 

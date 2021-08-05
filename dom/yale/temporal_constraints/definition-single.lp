@@ -2,20 +2,20 @@
 :- not &del{
    ? alive ;;
    ? ~loaded ;;
-    * &true .>*
+    * &t .>*
     ( 
         ? (?load .>* ~shoot)  ;;
         ? (?shoot.>* ~load)  ;;
 
-        ? (?shoot ;; ?loaded ;; &true .>* ~alive) ;;
-        ? (?shoot ;; &true .>* ~loaded) ;;
+        ? (?shoot ;; ?loaded ;; &t .>* ~alive) ;;
+        ? (?shoot ;; &t .>* ~loaded) ;;
 
-        ? (?load ;; &true .>* loaded) ;;
+        ? (?load ;; &t .>* loaded) ;;
 
-        ? (? ~alive ;; &true .>* ~alive) ;;
-        ? (? alive ;; ? ~shoot + ? ~loaded ;; &true .>* alive) ;;
-        ? (? ~loaded ;; ? ~load  ;; &true .>* ~loaded);;
-        ? (?( &true .>* &false) .>* ~alive)
+        ? (? ~alive ;; &t .>* ~alive) ;;
+        ? (? alive ;; ? ~shoot + ? ~loaded ;; &t .>* alive) ;;
+        ? (? ~loaded ;; ? ~load  ;; &t .>* ~loaded);;
+        ? (?( &t .>* &false) .>* ~alive)
     )
 
     .>? &true

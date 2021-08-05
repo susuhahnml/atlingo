@@ -1,2 +1,2 @@
-:- not &del{ *( (*(?up ;; &true) + *(?down ;; &true)) ;; ?ready;; ?serve;; &true)
-		 ;; *(?wait ;; &true) .>? &true.>* &false }.
+:- not &del{ *( (*(?up ;; &t) + *(?down ;; &t)) ;; ?ready;; ?serve;; &t)
+		 ;; *(?wait ;; &t) .>? &t.>* &false }.

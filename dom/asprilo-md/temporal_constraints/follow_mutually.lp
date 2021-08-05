@@ -4,16 +4,16 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- not &del{(* &true) .>? (
-    ?following(robot(X),robot(Y)) ;; &true ;; ?following(robot(Y),robot(X)) ;; &true ;; 
-    ?following(robot(X),robot(Y)) ;; &true ;; ?following(robot(Y),robot(X)) ;; &true ;; 
-    ?following(robot(X),robot(Y)) ;; &true ;; ?following(robot(Y),robot(X)) ;; &true 
+:- not &del{(* &t) .>? (
+    ?following(robot(X),robot(Y)) ;; &t ;; ?following(robot(Y),robot(X)) ;; &t ;; 
+    ?following(robot(X),robot(Y)) ;; &t ;; ?following(robot(Y),robot(X)) ;; &t ;; 
+    ?following(robot(X),robot(Y)) ;; &t ;; ?following(robot(Y),robot(X)) ;; &t 
 
-% *(?following(robot(X),robot(Y)) ;; &true) ;; 
+% *(?following(robot(X),robot(Y)) ;; &t) ;; 
 
-% ?following(robot(Y),robot(X)) ;; &true ;; 
+% ?following(robot(Y),robot(X)) ;; &t ;; 
 
-% *(?following(robot(Y),robot(X)) ;; &true)
+% *(?following(robot(Y),robot(X)) ;; &t)
 
 .>? &true)}, robot(X), robot(Y), Y!=X.
-% :- not &del{(* &true) .>? (?move_d(robot(X)) ;; &true ;; ?move_d(robot(X)) ;; &true).>? (*(&true).>* ( move_v(robot(X)) + ?move_h(robot(X))) .>* &false)}, robot(X).
+% :- not &del{(* &t) .>? (?move_d(robot(X)) ;; &t ;; ?move_d(robot(X)) ;; &t).>? (*(&t).>* ( move_v(robot(X)) + ?move_h(robot(X))) .>* &false)}, robot(X).
