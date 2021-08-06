@@ -51,44 +51,37 @@ make asprilo-abc-robots-instance
 ./run_bm.sh asprilo-abc nc 30 1
 
 
-# make clean -s
+make clean -s
 
-# make asprilo-clean-instances
-# make asprilo-abc-small-robots-instance
+make asprilo-clean-instances
+make asprilo-abc-small-instance
 ###### ALL MODELS
 
 
-# ./run_bm.sh asprilo-abc afw 25 0 all- --project=show
-# ./run_bm.sh asprilo-abc afw 26 0 all- --project=show
+./run_bm.sh asprilo-abc afw 12 0 all- --project=show
+./run_bm.sh asprilo-abc afw 13 0 all- --project=show
+./run_bm.sh asprilo-abc afw 14 0 all- --project=show
 
-# ./run_bm.sh asprilo-abc telingo 25 0 all- --project=show
-# ./run_bm.sh asprilo-abc telingo 26 0 all- --project=show
+./run_bm.sh asprilo-abc telingo 12 0 all- --project=show
+./run_bm.sh asprilo-abc telingo 13 0 all- --project=show
+./run_bm.sh asprilo-abc telingo 14 0 all- --project=show
 
-# ./run_bm.sh asprilo-abc dfa-mso 25 0 all- --project=show
-# ./run_bm.sh asprilo-abc dfa-mso 26 0 all- --project=show
+./run_bm.sh asprilo-abc dfa-stm 12 0 all- --project=show
+./run_bm.sh asprilo-abc dfa-stm 13 0 all- --project=show
+./run_bm.sh asprilo-abc dfa-stm 14 0 all- --project=show
 
-# ./run_bm.sh asprilo-abc dfa-stm 25 0 all- --project=show
-# ./run_bm.sh asprilo-abc dfa-stm 26 0 all- --project=show
+./run_bm.sh asprilo-abc dfa-mso 12 0 all- --project=show
+./run_bm.sh asprilo-abc dfa-mso 13 0 all- --project=show
+./run_bm.sh asprilo-abc dfa-mso 14 0 all- --project=show
 
-# ./run_bm.sh asprilo-abc nc 25 0 all- --project=show
-# ./run_bm.sh asprilo-abc nc 26 0 all- --project=show
-
-# make clean -s
-
-###### PROJECTED MODELS TO VERIFY CORRECTENESS proj- --project=show
-
-#./run_bm.sh asprilo-abc afw 12 0 proj- --project=show
-
-#./run_bm.sh asprilo-abc telingo 12 0 proj- --project=show
-
-#./run_bm.sh asprilo-abc dfa-mso 12 0 proj --project=show
-
-#./run_bm.sh asprilo-abc dfa-stm 12 0 proj --project=show
+./run_bm.sh asprilo-abc nc 12 0 all- --project=show
+./run_bm.sh asprilo-abc nc 13 0 all- --project=show
+./run_bm.sh asprilo-abc nc 14 0 all- --project=show
 
 
 python size-table.py
 
-# make clean -s
+make clean -s
 
 ./print_summary.sh asprilo-abc
 

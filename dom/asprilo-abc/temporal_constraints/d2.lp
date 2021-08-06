@@ -1,6 +1,6 @@
 :- not &del{
            *( *(&t ;; ?move_atlingo(robot(R))) ;; %Move towards shelve
-              *(&t ;; ?pickup_atlingo(robot(R))) ;;  %Pickup
+              &t ;; ?pickup_atlingo(robot(R)) ;;  %Pickup
               *(&t ;; ?move_atlingo(robot(R))) ;;  %Move towards pick station
               &t ;; ?process_atlingo(robot(R));; ?waits(robot(R)) ;; %Deliver 
               *(&t ;; ?move_atlingo(robot(R)));; %Move to dropping place

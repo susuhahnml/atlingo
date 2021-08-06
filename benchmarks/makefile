@@ -59,9 +59,6 @@ asprilo-clean-instances:
 asprilo-abc-small-instance:
 	mkdir -p ./instances/asprilo/abc/small
 	cp -r ../dom/asprilo-abc/instances/small/* ./instances/asprilo/abc/small/
-asprilo-abc-small-robots-instance:
-	mkdir -p ./instances/asprilo/abc/robots
-	cp -r ../dom/asprilo-abc/instances/robots/x7_y7_n49_r2_s4_ps2_pr4_u4_o4_l4_N001.lp ./instances/asprilo/abc/robots/
 asprilo-abc-robots-instance:
 	mkdir -p ./instances/asprilo/abc/robots
 	cp -r ../dom/asprilo-abc/instances/robots/* ./instances/asprilo/abc/robots/
