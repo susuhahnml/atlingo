@@ -7,14 +7,12 @@
 
 % %-------------------- "last" holds in last timestep ------------------------
 
-#const horizon = 8. %Passed as a parameter
-#const lambda = horizon+1. %Passed as a parameter
-:- horizon!=lambda-1.
+#const horizon = 8. %Passed as a parameter equal to lambda -1
 % Last holds in horizon
-trace(ID,lambda-1):-prop(ID,"last").
+trace(ID,horizon):-prop(ID,"last").
 
 % %-------------------- True holds in all time steps ------------------------
-% trace(true,0..lambda-1). %Now in run
+% trace(true,0..horizon). %Now in run
 
 % %-------------------- Used to better visualize traces ------------------------
 holds_map(T,MAP):- trace(ID,T), prop(ID,MAP).
