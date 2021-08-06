@@ -91,7 +91,7 @@ state_nfa(X,L):-state_nfa_reachable(X,L,T), state_nfa_set_size(X,T).
 %                     #count{C': C'>C, delta_nfa_reachable(ID,(C',_,_),_)}=N.
 
 % True sinking state
-delta_nfa_final(ID,(0,in,true),ID) :-  state_nfa(ID,()).
+delta_nfa_final(ID,(0,in,null),ID) :-  state_nfa(ID,()).
 final_state_nfa(ID) :-  state_nfa(ID,()).
 
 

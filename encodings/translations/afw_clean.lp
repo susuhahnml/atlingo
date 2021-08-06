@@ -26,7 +26,7 @@ drop_delta(C,Q):-
 
 % -------------------- Keep deltas for reachable states
 delta_reachable(ID,(C,Opt,A),ID') :- delta_full(Q,(C,Opt,A),Q'), state(ID,Q), state(ID',Q'), not drop_delta(C,Q).
-delta_reachable(ID,(C,Opt,A),true) :- delta_full(Q,(C,Opt,A),true), state(ID,Q), not drop_delta(C,Q).
+delta_reachable(ID,(C,Opt,A),null) :- delta_full(Q,(C,Opt,A),null), state(ID,Q), not drop_delta(C,Q).
 
 
 % Assign numbers to cases

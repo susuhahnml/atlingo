@@ -9,10 +9,10 @@ def reduce_and(a,keep_true=True):
     if len(a)>0 and type(a[0])==list:
         return [reduce_and(e) for e in a]
     a = set(a)
-    a.discard('true')
+    a.discard('null')
     a = list(a)
     if keep_true and len(a)==0:
-        a.append('true')
+        a.append('null')
     return a
 
 def de_tuple_str_symbol(term):
@@ -134,11 +134,11 @@ class Automata():
                 formula = LDLfFormula.from_symbol(s.arguments[1],id2prop)
                 states[i] = State(i,str(formula))
             elif s.name == 'delta':
-                n_to = "true"  if s.arguments[2].number is None  else s.arguments[2].number
+                n_to = "null"  if s.arguments[2].number is None  else s.arguments[2].number
                 case = str(s.arguments[1].arguments[0])
                 cases.setdefault(i,{}).setdefault(case,([],[]))
                 pos = 0 if s.arguments[1].arguments[1].name == "in" else 1
-                prop = s.arguments[1].arguments[2].number if s.arguments[1].arguments[2].number else "true"
+                prop = s.arguments[1].arguments[2].number if s.arguments[1].arguments[2].number else "null"
                 cases[i][case][pos].append(prop)
                 trans.setdefault(i,{}).setdefault(case,[]).append(n_to)
             elif s.name == "final_state":
@@ -325,14 +325,14 @@ class NFA(Automata):
                     for prop_in in c._not_included:
                         p+=('delta({},({},out,{}),{}).\n').format(tos(s_from),c_id,prop_in,tos(s_to))
                     if c.is_taut():
-                        p+=('delta({},({},in,true),{}).\n').format(tos(s_from),c_id,tos(s_to))
+                        p+=('delta({},({},in,null),{}).\n').format(tos(s_from),c_id,tos(s_to))
                     c_id=c_id+1
         for s in self._final_states_ids:
             p+=('final_state({}).\n').format(tos(s))
     
         p+=('%------- Definition of trace --------.\n')
         for i, prop in self._props.items():
-            if prop == "true":
+            if prop == "null":
                 continue
             if prop[-1]==")":
                 p_with_t = prop[:-1]+",T)"
@@ -373,7 +373,7 @@ class AFW(Automata):
 
             options_per_state = [[] for i in s._label]
             for i, s_afw in enumerate(s._label):
-                if s_afw == "true" or not s_afw in self._transitions:
+                if s_afw == "null" or not s_afw in self._transitions:
                     continue
                 options_per_state[i]=[]
                 for c,s_nexts in  self._transitions[s_afw].items():

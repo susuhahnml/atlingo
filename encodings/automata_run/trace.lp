@@ -9,6 +9,7 @@
 
 #const horizon = 8. %Passed as a parameter equal to lambda -1
 % Last holds in horizon
+% last(horizon).
 trace(ID,horizon):-prop(ID,"last").
 
 % %-------------------- True holds in all time steps ------------------------

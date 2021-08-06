@@ -119,6 +119,7 @@ def comapre_apps(constraint,horizon=3,apps=[],test_instance=None):
     models = []
     for app in apps:
         models.append(run_check(constraint,horizon=horizon,app=app,generate=True))
+    # print(apps)
     # print(models)
     test_instance.assertListEqual(models[0],models[1])
     for i in range(len(models)-1):
@@ -656,9 +657,9 @@ class TestMain(TestCase):
 
     def test_ldlf(self):
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{&t .>? b}.")
-        self.assertEqual(formulas[0]._rep,"<(&skip)>b")
+        self.assertEqual(formulas[0]._rep,"<(&t)>b")
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a ;; * (? a + ?b ;; &t) .>? b}.")
-        self.assertEqual(formulas[0]._rep,"<a?;;(a?+b?;;(&skip))*>b")
+        self.assertEqual(formulas[0]._rep,"<a?;;(a?+b?;;(&t))*>b")
         formulas = LDLfFormula.from_lp(inline_data= ":- not &del{ ?a(X) .>* &true}, p(X). p(1). p(2).")
         self.assertEqual(len(formulas),2)
         self.assertEqual(formulas[0]._rep,"[a(1)?] &true ")
@@ -715,6 +716,7 @@ class TestMain(TestCase):
             for h in range(1,4):
                 print("Testing {} with h = {}".format(cons,h))
                 comapre_apps(cons,h,apps=['afw','dfa-mso','dfa-stm','nfa','nfa-afw'],test_instance=self)
+                # comapre_apps(cons,h,apps=['afw','dfa-mso','dfa-stm','nfa','nfa-afw'],test_instance=self)
 
     def test_closure(self):
         formula = LDLfFormula.from_lp(inline_data= ":-not &del{ * ((?p + ?q) ;; &t)  .>* ?r .>? &true}.")[0]
@@ -723,16 +725,16 @@ class TestMain(TestCase):
         formula.closure(s)
         closure = [c._rep.replace(" ","") for c in s]
         assert "p" in closure
-        assert "[(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
-        assert "[p?+q?;;(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
-        assert "[p?+q?][(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
-        assert "[p?][(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
-        assert "[q?][(&skip)][(p?+q?;;(&skip))*]<r?>&true" in closure
+        assert "[(&t)][(p?+q?;;(&t))*]<r?>&true" in closure
+        assert "[p?+q?;;(&t)][(p?+q?;;(&t))*]<r?>&true" in closure
+        assert "[p?+q?][(&t)][(p?+q?;;(&t))*]<r?>&true" in closure
+        assert "[p?][(&t)][(p?+q?;;(&t))*]<r?>&true" in closure
+        assert "[q?][(&t)][(p?+q?;;(&t))*]<r?>&true" in closure
         assert "r" in closure
         assert "<r?>&true" in closure
         assert "&true" in closure
         assert "q" in closure
-        assert "[(p?+q?;;(&skip))*]<r?>&true" in closure
+        assert "[(p?+q?;;(&t))*]<r?>&true" in closure
 
     def test_ldlf2mona(self):
         # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ( ?a + ?c ) ;; &t .>? ?b .>? &t .>* &false }.")[0]

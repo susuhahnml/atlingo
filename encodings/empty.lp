@@ -2,8 +2,8 @@
 error_branching :- delta(ID,(C,T1,P1),ID_NEXT1), 
                    delta(ID,(C,T2,P2),ID_NEXT2), 
                    ID_NEXT1 != ID_NEXT2,
-                   ID_NEXT2 != true,
-                   ID_NEXT1 != true. 
+                   ID_NEXT2 != null,
+                   ID_NEXT1 != null. 
 
 error_contradiction :- delta(ID,(C,T1,P),_), 
                         delta(ID,(C,T2,P),_), 
@@ -24,13 +24,13 @@ reachable_state(ID_NEXT) :- reachable_state(ID);
                             #false :delta(ID,(C,in,PROP_LAST),_);
                             
                             #false :delta(ID,(C,T2,P2),ID_NEXT2), 
-                                              ID_NEXT2!=true, 
+                                              ID_NEXT2!=null, 
                                               ID_NEXT2!=ID_NEXT.
 
-% --------------  Check if true or final from reachable states when maybe 'last'-------------- %
+% --------------  Check if null or final from reachable states when maybe 'last'-------------- %
 
-%Hit true at any point
-sat :- reachable_state(true). 
+%Hit null at any point
+sat :- reachable_state(null). 
 
 %Hit final state without excluding last
 sat :- reachable_state(ID), 
@@ -39,12 +39,12 @@ sat :- reachable_state(ID),
        prop(PROP_LAST,"last"),
        #false: delta(ID,(C,out,PROP_LAST),_).
 
-%Hit trues without excluding last
+%Hit nulls without excluding last
 sat :- reachable_state(ID);
-       delta(ID,(C,T,P),true);
+       delta(ID,(C,T,P),null);
        prop(PROP_LAST,"last");
        #false: delta(ID,(C,out,PROP_LAST),_);
-       #false: delta(ID,(C,_,_),ID_NEXT),ID_NEXT!=true.
+       #false: delta(ID,(C,_,_),ID_NEXT),ID_NEXT!=null.
 
 % unsat :- not sat.
 % :- not sat.

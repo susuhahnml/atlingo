@@ -5,13 +5,13 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %-----------------   Prop
 
-delta_full(prop(A),(0,in,A),true):-state_full(prop(A)).
+delta_full(prop(A),(0,in,A),null):-state_full(prop(A)).
 
 %-----------------   Neg
-delta_full(neg(prop(A)),(0,out,A),true):-state_full(neg(prop(A))).
+delta_full(neg(prop(A)),(0,out,A),null):-state_full(neg(prop(A))).
 
 %-----------------   Boolean
-delta_full(top,(0,in,true),true):-state_full(top).
+delta_full(top,(0,in,null),null):-state_full(top).
 
 %-----------------   Diamond
 
@@ -84,8 +84,8 @@ delta_full(box(test(F1),F2),((1,CF2),Opt,A),Q') :-
 
 %--- box(stp,F)
 
-%If last then true
-delta_full(box(stp,F),(0,in,LAST),true) :- 
+%If last then null
+delta_full(box(stp,F),(0,in,LAST),null) :- 
     state_full(box(stp,F)),
     prop(LAST,"last").
 
