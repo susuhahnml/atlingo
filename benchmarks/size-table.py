@@ -38,12 +38,12 @@ def save(dom,app,cons,instance,model):
 
 for root, dirs, files in os.walk(directory):
     split_root = root.split("/")
-    if len(split_root)!=7:
+    if len(split_root)!=6:
         continue
     dom = split_root[2]
     app = split_root[3]
-    cons = split_root[5]
-    instance = split_root[6]
+    cons = split_root[4]
+    instance = split_root[5]
     automata_file_name =f"{app}_automata.lp"
     if not automata_file_name in files:
         print(f"No automata file for {root}")
