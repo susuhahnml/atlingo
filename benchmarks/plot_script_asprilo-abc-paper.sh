@@ -9,17 +9,17 @@ BASE='--x #horizon --dom asprilo-abc '
 R2='--instance _r2_'
 R3='--instance _r3_'
 # ############ ALL
-python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-" --models 0
-python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-" --models 0
+# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-" --models 0 --use-lambda
+# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-" --models 0 --use-lambda
 
-python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_ALL} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-" --constrain procedure_full --models 0
+# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_ALL} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-" --constrain procedure_full --models 0 --use-lambda
 
 
 # ############ One
-python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --models 1
-python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --models 1
+python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --models 1 --use-lambda
+python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --models 1 --use-lambda
 
-python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_ALL} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --constrain procedure_full --models 1
+python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_ALL} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --constrain d3 --models 1 --use-lambda
 
 ############ Clingo Times
 # python plot.py  --models 0 --x horizon --dom asprilo-abc ${CLINGO_APP} ${R2} --horizon 26 --horizon 27 --horizon 28 --horizon 29 --type bar --stat models --prefix="all-models-models-" --y 'Num models'

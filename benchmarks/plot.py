@@ -30,6 +30,8 @@ parser.add_argument("--prefix", type=str, default="",
         help="Prefix for output files" )
 parser.add_argument("--plotmodels", default=False, action='store_true',
     help="When this flag is passed, the number of models in plotted")
+parser.add_argument("--use-lambda", default=False, action='store_true',
+    help="When this flag is passed, horizons are transform to lambda with +1")
 parser.add_argument("--type", type=str, default="bar",
         help="Bar or table" )
 parser.add_argument("--instance", type=str, default=None,
@@ -63,6 +65,7 @@ if "nc" in approaches:
 horizons = args.horizon
 horizons.sort()
 h2idx = {h:i for i,h in enumerate(horizons)}
+use_lambda = args.use_lambda
 
 models = args.models
 
@@ -191,7 +194,10 @@ for cons in constraints:
         for s in stats:
 
             for h in horizons:
-                row = [s,h]
+                if use_lambda:
+                    row = [s,h+1]
+                else:
+                    row = [s,h]
                 for a in approaches:
                     current_df = dfs[a][h]
                     current_row = current_df.loc[df['instance-name'] == instance]
@@ -240,7 +246,7 @@ if args.type == "table":
                 if isinstance(x, np.floating):
                     if np.isnan(x):
                         return "\\color{red}{-}"
-                    return "\\color{black!60}{"+str(f'{int(x):,}')+"}"
+                    return str(f'{int(x):,}')
                 if x in stats:
                     if x in formatted_stats:
                         return ""
@@ -249,19 +255,31 @@ if args.type == "table":
                 if type(x) is str and x[-1]== '~':
                     return '\\sout{'+x[:-1]+'}'
                 if type(x) is str and x[-1]== '*':
-                    return x
+                    return "\\textbf{"+x[:-1]+"}"
                 if type(x) is int:
                     return x
                 else:
-                    return "\\color{black!60}{"+x+"}"
+                    return x
             
-            headers = ["","H"]  + ["\\textbf{"+str(c)+"}" for c in df.columns[2:]]
+            cons_name = "\\texttt{"+cons.replace('_',' ')+"}"
+            ins_name = "\\texttt{"+ins.replace('_',' ')+"}"
+            if use_lambda:
+                approaches_map = {
+                    "afw":"\\Wfa{"+cons_name+"}{"+ins_name+"}",
+                    "dfa-mso":"\\Wfmm{"+cons_name+"}{"+ins_name+"}",
+                    "dfa-stm":"\\Wfms{"+cons_name+"}{"+ins_name+"}",
+                    "telingo":"\\Wft{"+cons_name+"}{"+ins_name+"}{\\lambda}",
+                    "nc":"\\Wnc{"+ins_name+"}"
+                }
+                headers = ["","$\\lambda$"]  + ["\\textbf{"+approaches_map[str(c)]+"}" for c in df.columns[2:]]
+            else:
+                headers = ["","H"]  + ["\\textbf{"+str(c)+"}" for c in df.columns[2:]]
 
             # df.to_csv(file_name_csv,float_format='%.0f')
             models_str = f"getting {'one model' if models==1 else 'all_models'}"
             tex_table = df.to_latex(
                 index=False,
-                caption=f"Statistics for constraint ``{cons.replace('_',' ')}\" and instance ``{ins.replace('_',' ')}\" {models_str}.",
+                caption=f"Statistics for constraint {cons_name} and instance {ins_name} {models_str}.",
                 formatters=[f_tex]*len(df.columns), 
                 escape=False, 
                 header=headers,
