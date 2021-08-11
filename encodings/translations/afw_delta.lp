@@ -3,20 +3,36 @@
 % %     Computes transtion for states
 % %     delta_full USES PREDICATES 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%-----------------   Prop
+% copy_all
+delta_full(Q2,C):-
+    copy_all(Q1,Q2),
+    delta_full(Q1,C).
+copy_case((Q1,C),(Q2,C)):-
+    copy_all(Q1,Q2),
+    delta_full(Q1,C).
+% copy_case
+delta_full(Q2,C2,T,P):-
+    copy_case((Q1,C1),(Q2,C2)),
+    delta_full(Q1,C1,T,P).
+delta_full(Q2,C2,Q'):-
+    copy_case((Q1,C1),(Q2,C2)),
+    delta_full(Q1,C1,Q').
 
-% delta_full(prop(A),(0,in,A),null):-state_full(prop(A)).
-delta_full(prop(A),0):-state_full(prop(A)).
-delta_full(prop(A),0,in,A):-state_full(prop(A)).
+%-----------------   Prop
+delta_full(prop(A),0):-
+    state_full(prop(A)).
+delta_full(prop(A),0,in,A):-
+    state_full(prop(A)).
 
 %-----------------   Neg
-% delta_full(neg(prop(A)),(0,out,A),null):-state_full(neg(prop(A))).
-delta_full(neg(prop(A)),0):-state_full(neg(prop(A))).
-delta_full(neg(prop(A)),0,out,A):-state_full(neg(prop(A))).
+delta_full(neg(prop(A)),0):-
+    state_full(neg(prop(A))).
+delta_full(neg(prop(A)),0,out,A):-
+    state_full(neg(prop(A))).
 
 %-----------------   Boolean
-% delta_full(top,(0,in,null),null):-state_full(top).
-delta_full(top,0):-state_full(top).
+delta_full(top,0):-
+    state_full(top).
 
 %-----------------   Diamond
 
@@ -26,45 +42,21 @@ delta_full(top,0):-state_full(top).
 
 
 % Conditions from F1
-% delta_full(diamond(test(F1),F2),((CF1,CF2),OptF1,A),Q') :- 
-%     state_full(diamond(test(F1),F2)), 
-%     delta_full(F1,(CF1,OptF1,A),Q'),
-%     delta_full(F2,(CF2,_,_),_).
-
 delta_full(diamond(test(F1),F2),(CF1,CF2)) :- 
     state_full(diamond(test(F1),F2)), 
     delta_full(F1,CF1),
     delta_full(F2,CF2).
 
-% Conditions from F1
-delta_full(diamond(test(F1),F2),(CF1,CF2),T,P) :- 
-    delta_full(diamond(test(F1),F2),(CF1,CF2)),
-    delta_full(F1,CF1,T,P).
-
-% Conditions from F2
-delta_full(diamond(test(F1),F2),(CF1,CF2),T,P) :- 
-    delta_full(diamond(test(F1),F2),(CF1,CF2)),
-    delta_full(F2,CF2,T,P).
-
-% Successors from F1
-delta_full(diamond(test(F1),F2),(CF1,CF2),Q') :- 
-    delta_full(diamond(test(F1),F2),(CF1,CF2)),
-    delta_full(F1,CF1,Q').
-
-% Successors from F2
-delta_full(diamond(test(F1),F2),(CF1,CF2),Q') :- 
-    delta_full(diamond(test(F1),F2),(CF1,CF2)),
-    delta_full(F2,CF2,Q').
+copy_case((F1,CF1),(diamond(test(F1),F2),(CF1,CF2))) :- 
+    delta_full(diamond(test(F1),F2),(CF1,CF2)).
+copy_case((F2,CF2),(diamond(test(F1),F2),(CF1,CF2))) :- 
+    delta_full(diamond(test(F1),F2),(CF1,CF2)).
 
 %--------------------------------------
 % diamond(stp,F)
 %--------------------------------------
 
-
 %If not last then F
-% delta_full(diamond(stp,F),(1,out,LAST),F) :- 
-%     state_full(diamond(stp,F)),
-%     prop(LAST,"last").
 delta_full(diamond(stp,F),0) :- 
     state_full(diamond(stp,F)).
 % Conditions
@@ -78,31 +70,13 @@ delta_full(diamond(stp,F),0,F) :-
 %--------------------------------------
 % diamond(sequence(P1,P2),F)
 %--------------------------------------
-
-% delta_full(diamond(sequence(P1,P2),F),(C,Opt,A),Q'):-
-%     state_full(diamond(sequence(P1,P2),F)),
-%     delta_full(diamond(P1,diamond(P2,F)),(C,Opt,A),Q').
-delta_full(diamond(sequence(P1,P2),F),C):-
+copy_all(diamond(P1,diamond(P2,F)),diamond(sequence(P1,P2),F)) :- 
     state_full(diamond(sequence(P1,P2),F)),
-    delta_full(diamond(P1,diamond(P2,F)),C).
-delta_full(diamond(sequence(P1,P2),F),C,T,P):-
-    delta_full(diamond(sequence(P1,P2),F),C),
-    delta_full(diamond(P1,diamond(P2,F)),C,T,P).
-delta_full(diamond(sequence(P1,P2),F),C,Q'):-
-    delta_full(diamond(sequence(P1,P2),F),C),
-    delta_full(diamond(P1,diamond(P2,F)),C,Q').
+    state_full(diamond(P1,diamond(P2,F))).
 
 %--------------------------------------
 % diamond(choice(P1,P2),F)
 %--------------------------------------
-
-% delta_full(diamond(choice(P1,P2),F),((0,CP1),OptP1,A),Q'):-
-%     state_full(diamond(choice(P1,P2),F)),
-%     delta_full(diamond(P1,F),(CP1,OptP1,A),Q').
-
-% delta_full(diamond(choice(P1,P2),F),((1,CP2),OptP2,A),Q'):-
-%     state_full(diamond(choice(P1,P2),F)),
-%     delta_full(diamond(P2,F),(CP2,OptP2,A),Q').
 
 delta_full(diamond(choice(P1,P2),F),(0,CP1)):-
     state_full(diamond(choice(P1,P2),F)),
@@ -111,75 +85,37 @@ delta_full(diamond(choice(P1,P2),F),(1,CP2)):-
     state_full(diamond(choice(P1,P2),F)),
     delta_full(diamond(P2,F),CP2).
 
-delta_full(diamond(choice(P1,P2),F),(0,CP1),T,P):-
-delta_full(diamond(choice(P1,P2),F),(0,CP1)),
-delta_full(diamond(P1,F),CP1,T,P).
-delta_full(diamond(choice(P1,P2),F),(1,CP2),T,P):-
-delta_full(diamond(choice(P1,P2),F),(1,CP2)),
-delta_full(diamond(P2,F),CP2,T,P).
+copy_case((diamond(P1,F),CP1),(diamond(choice(P1,P2),F),(0,CP1))) :- 
+    delta_full(diamond(choice(P1,P2),F),(0,CP1)).
 
-delta_full(diamond(choice(P1,P2),F),(0,CP1),Q'):-
-delta_full(diamond(choice(P1,P2),F),(0,CP1)),
-delta_full(diamond(P1,F),CP1,Q').
-delta_full(diamond(choice(P1,P2),F),(1,CP2),Q'):-
-delta_full(diamond(choice(P1,P2),F),(1,CP2)),
-delta_full(diamond(P2,F),CP2,Q').
+copy_case((diamond(P2,F),CP2),(diamond(choice(P1,P2),F),(1,CP2))) :- 
+    delta_full(diamond(choice(P1,P2),F),(1,CP2)).
 
 %--------------------------------------
 % diamond(star(P1),F)
 %--------------------------------------
 
+
 is_test(test(P)):-state_full(diamond(star(test(P)),F)).
+% Test case
+copy_all(F,diamond(star(test(P)),F)):-
+    state_full(diamond(star(test(P)),F)).
 
-% delta_full(diamond(star(test(P)),F),(C,Opt,A),Q') :- 
-%     state_full(diamond(star(test(P)),F)), 
-%     delta_full(F,(C,Opt,A),Q').
-
-% copy_all(F,diamond(star(test(P)),F)):-state_full(diamond(star(test(P)),F)).
-delta_full(diamond(star(test(P)),F),C) :- 
-    state_full(diamond(star(test(P)),F)), 
-    delta_full(F,C).
-delta_full(diamond(star(test(P)),F),C,T,P) :- 
-    state_full(diamond(star(test(P)),F)), 
-    delta_full(F,C,T,P).
-delta_full(diamond(star(test(P)),F),C,Q') :- 
-    state_full(diamond(star(test(P)),F)), 
-    delta_full(F,C,Q').
-
-
-
-% delta_full(diamond(star(P),F),((0,CP),OptP,A),Q') :- 
-%     state_full(diamond(star(P),F)), 
-%     not is_test(P),
-%     delta_full(diamond(P,diamond(star(P),F)),(CP,OptP,A),Q').
-
-
-% delta_full(diamond(star(P),F),((1,CF),OptF,A),Q') :- 
-%     state_full(diamond(star(P),F)), 
-%     not is_test(P),
-%     delta_full(F,(CF,OptF,A),Q').
+% No Test case
 
 delta_full(diamond(star(P),F),(0,C)) :- 
     state_full(diamond(star(P),F)), not is_test(P),
     delta_full(diamond(P,diamond(star(P),F)),C).
-% copy((diamond(P,diamond(star(P),F)),C),(diamond(star(P),F),(0,C))).
-delta_full(diamond(star(P),F),(0,C),T,A) :- 
-    state_full(diamond(star(P),F)), not is_test(P),
-    delta_full(diamond(P,diamond(star(P),F)),C,T,A).
-delta_full(diamond(star(P),F),(0,C),Q') :- 
-    state_full(diamond(star(P),F)), not is_test(P),
-    delta_full(diamond(P,diamond(star(P),F)),C,Q').
 
 delta_full(diamond(star(P),F),(1,C)) :- 
     state_full(diamond(star(P),F)), not is_test(P),
     delta_full(F,C).
-% copy((diamond(P,diamond(star(P),F)),C),(diamond(star(P),F),(0,C))).
-delta_full(diamond(star(P),F),(1,C),T,A) :- 
-    state_full(diamond(star(P),F)), not is_test(P),
-    delta_full(F,C,T,A).
-delta_full(diamond(star(P),F),(1,C),Q') :- 
-    state_full(diamond(star(P),F)), not is_test(P),
-    delta_full(F,C,Q').
+
+copy_case((diamond(P,diamond(star(P),F)),C),(diamond(star(P),F),(0,C))):-
+    delta_full(diamond(star(P),F),(0,C)), not is_test(P).
+
+copy_case((F,C),(diamond(star(P),F),(1,C))):-
+    delta_full(diamond(star(P),F),(1,C)), not is_test(P).
 
 %-----------------   Box
 
