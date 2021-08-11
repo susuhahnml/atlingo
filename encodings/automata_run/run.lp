@@ -9,12 +9,12 @@
 
 node(ID,0) :- initial_state(ID).
 
-1{select_case(C,Q,T):delta(Q,(C,_,_),_)}1 :- node(Q,T),T<=horizon.
+1{select_case(C,Q,T):delta(Q,C)}1 :- node(Q,T),T<=horizon.
 
-node(Q',T+1) :- select_case(C,Q,T), delta(Q,(C,_,_),Q'), Q'!=null.
+node(Q',T+1) :- select_case(C,Q,T), delta(Q,C,Q').
 
-:- select_case(C,Q,T), delta(Q,(C,in,A),_), not trace(A,T), A!=null.
-:- select_case(C,Q,T), delta(Q,(C,out,A),_), trace(A,T), A!=null.
+:- select_case(C,Q,T), delta(Q,C,in,A), not trace(A,T).
+:- select_case(C,Q,T), delta(Q,C,out,A), trace(A,T).
 
 :- node(ID,horizon+1), not final_state(ID).
 

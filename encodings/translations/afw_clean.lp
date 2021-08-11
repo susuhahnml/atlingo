@@ -3,9 +3,18 @@
 % %     Keep reachable states and map to ids
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% -------------------- Remove contradicting cases: (C,in,A) and (C,out,A)
+drop_delta(Q,C):- 
+    delta_full(Q,C,NotOpt,P), 
+    delta_full(Q,C,Opt,P), 
+    NotOpt!=Opt.
+
+drop_delta(Q,C):- 
+    delta_full(Q,C,bottom). 
+
 % -------------------- Define reachable states
 reachable(F) :- initial_state_full(F).
-reachable(Q') :- delta_full(Q,_,Q'), reachable(Q), Q'!=bottom.
+reachable(Q') :- delta_full(Q,C,Q'), reachable(Q), not drop_delta(Q,C).
 
 % -------------------- Assign ids to states
 state(0,Q) :- initial_state_full(Q), #count{1,Q':initial_state_full(Q'),Q'<Q}=0.
@@ -15,34 +24,10 @@ state(1+N,Q) :-
 
 initial_state(ID):-initial_state_full(F),state(ID,F).
 
-% -------------------- Remove contradicting cases: (C,in,A) and (C,out,A)
-drop_delta(C,Q):- 
-    delta_full(Q,(C,Opt,A),Q'), 
-    delta_full(Q,(C,NotOpt,A),Q''), 
-    NotOpt!=Opt.
 
-drop_delta(C,Q):- 
-    delta_full(Q,(C,_,_),bottom). 
-
-% -------------------- Keep deltas for reachable states
-delta_reachable(ID,(C,Opt,A),ID') :- delta_full(Q,(C,Opt,A),Q'), state(ID,Q), state(ID',Q'), not drop_delta(C,Q).
-delta_reachable(ID,(C,Opt,A),null) :- delta_full(Q,(C,Opt,A),null), state(ID,Q), not drop_delta(C,Q).
+% -------------------- Keep deltas from reachable states
+delta(Q_ID,C) :- delta_full(Q,C), state(Q_ID,Q), not drop_delta(Q,C).
+delta(Q_ID,C,T,P) :- delta(Q_ID,C), delta_full(Q,C,T,P), state(Q_ID,Q).
+delta(Q_ID,C,Q_ID') :- delta(Q_ID,C), delta_full(Q,C,Q'), state(Q_ID,Q), state(Q_ID',Q').
 
 
-% Assign numbers to cases
-% delta(Q,(N,Opt,A),Q'):- delta_reachable(Q,(C,Opt,A),Q'), not drop_delta(C,Q), 
-%                 #count{C': C'>C, delta_reachable(Q,(C',_,_),_), not drop_delta(C',Q)}=N.
-
-delta(Q,(C,Opt,A),Q'):- delta_reachable(Q,(C,Opt,A),Q'), not drop_delta(C,Q).
-
-
-
-% -------------------- Remove cases for irelevat atoms using binary resolution 
-% delta(Q,C,Q'):-delta_reachable(Q,C,Q').
-
-% drop_delta_atom(C1,A,Q) :-
-%     delta_reachable(Q,(C1,OptA,A),Q'),
-%     delta_reachable(Q,(C2,NotOptA,A),Q'),
-%     OptA!=NotOptA,
-%     #count{OptB,B:delta_reachable(Q,(C2,OptB,B),Q'),not delta_reachable(Q,(C1,OptB,B),Q'),B!=A}=0,
-%     #count{OptB,B:not delta_reachable(Q,(C2,OptB,B),Q'), delta_reachable(Q,(C1,OptB,B),Q'),B!=A}=0.

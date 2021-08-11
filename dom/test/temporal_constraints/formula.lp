@@ -35,4 +35,7 @@
 % :- not &del{  ? (&t .>* &false) ;; ?p .>? &true}. %Not Empty
 % :- not &del{  ? (?p ;; &t ;; ?p ;; &t .>? &t .>* &false ) ;; ? (?p ;; &t .>? &t .>* &false ) .>? &true}. %Empty problematic because of last
 
-:- not &del{  ? (?p ;; &t ;; ? ~q ;; &t .>? &t .>* &false ) ;; ? (?p ;; &t ;; ?q ;; &t .>? &t .>* &false ) .>? &true}. %Empty
+% :- not &del{  ? (?p ;; &t ;; ? ~q ;; &t .>? &t .>* &false ) ;; ? (?p ;; &t ;; ?q ;; &t .>? &t .>* &false ) .>? &true}. %Empty
+
+% :- not &del{ (* &t) .>* ?p.>*q }.
+:- not &del{ &t ;; &t ;; &t .>* p }.

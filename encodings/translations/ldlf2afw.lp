@@ -34,6 +34,13 @@
 
 #show state/2.
 #show delta/3.
+#show delta/2.
+#show delta/4.
+#show delta_full/3.
+#show delta_full/2.
+#show delta_full/4.
+#show is_test/1.
+#show full/3.
 #show initial_state/1.
 #show prop/2.
 
