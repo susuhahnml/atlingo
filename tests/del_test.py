@@ -237,18 +237,18 @@ class TestMain(TestCase):
         self.assert_sat(result)
         
         # Step (Box)
-        # result = run_check(":-not &del{ &t .>* p}.",trace="",horizon=2)
-        # self.assert_unsat(result)   
+        result = run_check(":-not &del{ &t .>* p}.",trace="",horizon=2)
+        self.assert_unsat(result)   
         
-        # result = run_check(":-not &del{ &t .>* p}.",trace="p(1).",horizon=2)
-        # self.assert_all([[(2,'"last"'),(1,'"p"')]],result)   
+        result = run_check(":-not &del{ &t .>* p}.",trace="p(1).",horizon=2)
+        self.assert_all([[(2,'"last"'),(1,'"p"')]],result)   
         
-        # result = run_check(":-not &del{ &t .>* p}.",trace="q(2).",horizon=2)
-        # self.assert_unsat(result)   
+        result = run_check(":-not &del{ &t .>* p}.",trace="q(2).",horizon=2)
+        self.assert_unsat(result)   
 
-        # result = run_check(":-not &del{ &t .>* p}.",trace="",horizon=0)
-        # self.assert_all([[(0,'"last"')]],result)
-        # self.assert_sat(result)   
+        result = run_check(":-not &del{ &t .>* p}.",trace="",horizon=0)
+        self.assert_all([[(0,'"last"')]],result)
+        self.assert_sat(result)   
         
 
         # Test construct (Diamond)
@@ -263,11 +263,11 @@ class TestMain(TestCase):
         
         # Test construct (Box)
 
-        # result = run_check(":-not &del{ ?q .>* p}.",trace="",horizon=2)
-        # self.assert_all([[(2,'"last"')]],result)     
+        result = run_check(":-not &del{ ?q .>* p}.",trace="",horizon=2)
+        self.assert_all([[(2,'"last"')]],result)     
 
-        # result = run_check(":-not &del{ ?q .>* p}.",trace="q(2).",horizon=2)
-        # self.assert_all([[(2,'"last"'),(2,'"q"')]],result)     
+        result = run_check(":-not &del{ ?q .>* p}.",trace="q(2).",horizon=2)
+        self.assert_all([[(2,'"last"'),(2,'"q"')]],result)     
 
 
         # Sequence (Diamond)
@@ -283,20 +283,20 @@ class TestMain(TestCase):
 
         # Sequence (Box)
 
-        # result = run_check(":-not &del{ ?q ;; &t .>* p}.",trace="q(0). p(1).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q ;; &t .>* p}.",trace="q(0). p(1).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q ;; &t .>* p}.",trace="p(1).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q ;; &t .>* p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q ;; &t .>* p}.",trace="",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q ;; &t .>* p}.",trace="",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0). p(0).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0). p(0).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q ;; ?p .>* &true}.",trace="q(0).",horizon=2)
+        self.assert_sat(result)
 
         # Choice (Diamond)
 
@@ -321,26 +321,26 @@ class TestMain(TestCase):
 
         # Choice (Box)
 
-        # result = run_check(":-not &del{ ?q + &t .>* p}.",trace="q(0). p(0).",horizon=0)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q + &t .>* p}.",trace="q(0). p(0).",horizon=0)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q + &t .>* p}.",trace="p(1).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q + &t .>* p}.",trace="p(1).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q + &t .>* p}.",trace="",horizon=0)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q + &t .>* p}.",trace="",horizon=0)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).q(0).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="p(0).q(0).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ ?q + ?p .>* &true}.",trace="",horizon=2)
+        self.assert_sat(result)
 
         # Star (Diamond)
         
@@ -370,32 +370,32 @@ class TestMain(TestCase):
 
         # Star (Box)
 
-        # result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="p(0).",horizon=0)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="p(0).",horizon=0)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="",horizon=0)
-        # self.assert_unsat(result)
+        result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="",horizon=0)
+        self.assert_unsat(result)
 
-        # result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="p(0).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="p(1).",horizon=2)
-        # self.assert_unsat(result)
+        result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="p(1).",horizon=2)
+        self.assert_unsat(result)
 
-        # result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="q(0).p(1).p(0).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="q(0).p(1).p(0).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="q(0).q(1).p(2).p(0).p(1).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="q(0).q(1).p(2).p(0).p(1).",horizon=2)
+        self.assert_sat(result)
 
-        # result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="q(0).q(1).",horizon=2)
-        # self.assert_unsat(result)
+        result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="q(0).q(1).",horizon=2)
+        self.assert_unsat(result)
 
-        # result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="q(0).q(1).p(1).",horizon=2)
-        # self.assert_unsat(result)
+        result = run_check(":-not &del{ * (?q ;; &t) .>* p}.",trace="q(0).q(1).p(1).",horizon=2)
+        self.assert_unsat(result)
 
-        # result = run_check(":-not &del{ * (?q) .>* p}.",trace="p(0).",horizon=2)
-        # self.assert_sat(result)
+        result = run_check(":-not &del{ * (?q) .>* p}.",trace="p(0).",horizon=2)
+        self.assert_sat(result)
 
     def test_check_telingo(self):
         self.maxDiff=None
