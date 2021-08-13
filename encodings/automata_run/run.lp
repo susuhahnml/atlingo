@@ -9,20 +9,20 @@
 
 node(ID,0) :- initial_state(ID).
 
-1{select_case(C,Q,T):delta(Q,C)}1 :- node(Q,T),T<=horizon.
+1{select(C,Q,T):delta(Q,C)}1 :- node(Q,T),T<=horizon.
 
-node(Q',T+1) :- select_case(C,Q,T), delta(Q,C,Q').
+node(Q',T+1) :- select(C,Q,T), delta(Q,C,Q').
 
-:- select_case(C,Q,T), delta(Q,C,in,A), not trace(A,T).
-:- select_case(C,Q,T), delta(Q,C,out,A), trace(A,T).
+:- select(C,Q,T), delta(Q,C,in,A), not trace(A,T).
+:- select(C,Q,T), delta(Q,C,out,A), trace(A,T).
 
 :- node(ID,horizon+1), not final_state(ID).
 
 % #show holds_map/2.
 % #show trace/2.
 % #show node/2.
-% #show select_case/3.
-% #show select_case/3.
+% #show select/3.
+% #show select/3.
 % #show node/2.
 % #show delta/2.
 % #show initial_state/1.

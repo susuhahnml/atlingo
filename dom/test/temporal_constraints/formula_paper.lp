@@ -1,2 +1,2 @@
-:- not &del{  ? (* &true .>* b) ;; &true .>? a }.
+:- not &del{  ? (* &t .>* b) ;; &t .>? a }.
 

@@ -3,6 +3,8 @@
 % %     Computes transtion for states
 % %     delta_full USES PREDICATES 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%-----------------   Axiliary to copy all conditions and successor states
 % copy_all
 delta_full(Q2,C):-
     copy_all(Q1,Q2),
