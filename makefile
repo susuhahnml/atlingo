@@ -60,7 +60,7 @@ viz-latex:
 
 	# python ./scripts/translater.py --input=afw --app=$(APP) --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(DOM)/afw/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
 
-	python scripts/viz.py --app=$(APP) --DOM=$(DOM) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex
+	python scripts/viz.py --app=$(APP) --dom=$(DOM) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex
 	
 	# @ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
 
@@ -78,7 +78,7 @@ viz-png:
 
 	# python ./scripts/translater.py --input=afw --app=$(APP) --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(DOM)/afw/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
 
-	python scripts/viz.py --app=$(APP) --DOM=$(DOM) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE)
+	python scripts/viz.py --app=$(APP) --dom=$(DOM) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE)
 	
 	@ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
 

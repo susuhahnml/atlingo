@@ -5,16 +5,6 @@ import clingo as _clingo
 import itertools
 import dot2tex
 
-def reduce_and(a,keep_true=True):
-    if len(a)>0 and type(a[0])==list:
-        return [reduce_and(e) for e in a]
-    a = set(a)
-    a.discard('null')
-    a = list(a)
-    if keep_true and len(a)==0:
-        a.append('null')
-    return a
-
 def de_tuple_str_symbol(term):
     if (term.type ==  _clingo.SymbolType.String):
         return str(term)
@@ -39,8 +29,6 @@ class State():
 
 class Condition():
     def __init__(self, included, not_included):
-        # self._included = reduce_and(included,False)
-        # self._not_included = reduce_and(not_included,False)
         self._included = included
         self._not_included = not_included
 
@@ -165,10 +153,11 @@ class Automata():
             transitions[s_from]={}
             for c_id,s2 in dic_c.items():
                 con = cases_classes[s_from][c_id]
-                transitions[s_from].setdefault(con,[]).append(reduce_and(s2,True))
+                transitions[s_from].setdefault(con,[]).append(s2)
 
         return cls(id2prop,states,transitions,initial_states,set(final_states),"")
         
+
     def dot(self, latex = False, labels =True):
         dot = 'digraph ATLINGO {\n'
         dot += 'rankdir = LR;\n'
@@ -200,7 +189,6 @@ class Automata():
         if isinstance(self,AFW):
             if latex:
                 branch_format = 'color=white shape = circle width = .3 height = .3 label="\\forall"'
-            dot += 'true [{}];\n'.format(branch_format)
         # Initial Node
         for init_i in self._initial_states_ids:
             dot += f'init -> {init_i};\n'
@@ -239,7 +227,6 @@ class Automata():
 
     def save_png(self, file="outputs/automata_viz",labels =True, latex=False):
         dot = self.dot(labels=labels,latex=latex)
-        # print(dot)
         s = Source(dot)
         s.render(file, format="png")
 
@@ -310,7 +297,6 @@ class NFA(Automata):
             transitions.setdefault(n_from._id,{})[c]=[n_to._id]
 
         initial_states_ids = [n_old_states+1]
-        # (id2prop)
         return cls(id2prop,states,transitions,initial_states_ids,set(final),"")
 
     def to_lp(self, state_prefix = ""):
@@ -366,7 +352,6 @@ class AFW(Automata):
         new_states = set([])
         
         def get_state(l):
-            l = reduce_and(l,False)
             l.sort()
             t = tuple(l)
             if not t in tuple2state:
