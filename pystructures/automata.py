@@ -39,8 +39,10 @@ class State():
 
 class Condition():
     def __init__(self, included, not_included):
-        self._included = reduce_and(included,False)
-        self._not_included = reduce_and(not_included,False)
+        # self._included = reduce_and(included,False)
+        # self._not_included = reduce_and(not_included,False)
+        self._included = included
+        self._not_included = not_included
 
     @classmethod
     def from_str(cls, s, prop2id):
@@ -126,23 +128,31 @@ class Automata():
         for sa in ctl.symbolic_atoms:
             s = sa.symbol
             i = s.arguments[0].number
+            n_args = len(s.arguments)
             if s.name == 'initial_state':
-                initial_states.append(s.arguments[0].number)
+                initial_states.append(i)
             elif s.name == 'prop':
                 id2prop[i] = de_tuple_str_symbol(s.arguments[1]).replace('"','')
             elif s.name == 'state':
                 formula = LDLfFormula.from_symbol(s.arguments[1],id2prop)
                 states[i] = State(i,str(formula))
             elif s.name == 'delta':
-                n_to = "null"  if s.arguments[2].number is None  else s.arguments[2].number
-                case = str(s.arguments[1].arguments[0])
+                case = str(s.arguments[1])
+                trans.setdefault(i,{}).setdefault(case,[])
                 cases.setdefault(i,{}).setdefault(case,([],[]))
-                pos = 0 if s.arguments[1].arguments[1].name == "in" else 1
-                prop = s.arguments[1].arguments[2].number if s.arguments[1].arguments[2].number else "null"
-                cases[i][case][pos].append(prop)
-                trans.setdefault(i,{}).setdefault(case,[]).append(n_to)
+                # if n_args==2:
+                if n_args==3:
+                    n_to = s.arguments[2].number
+                    trans[i][case].append(n_to)
+                elif n_args==4:
+                    pos = 0 if s.arguments[2].name == "in" else 1
+                    prop = s.arguments[3].number
+                    cases[i][case][pos].append(prop)
+                elif n_args!=2:
+                    raise RuntimeError("Invalid format in predicate " + str(s))
+                
             elif s.name == "final_state":
-                final_states.append(s.arguments[0].number)
+                final_states.append(i)
 
         cases_classes = {}
         for s_from, dic_c in cases.items():
@@ -319,14 +329,15 @@ class NFA(Automata):
         for s_from, v in self._transitions.items():
             c_id = 0
             for c, s_tos in v.items():
+                p+=('delta({},{}).\n').format(tos(s_from),c_id)
                 for s_to in s_tos:
-                    for prop_in in c._included:
-                        p+=('delta({},({},in,{}),{}).\n').format(tos(s_from),c_id,prop_in,tos(s_to))
-                    for prop_in in c._not_included:
-                        p+=('delta({},({},out,{}),{}).\n').format(tos(s_from),c_id,prop_in,tos(s_to))
-                    if c.is_taut():
-                        p+=('delta({},({},in,null),{}).\n').format(tos(s_from),c_id,tos(s_to))
-                    c_id=c_id+1
+                    p+=('delta({},{},{}).\n').format(tos(s_from),c_id,tos(s_to))
+                for prop_in in c._included:
+                    p+=('delta({},{},in,{}).\n').format(tos(s_from),c_id,prop_in)
+                for prop_in in c._not_included:
+                    p+=('delta({},{},out,{}).\n').format(tos(s_from),c_id,prop_in)
+
+                c_id=c_id+1
         for s in self._final_states_ids:
             p+=('final_state({}).\n').format(tos(s))
     

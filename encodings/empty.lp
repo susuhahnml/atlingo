@@ -1,12 +1,10 @@
 % --------------  Assert no branching and no contradictions -------------- %
-error_branching :- delta(ID,(C,T1,P1),ID_NEXT1), 
-                   delta(ID,(C,T2,P2),ID_NEXT2), 
-                   ID_NEXT1 != ID_NEXT2,
-                   ID_NEXT2 != null,
-                   ID_NEXT1 != null. 
+error_branching :- delta(ID,C,ID_NEXT1), 
+                   delta(ID,C,ID_NEXT2), 
+                   ID_NEXT1 != ID_NEXT2.
 
-error_contradiction :- delta(ID,(C,T1,P),_), 
-                        delta(ID,(C,T2,P),_), 
+error_contradiction :- delta(ID,C,T1,P), 
+                        delta(ID,C,T2,P), 
                         T1!=T2.
 
 % :- error_contradiction.
@@ -18,13 +16,12 @@ reachable_state(ID) :- initial_state(ID).
 
 
 reachable_state(ID_NEXT) :- reachable_state(ID);
-                            delta(ID,(C,T,P),ID_NEXT);
+                            delta(ID,C,ID_NEXT);
                             prop(PROP_LAST,"last");
 
-                            #false :delta(ID,(C,in,PROP_LAST),_);
+                            #false :delta(ID,C,in,PROP_LAST);
                             
-                            #false :delta(ID,(C,T2,P2),ID_NEXT2), 
-                                              ID_NEXT2!=null, 
+                            #false :delta(ID,C,ID_NEXT2), 
                                               ID_NEXT2!=ID_NEXT.
 
 % --------------  Check if null or final from reachable states when maybe 'last'-------------- %
@@ -34,17 +31,17 @@ sat :- reachable_state(null).
 
 %Hit final state without excluding last
 sat :- reachable_state(ID), 
-       delta(ID,(C,T,P),ID_NEXT),
+       delta(ID,C,ID_NEXT),
        final_state(ID_NEXT),
        prop(PROP_LAST,"last"),
-       #false: delta(ID,(C,out,PROP_LAST),_).
+       #false: delta(ID,C,out,PROP_LAST).
 
 %Hit nulls without excluding last
 sat :- reachable_state(ID);
-       delta(ID,(C,T,P),null);
        prop(PROP_LAST,"last");
-       #false: delta(ID,(C,out,PROP_LAST),_);
-       #false: delta(ID,(C,_,_),ID_NEXT),ID_NEXT!=null.
+       delta(ID,C);
+       #false: delta(ID,C,N);
+       #false: delta(ID,C,out,PROP_LAST).
 
 % unsat :- not sat.
 % :- not sat.
