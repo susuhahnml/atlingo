@@ -8,19 +8,24 @@ ALL_APP='--approach nc '${AUTOMATA_APP}
 BASE='--x #horizon --dom asprilo-abc '
 R2='--instance _r2_'
 R3='--instance _r3_'
-# ############ ALL
-# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-" --models 0 --use-lambda
-# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-" --models 0 --use-lambda
 
-# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_ALL} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="all-" --constrain procedure_full --models 0 --use-lambda
-
-
-# ############ One
+# ############ Full tables with horizon windows
 python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --models 1 --use-lambda
 python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --models 1 --use-lambda
 
-python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_ALL} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --constrain d3 --models 1 --use-lambda
+# ############ Ptime table
+python plot.py  ${BASE} ${ALL_APP} ${HORIZON_ALL} --type table --stat ptime --prefix="ptime-" --models 1 --use-lambda
 
-############ Clingo Times
-# python plot.py  --models 0 --x horizon --dom asprilo-abc ${CLINGO_APP} ${R2} --horizon 26 --horizon 27 --horizon 28 --horizon 29 --type bar --stat models --prefix="all-models-models-" --y 'Num models'
-# python plot.py  --models 0 --x horizon --dom asprilo-abc ${CLINGO_APP} ${R2} --horizon 26 --horizon 27 --horizon 28 --horizon 29 --type bar --stat ctime --prefix="all-models-time-" --y 'Clingo time'
+# ############ Tables with mean to join
+python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_ALL} --type table --stat cons  --stat ctime --stat choices --stat conflicts --stat rules --prefix="for-join" --models 1 --use-lambda --use-gmean
+python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_ALL} --type table --stat cons  --stat ctime --stat choices --stat conflicts --stat rules --prefix="for-join" --models 1 --use-lambda --use-gmean
+# ############ Join means
+python join_csv.py --dom=asprilo-abc --constraint=d1 --constraint=d2 --constraint=d3 --instance=r2 --instance=r3 --prefix-in="for-join" --prefix="all"
+
+for f in $(find ./plots/tables  -type f -name "*.tex");
+do
+sed -i '' 's/\\midrule//g' $f
+sed -i '' 's/\\bottomrule//g' $f
+sed -i '' 's/\\toprule//g' $f
+sed -i '' 's/,/\\,/g' $f
+done
