@@ -1,11 +1,5 @@
 from graphviz import Digraph, Source
-from pystructures.ldlf import (
-    LTLfAnd,
-    LTLfEquivalence,
-    LTLfAlways,
-    LDLfFormula
-)
-from ltlf2dfa.base import MonaProgram
+from pystructures.ldlf import LDLfFormula
 from pystructures.automata import AFW
 import argparse
 import sys

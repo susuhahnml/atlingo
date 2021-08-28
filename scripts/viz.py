@@ -37,12 +37,12 @@ print(command)
 # subprocess.check_output(command.split())
 constraint_path = "dom/{}/temporal_constraints/{}.lp".format(dom,constraint)
 
-afw_automata_path = "outputs/{}/afw/{}/{}/afw_automata.lp".format(dom,constraint,instance)
 automata_path = "outputs/{}/{}/{}/{}/{}_automata.lp".format(dom, app,constraint,instance,app)
 
-afw = AFW.from_lp(files = [afw_automata_path])
+afw_automata_path = "outputs/{}/afw/{}/{}/afw_automata.lp".format(dom,constraint,instance)
 
 if app=="afw":
+    afw = AFW.from_lp(files = [afw_automata_path])
     automaton = afw
 elif app in ["dfa-mso","dfa-stm"]:
     ldlfformulas = LDLfFormula.from_lp(files=[constraint_path],inline_data="")
@@ -50,13 +50,14 @@ elif app in ["dfa-mso","dfa-stm"]:
     conj_formula = LDLfFormula.join_formulas(ldlfformulas)
     automaton = conj_formula.dfa(translation=args.app.split('-')[1])
 elif app=="nfa":
+    afw = AFW.from_lp(files = [afw_automata_path])
     automaton = afw.to_nfa()
 elif app=="nfa-afw":
     automaton = NFA.from_lp(files = [automata_path])
-
+else:
+    raise RuntimeError("Invalid approach")
 png_path = "outputs/{}/{}/{}/{}/{}_automata".format(dom, app,constraint,instance,app)
 
-print(f"Saving png {png_path}")
 automaton.save_png(file=png_path,labels=labels,latex=latex)
 if(latex):
     automaton.to_tex(file=png_path+".tex",labels=labels)

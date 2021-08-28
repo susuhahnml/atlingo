@@ -4,26 +4,8 @@ import sys
 import clingo
 import subprocess
 import itertools
-from pystructures.ldlf import LDLfFormula, KleeneStarPath, LDLfBoolean, SkipPath, ltlf2mona
+from pystructures.ldlf import LDLfFormula, KleeneStarPath, LDLfBoolean, SkipPath
 from pystructures.automata import AFW, NFA
-from ltlf2dfa.ltlf import (
-    LTLfAtomic,
-    LTLfAnd,
-    LTLfEquivalence,
-    LTLfOr,
-    LTLfNot,
-    LTLfImplies,
-    LTLfEventually,
-    LTLfAlways,
-    LTLfUntil,
-    LTLfRelease,
-    LTLfNext,
-    LTLfWeakNext,
-    LTLfTrue,
-    LTLfFalse,
-)
-from ltlf2dfa.ltlf2dfa import createMonafile, invoke_mona, output2dot
-from ltlf2dfa.base import MonaProgram
 
 
 
@@ -86,7 +68,7 @@ def translate(constraint,extra="",app='afw',horizon=3):
     with open(cons_file, 'w') as f:
         f.write(constraint)
     command = 'make translate APP={} CONSTRAINT=cons_tmp DOM=test INSTANCE=dom/test/instances/instance_tmp.lp APP={} HORIZON={} {}'.format(app,app,horizon,extra) 
-    print(command)
+    # print(command)
     subprocess.check_output(command.split())
 
 
@@ -714,7 +696,7 @@ class TestMain(TestCase):
         ]
         for cons in constraints:
             for h in range(1,4):
-                print("Testing {} with h = {}".format(cons,h))
+                # print("Testing {} with h = {}".format(cons,h))
                 comapre_apps(cons,h,apps=['afw','dfa-mso','dfa-stm','nfa','nfa-afw'],test_instance=self)
                 # comapre_apps(cons,h,apps=['afw','dfa-mso','dfa-stm','nfa','nfa-afw'],test_instance=self)
 
@@ -736,57 +718,6 @@ class TestMain(TestCase):
         assert "q" in closure
         assert "[(p?+q?;;(&t))*]<r?>&true" in closure
 
-    def test_ldlf2mona(self):
-        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ( ?a + ?c ) ;; &t .>? ?b .>? &t .>* &false }.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{  * (?q) .>? ?p .>? &t .>? q}.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ ?b .>? &t .>* &false }.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ &t .>* &false }.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ (?a ;; &t) .>? b  }.")[0]
-        # mona_del_string = LDLfFormula.to_mona(formula)
-        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p .>? q}.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p ;; &t ;; ?q ;; &t .>? r}.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ ?p ;; &t ;; ?q ;; &t .>? &t}.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(?p;; &t) .>? q}.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{ *( (? a;; &t) + (? a;; &t ;; ? c;; &t)) .>? b}.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":-not &del{ *(&t) .>? q}.")[0]
-        # formula = LDLfFormula.from_lp(inline_data= ":- not &del{  ? (*(&t) .>* b(1)) ;; &t .>? a}.")[0]
-        formula = LDLfFormula.from_lp(inline_data= ":- not &del{  ? (*(&t) .>* b(X)) ;; &t .>? a}, X=1..2.")[0]
-
-        # comapre_apps(":- not &del{ &t .>? p }. :- not &del{ &t .>? q }.",1,apps=['afw','telingo'],test_instance=self)
-        # comapre_apps(":- not &del{  ? b(1) ;; &t .>? a}.",1,apps=['afw','telingo'],test_instance=self)
-
-        # print("******* FORMULA *******")
-        # print(formula)
-        # print("***********************\n")
-
-
-        print("----------- Vardi using closure --------------")
-        mona_string, mona2prop = formula.mso_main()
-        createMonafile(mona_string)
-        print(mona_string)
-        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-
-        nfa = NFA.from_mona(mona_dfa,mona2prop=mona2prop)
-        nfa.save_png(file="outputs/automata_mso_viz")
-
-
-        # print("----------- Using LTL --------------")
-        # ltlf_formula = formula.ltlf_main()
-        # mona_string = ltlf2mona(ltlf_formula)
-        # print(mona_string)
-        # createMonafile(mona_string)
-        # mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        # nfa = NFA.from_mona(mona_dfa)
-        # nfa.save_png(file="outputs/automata_ltl_viz")
-
-
-        print("----------- Blue book no star --------------")
-        mona_string, mona2prop = formula.stm_main()
-        createMonafile(mona_string)
-        print(mona_string)
-        mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
-        nfa = NFA.from_mona(mona_dfa, mona2prop=mona2prop)
-        nfa.save_png(file="outputs/automata_blue_viz")
         
 
     def test_error(self):
@@ -798,10 +729,8 @@ class TestMain(TestCase):
             a
         ]
         for cons in constraints:
-            print("Testing {} with h = {}".format(cons,1))
-            
+            # print("Testing {} with h = {}".format(cons,1))
             comapre_apps(cons,3,apps=['afw','dfa-mso'],test_instance=self)
-            print("DONE")
 
     def test_dir(self):
 

@@ -4,26 +4,27 @@ import tempfile
 import os
 import clingo as _clingo
 import sys
-from ltlf2dfa.parser.ltlf import  LTLfParser
-from ltlf2dfa.ltlf2dfa import createMonafile, invoke_mona, output2dot
-from ltlf2dfa.base import MonaProgram
-from ltlf2dfa.ltlf import (
-    LTLfAtomic,
-    LTLfAnd,
-    LTLfEquivalence,
-    LTLfOr,
-    LTLfNot,
-    LTLfImplies,
-    LTLfEventually,
-    LTLfAlways,
-    LTLfUntil,
-    LTLfRelease,
-    LTLfNext,
-    LTLfWeakNext,
-    LTLfTrue,
-    LTLfFalse,
-)
 from pystructures.automata import NFA, AFW
+from subprocess import PIPE, Popen, TimeoutExpired
+import os
+import signal
+
+def invoke_mona(name):
+    command = f"mona -q -w {name}"
+    process = Popen(
+        args=command,
+        stdout=PIPE,
+        stderr=PIPE,
+        preexec_fn=os.setsid,
+        shell=True,
+        encoding="utf-8",
+    )
+    try:
+        output, error = process.communicate(timeout=30)
+        return str(output).strip()
+    except TimeoutExpired:
+        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+        return False
 
 # Used in del theory
 del_operators = {".>*":'Box', ".>?":'Diamond',"&": "Boolean","~": "Prop"}
@@ -39,20 +40,6 @@ path_binary_operators_names = {"sequence":'Sequence', "choice":'Choice'}
 path_operators_names = dict(path_unary_operators_names)
 path_operators_names.update(path_binary_operators_names)
 
-
-def ltlf2mona(ltlf_formula):
-    p = MonaProgram(ltlf_formula)
-    vrs = [v for v in p.vars if v[:4]!="AUX_"]
-    aux_vrs = [v for v in p.vars if v[:4]=="AUX_"]
-    mona_p_string = "\n{};\n".format(p.header)
-    if len(vrs)>0:
-        mona_p_string += "var2 {};\n".format(", ".join(vrs))
-    if len(aux_vrs)>0:
-        mona_p_string += "(ex2 {}: {});\n".format(", ".join(aux_vrs), p.formula.to_mona())
-    else:
-        mona_p_string += "{};\n".format(p.formula.to_mona())
-
-    return mona_p_string
 
 class AuxMSO():
     """
@@ -75,11 +62,6 @@ class AuxMSO():
     # def __str__(self):
     #     return "ID: {} F:{} MONA:{}".format(self._id,self._f,self.mona_q('x'))
 
-def set_next_aux_lit(rep, rep2lit):
-    aux_name = "l_{}".format(len(rep2lit))
-    aux_atom = LTLfAtomic(aux_name)
-    rep2lit[rep]=aux_atom
-    return aux_atom
 
 # ---------------------- Formulas
 class LDLfFormula():
@@ -215,18 +197,7 @@ class LDLfFormula():
         mona2prop = {mona:prop for prop,mona in prop2mona.items()}
         return mona_p_string, mona2prop
 
-    def ltlf_main(self):
-        """
-        Obtains the equivalent LTLf formula using the classes from whitemensh
-        """
-        # This is outdated
-        return NotImplementedError
-        eqs = []
-        rep2lit = {}
-        ltl = self.ltlf(eqs,rep2lit)
-        for eq in eqs[::-1]:
-            ltl = LTLfAnd([ltl, LTLfAlways(LTLfEquivalence([eq[0],eq[1]]))])
-        return ltl
+
 
     def dfa(self,translation="stm", n_old_states=0, state_prefix="", id2prop=None):
         """
@@ -248,7 +219,7 @@ class LDLfFormula():
         with open(name, "w+") as file:
             file.write(mso_string)
         # print(mso_string)
-        mona_dfa = invoke_mona(f"mona -q -w {name}")
+        mona_dfa = invoke_mona(name)
         # print(mona_dfa)
 
         return NFA.from_mona(mona_dfa, n_old_states=n_old_states, state_prefix=state_prefix, id2prop=id2prop, mona2prop=mona2prop)
@@ -275,18 +246,6 @@ class LDLfFormula():
         """
         raise NotImplementedError
 
-    def ltlf(self, eqs, rep2lit):
-        """
-        Obtains the corresponding LTLf formula using the classes from
-        whitemensh.
-        Args:
-            eqs: Lists of tupples set as equivalent
-            rep2lit: Dictionary saving the translations already done and their corresponding literal name
-        Returns: 
-            The new introduced variable as a string
-        """
-        print("ERROR: {}".format(self) )
-        raise NotImplementedError
 
     def closure(self, subformulas):
         """
@@ -336,11 +295,6 @@ class LDLfBoolean(LDLfFormula):
     def from_symbol(cls, symbol, id2prop):
         return cls(symbol.name == "top")
 
-    def ltlf(self, eqs, rep2lit):
-        if self.__value:
-            return LTLfTrue()
-        else:
-            return LTLfFalse()
 
     def stm(self, v_start, all_prop_vars, all_vars, prop2mona):
         return self.mona_rep(prop2mona)
@@ -414,8 +368,6 @@ class LDLfProp(LDLfFormula):
         assert not self.positive
         return "~ {}".format(rep2aux[self.positive_version._rep].mona_q(time, prop2mona))
 
-    # def ltlf(self, eqs, rep2lit):
-    #     return LTLfAtomic(self.mona_rep.lower())
 
     def stm(self, v_start, all_prop_vars, all_vars, prop2mona):
         if self.positive:
@@ -531,42 +483,7 @@ class LDLfDiamond(LDLfMainOperator):
                 step_ldl = LDLfDiamond(self._path._arg,self)
                 step_rep = rep2aux[step_ldl._rep]
                 return "{} | {}".format(rhs_rep.mona_q(time,prop2mona),step_rep.mona_q(time,prop2mona))
-            
-    # def ltlf(self, eqs, rep2lit):
-    #     if self._rep in rep2lit:
-    #         return rep2lit[self._rep]
-    #     c = self._path.__class__
-    #     if c == SkipPath:
-    #         rhs_ltl = self._rhs.ltlf(eqs,rep2lit)
-    #         return LTLfNext(rhs_ltl)
-
-    #     elif c == CheckPath:
-    #         rhs_ltl = self._rhs.ltlf(eqs,rep2lit)
-    #         lhs_ltl = self._path._arg.ltlf( eqs,rep2lit)
-    #         l = set_next_aux_lit(self._rep,rep2lit)
-    #         eqs.append((l,LTLfAnd([lhs_ltl,rhs_ltl])))
-    #         return l
-    #     elif c == ChoicePath:
-    #         lhs_ltl = LDLfDiamond(self._path._lhs,self._rhs).ltlf(eqs,rep2lit)
-    #         rhs_ltl = LDLfDiamond(self._path._rhs,self._rhs).ltlf(eqs,rep2lit)
-    #         l = set_next_aux_lit(self._rep,rep2lit)
-    #         eqs.append((l,LTLfOr([lhs_ltl,rhs_ltl])))
-    #         return l
-    #     elif c == SequencePath:
-    #         eq_ldl = LDLfDiamond(self._path._lhs,LDLfDiamond(self._path._rhs,self._rhs))
-    #         eq_ltl = eq_ldl.ltlf(eqs,rep2lit)
-    #         rhs_ltl = LDLfDiamond(self._path._rhs,self._rhs).ltlf(eqs,rep2lit)
-    #         return eq_ltl
-    #     elif c == KleeneStarPath:
-    #         rhs_ltl = self._rhs.ltlf(eqs,rep2lit)
-    #         if self._path._arg.__class__==CheckPath:
-    #             l=rhs_ltl
-    #         else:
-    #             l = set_next_aux_lit(self._rep,rep2lit)
-    #             step_ldl = LDLfDiamond(self._path._arg,self)
-    #             step_ltl = step_ldl.ltlf(eqs,rep2lit)
-    #             eqs.append((l,LTLfOr([rhs_ltl,step_ltl])))
-    #         return l
+     
 
     def stm(self, v_start, all_prop_vars, all_vars, prop2mona):
         new_var = 'v_{}'.format(len(all_vars))
@@ -619,41 +536,6 @@ class LDLfBox(LDLfMainOperator):
                 step_ldl = LDLfBox(self._path._arg,self)
                 step_rep = rep2aux[step_ldl._rep]
                 return "{} & {}".format(rhs_rep.mona_q(time,prop2mona),step_rep.mona_q(time,prop2mona))
-
-    # def ltlf(self, eqs, rep2lit):
-    #     if self._rep in rep2lit:
-    #         return rep2lit[self._rep]
-    #     c = self._path.__class__
-    #     if c == SkipPath:
-    #         rhs_ltl = self._rhs.ltlf(eqs,rep2lit)
-    #         return LTLfWeakNext(rhs_ltl)
-    #     elif c == CheckPath:
-    #         rhs_ltl = self._rhs.ltlf(eqs,rep2lit)
-    #         lhs_ltl = self._path._arg.ltlf( eqs,rep2lit)
-    #         l = set_next_aux_lit(self._rep,rep2lit)
-    #         eqs.append((l,LTLfImplies([lhs_ltl,rhs_ltl])))
-    #         return l
-    #     elif c == ChoicePath:
-    #         lhs_ltl = LDLfBox(self._path._lhs,self._rhs).ltlf(eqs,rep2lit)
-    #         rhs_ltl = LDLfBox(self._path._rhs,self._rhs).ltlf(eqs,rep2lit)
-    #         l = set_next_aux_lit(self._rep,rep2lit)
-    #         eqs.append((l,LTLfAnd([lhs_ltl,rhs_ltl])))
-    #         return l
-    #     elif c == SequencePath:
-    #         eq_ldl = LDLfBox(self._path._lhs,LDLfBox(self._path._rhs,self._rhs))
-    #         eq_ltl = eq_ldl.ltlf(eqs,rep2lit)
-    #         rhs_ltl = LDLfBox(self._path._rhs,self._rhs).ltlf(eqs,rep2lit)
-    #         return eq_ltl
-    #     elif c == KleeneStarPath:
-    #         rhs_ltl = self._rhs.ltlf(eqs,rep2lit)
-    #         if self._path._arg.__class__==CheckPath:
-    #             l=rhs_ltl
-    #         else:
-    #             l = set_next_aux_lit(self._rep,rep2lit)
-    #             step_ldl = LDLfBox(self._path._arg,self)
-    #             step_ltl = step_ldl.ltlf(eqs,rep2lit)
-    #             eqs.append((l,LTLfAnd([rhs_ltl,step_ltl])))
-    #         return l
 
     def stm(self, v_start, all_prop_vars, all_vars, prop2mona):
         new_var = 'v_{}'.format(len(all_vars))

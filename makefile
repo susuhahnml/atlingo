@@ -4,6 +4,7 @@ Y=`tput setaf 3`
 B=`tput setaf 4`
 NC=`tput sgr0`
 
+# ------- Parameters
 $(eval DOM ?= asprilo)
 $(eval APP ?= afw)
 $(eval MODELS ?= 1)
@@ -16,10 +17,9 @@ $(eval PATH_FROM_TELINGO = ../..)
 $(eval PATH_INPUT = dom/$(DOM)/temporal_constraints/$(CONSTRAINT))
 ZSH_RESULT:=$(shell mkdir -p $(PATH_OUT))
 $(eval EXTRA = dom/$(DOM)/extra.lp)
-# $(eval EXTRA = $(PATH_INPUT).extra.lp)
 $(eval PY_PARAMS ?= )
 
-# ------- Files needed for each appproach
+# ------- Files needed for each appproach RUN_APP_FILES_$APP
 $(eval RUN_APP_FILES_afw = encodings/automata_run/run.lp dom/$(DOM)/glue.lp)
 # $(eval RUN_APP_FILES_telingo = dom/elevator/encoding.lp )
 $(eval RUN_APP_FILES_dfa-mso = encodings/automata_run/run.lp)
@@ -28,7 +28,7 @@ $(eval RUN_APP_FILES_nfa = encodings/automata_run/run.lp)
 $(eval RUN_APP_FILES_nfa-afw = encodings/automata_run/run.lp dom/$(DOM)/glue.lp)
 
 
-# ------- Files needed for each dommain
+# ------- Files needed for each dommain RUN_DOM_FILES_$DOM
 $(eval RUN_DOM_FILES_asprilo-md = dom/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/action-MD.lp dom/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/goal-MD.lp dom/asprilo/asprilo-abstraction-encodings/encodings/torsten/md/output-M.lp dom/asprilo/asprilo-abstraction-encodings/asprilo/misc/augment-md-to-m.lp $(RUN_FILES))
 $(eval RUN_DOM_FILES_asprilo-abc = dom/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/encoding-a.lp dom/asprilo/asprilo-abstraction-encodings/asprilo-encodings/abc/quantities.lp dom/asprilo/asprilo-abstraction-encodings/asprilo-encodings/control/highways.lp $(RUN_FILES))
 $(eval RUN_DOM_FILES_elevator = dom/elevator/encoding.lp $(RUN_FILES))
@@ -38,6 +38,7 @@ $(eval RUN_DOM_FILES_yale = dom/yale/encoding.lp $(RUN_FILES))
 $(eval RUN_DOM_FILES_test = $(RUN_FILES))
 $(eval RUN_DOM_FILES_nc = $(RUN_FILES))
 
+# ------- Files needed to translate each dommain TRANSLATE_FILES_$DOM
 $(eval TRANSLATE_FILES_asprilo-abc = dom/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $(TRANSLATE_FILES))
 $(eval TRANSLATE_FILES_asprilo-md = dom/asprilo/asprilo-abstraction-encodings/asprilo-encodings/input.lp $(TRANSLATE_FILES))
 $(eval TRANSLATE_FILES_elevator = $(TRANSLATE_FILES))
@@ -53,34 +54,26 @@ clean:
 	(cd benchmarks ; make clean)
 
 
-viz-latex:
+viz-tex:
 	@ printf "$BVisualizing APP=$(APP) DOM=$(DOM) CONSTRAINT=$(CONSTRAINT)$ INSTANCE=$(NAME_INSTANCE) HORIZON=$(HORIZON) $(NC)\n"
 	
-	make translate;
-
-	# python ./scripts/translater.py --input=afw --app=$(APP) --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(DOM)/afw/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
-
-	python scripts/viz.py --app=$(APP) --dom=$(DOM) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex
+	python scripts/viz.py --app=$(APP) --dom=$(DOM) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE) --latex --labels
 	
-	# @ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
 
 	@ printf "$BCompiling latex...$(NC)\n"
 
 	pdflatex -halt-on-error -output-directory $(PATH_OUT) $(PATH_OUT)/$(APP)_automata.tex > /dev/null 2>&1
 
+	@ printf "$(G)Pdf saved in $(PATH_OUT)/$(APP)_automata.pdf $(NC)\n";\
 
 	open $(PATH_OUT)/$(APP)_automata.pdf
 
 viz-png:
 	@ printf "$BVisualizing APP=$(APP) DOM=$(DOM) CONSTRAINT=$(CONSTRAINT)$ INSTANCE=$(NAME_INSTANCE) HORIZON=$(HORIZON) $(NC)\n"
 	
-	make translate;
-
-	# python ./scripts/translater.py --input=afw --app=$(APP) --out-file=$(PATH_OUT)/nfa_automata.lp --in-files=./outputs/$(DOM)/afw/$(CONSTRAINT)/$(NAME_INSTANCE)/afw_automata.lp
-
 	python scripts/viz.py --app=$(APP) --dom=$(DOM) --instance=$(NAME_INSTANCE) --constraint=$(CONSTRAINT) --instance_path=$(INSTANCE)
 	
-	@ printf "$(G)PNG and latex saved in $(PATH_OUT) $(NC)\n";\
+	@ printf "$(G)PNG saved in $(PATH_OUT) $(NC)\n";\
 
 	open $(PATH_OUT)/$(APP)_automata.png
 
@@ -89,18 +82,17 @@ tests:
 	@ printf "$(B)Running 'del' tests...$(NC)"
 	@ python -m unittest tests.del_test
 
-
 stats:
 	tail -32 $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
 
 translate:
 
-	@ printf "$BTranslating APP=$(APP) DOM=$(DOM) CONSTRAINT=$(CONSTRAINT)$ INSTANCE=$(NAME_INSTANCE) HORIZON=$(HORIZON) $(NC)\n"
+	@ printf "$BTranslating APP=$(APP) DOM=$(DOM) CONSTRAINT=$(CONSTRAINT) INSTANCE=$(NAME_INSTANCE) $(NC)\n"
 
 	@ make translate-$(APP) 
 
 	@if [ -s $(PATH_OUT)/$(APP)_automata.lp ]; then\
-		printf "$(G)Translation to $(APP)  successfull $(NC)\n";\
+		printf "$(G)Translation to $(APP)  successfull. \nOutput saved in $(PATH_OUT)/$(APP)_automata.lp $(NC)\n";\
 	else \
 		printf "$(R) Translation to $(APP) failed no output automata\n";\
 		exit 1;\
@@ -119,10 +111,7 @@ run:
 
 	@rm -f $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
 
-	# clingo $(PATH_OUT)/$(APP)_automata.lp $(INSTANCE) $(RUN_APP_FILES_$(APP)) $(RUN_DOM_FILES_$(DOM)) $(EXTRA) -c horizon=$(HORIZON) -n $(MODELS) --stats | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt
-	clingo $(PATH_OUT)/$(APP)_automata.lp $(INSTANCE) $(RUN_APP_FILES_$(APP)) $(RUN_DOM_FILES_$(DOM)) $(EXTRA) -c horizon=$(HORIZON) -n $(MODELS) --stats --lemma-out=outputs/nogoods_$(APP).txt --lemma-out-txt --lemma-out-dom=output | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt 
-
-	@printf "$(G)Run of $(APP) successfull $(NC)\n";
+	clingo $(PATH_OUT)/$(APP)_automata.lp $(INSTANCE) $(RUN_APP_FILES_$(APP)) $(RUN_DOM_FILES_$(DOM)) $(EXTRA) -c horizon=$(HORIZON) -n $(MODELS) | tee $(PATH_OUT)/plan_h-$(HORIZON)_n-$(MODELS).txt 
 
 translate-run:
 
@@ -147,6 +136,7 @@ translate-run:
 	# @ make translate
 	
 	@ make run
+
 
 ######################  AFW ########################
 
@@ -179,11 +169,7 @@ translate-afw:
 	fi;
 
 
-generate-traces:
 
-	@ printf "$BGenerating traces for automaton... $(NC)\n"
-
-	clingo $(PATH_OUT)/$(APP)_automata.lp encodings/automata_run/run.lp  encodings/automata_run/trace_generator.lp -c horizon=$(HORIZON) -n $(MODELS)
 
 
 ######################  TELINGO ########################
@@ -195,12 +181,6 @@ translate-telingo:
 
 	(cd benchmarks/telingo ; python telingo/program_observer.py --h=$(HORIZON) --out-file=$(PATH_FROM_TELINGO)/$(PATH_OUT)/telingo_automata.lp --extra-files="$(TELINGO_TRANSLATE_FILES)" --choices-file=$(PATH_FROM_TELINGO)/dom/$(DOM)/telingo_choices.lp --instance-file=$(PATH_FROM_TELINGO)/$(INSTANCE) --constraint-file=$(PATH_FROM_TELINGO)/$(PATH_INPUT).lp )
 
-# translate-telingo:
-	
-
-# 	python ./scripts/translater.py --input=ldlf --app=telingo --out-file=$(PATH_OUT)/telingo_automata.lp --in-files='./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(DOM)) $(INSTANCE)'
-
-# 	@printf "$(G) Translation from ldlf 2 telingo successfull $(NC)\n";
 
 ######################  DFA ########################
 
@@ -210,13 +190,11 @@ translate-dfa-mso:
 
 	python ./scripts/translater.py --input=ldlf --app=dfa-mso --out-file=$(PATH_OUT)/dfa-mso_automata.lp --in-files='./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(DOM)) $(INSTANCE)' $(PY_PARAMS)
 
-	@printf "$(G) Translation from ldlf 2 dfa successfull $(NC)\n";
 
 translate-dfa-stm:
 	
 
 	python ./scripts/translater.py --input=ldlf --app=dfa-stm --out-file=$(PATH_OUT)/dfa-stm_automata.lp --in-files="./$(PATH_INPUT).lp $(TRANSLATE_FILES_$(DOM)) $(INSTANCE)" $(PY_PARAMS)
-	@printf "$(G) Translation from ldlf 2 dfa successfull $(NC)\n";
 
 ######################  NFA ########################
 

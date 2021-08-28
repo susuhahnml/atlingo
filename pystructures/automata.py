@@ -221,6 +221,7 @@ class Automata():
             macros = """
             \\newcommand{\\dalways}[1]{\\ensuremath{[#1]\\,}}                    
             \\newcommand{\\deventually}[1]{\\ensuremath{\\langle#1\\rangle\\,}} 
+            \\newcommand{\\stp}{\\ensuremath{\\tau}}
             """
             f.write(macros)
             f.write(texcode.replace("wedge","\\wedge").replace("join=bevel,","join=bevel,scale=0.4"))
