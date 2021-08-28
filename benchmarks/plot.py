@@ -125,7 +125,7 @@ def csv2textable(df,cons,ins,approaches,use_gmean,spetial_words,base_headers = [
             "dfa-mso":"\\WFMm",
             "dfa-stm":"\\WFMs",
             "telingo":"\\WFT",
-            "nc":"\\WNC"
+            "nc":"\\WFNC"
         }
         headers = base_headers+["$\\lambda$"]  + ["$"+approaches_map[str(c)]+"$" for c in app_names]
     else:
@@ -135,7 +135,7 @@ def csv2textable(df,cons,ins,approaches,use_gmean,spetial_words,base_headers = [
         headers=headers[0:n_base_headers]+headers[n_base_headers+1:]
     
     models_str = f"getting {'one model' if models==1 else 'all_models'}"
-    column_format = f'{"l"*n_base_headers}{"" if use_gmean else "l"}|{"r"*len(non_mc_approaches)}{"|r" if "nc" in approaches else ""}'
+    column_format = f'|{"l"*n_base_headers}{"" if use_gmean else "l"}|{"r"*len(non_mc_approaches)}{"|r" if "nc" in approaches else ""}|'
     if caption is None:
         caption = f"Statistics for constraint {cons_name} and instance {ins_name} {models_str}. Crossed out lambdas are those for which the instance was UNSAT with the constraint. Best performance excluding NC (No Constraint) is found in bold."
     tex_table = df.to_latex(
@@ -166,6 +166,8 @@ if __name__ == "__main__":
             help="Number of models computed in the benchmark with clingo -n" )
     parser.add_argument("--prefix", type=str, default="",
             help="Prefix for output files" )
+    parser.add_argument("--csv", default=False, action='store_true',
+        help="When this flag is passed, the table is also saved in csv format")
     parser.add_argument("--plotmodels", default=False, action='store_true',
         help="When this flag is passed, the number of models in plotted")
     parser.add_argument("--use-lambda", default=False, action='store_true',
@@ -322,7 +324,7 @@ if __name__ == "__main__":
                         for app in approaches:
                             arr_app = df_s[app].to_numpy()
                             arr_app = [arr_app[~np.isnan(arr_app)]]
-                            gmean = list(scipy.stats.gmean(arr_app,axis=0))
+                            gmean = list(scipy.stats.gmean(arr_app,axis=1))
                             if len(gmean)==0:
                                 gmean= [np.NaN]
                             gmeans.append(gmean[0])
@@ -339,8 +341,8 @@ if __name__ == "__main__":
                         str_value = "NaN" if math.isnan(df.loc[row,c]) else str(int(df.loc[row,c]))
                         # str_value = "\\color{red}{-}" if math.isnan(df.loc[row,c]) else str(f'{int(df.loc[row,c]):,}')
                         df.loc[row,c]= str_value+"*" if min_mx.loc[row,c] else str_value
-
-                df.to_csv(file_name_csv,float_format='%.0f',index=False)
+                if args.csv:
+                    df.to_csv(file_name_csv,float_format='%.0f',index=False)
 
                 tex_table = csv2textable(df,cons,ins,approaches,use_gmean,spetial_words={s:'stats' for s in stats},use_lambda=use_lambda,models=models)
 
