@@ -4,7 +4,7 @@ This framework implements temporal constraints expressed in an extension of Answ
 It transforms dynamic constraints into an automaton expressed in terms of a logic program that enforces the satisfaction of the original constraint.
 ## Dependencies 
 
-- Install dependencies using [conda](https://anaconda.org) with the [environment.yml](environment.yml) file.
+- Install dependencies using [conda](https://anaconda.org) with the [environment.yml](environment.yml) file
 
 ```shell
 conda env create -f environment.yml
@@ -23,14 +23,22 @@ git submodule update --init --recursive
 make tests -B
 ```
 
+## Benchmarks
+
+More [information](./benchmarks/README.md) on how to run benchmarks
 
 
 ## Domain Specific Knowledge
 
 All domain specific knowledge can be found in the directory [./dom](./dom). Each sub-directory has the name of the domain `$DOM`
 
-TODO Structure
+Each these folders has the following elements:
+- `instances\` folder with all instances
+- `temporal_constraints\` folder with all temporal constraints
+- `glue.lp` File mapping all predicates used in the constraint to predicate `trace/2`. Used in automata approaches and must be  handcrafted.
+- `telingo_choices.lp` Adds a choice for every predicate used in the constraint. Used by the telingo approach.
 
+To integrate the a new domain with the make file add parameter `RUN_DOM_FILES_$DOM` with the paths to the encodings of the problem. We recommend storing those encodings inside the domain folder. 
 
 ## Dynamic Constraints
 
@@ -38,7 +46,7 @@ The accepted dynamic constraints have the form:
 ```
 :- not &del{<formula here>}, <additional predicates>.
 ```
-Example: [dom/test/temporal_constraints/example.lp](./dom/test/temporal_constraints/example.lp) 
+**Example** [dom/test/temporal_constraints/example.lp](./dom/test/temporal_constraints/example.lp) 
 
   The syntax for the LDLf formulas is defined in [encodings/translations/grammar.lp](./encodings/translations/grammar.lp)
 
@@ -51,7 +59,7 @@ make translate DOM=$DOM APP=$APP CONSTRAINT=$CNAME INSTANCE=$INSTANCEPATH HORIZO
 ```
 
 - `$DOM` Name of the domain (folder inside `./dom`)
-- `$APP` Approach name
+- `$APP` Approach name 
   - `awf` Translates to an alternating automata using meta-programming
   - `dfa-mso` Translates to a deterministic automata using MONA and the mso translation from ldlf
   - `dfa-stm` Translates to a deterministic automata using MONA and the stm translation from ldlf
@@ -191,13 +199,13 @@ APP=afw CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_unsat.lp
 ```
 make viz-png APP=afw CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_sat.lp
 ```
-![](img/img_dfa.mso)
+![](./img/img_afw.png)
 
 ##### Example (dfa-mso in pdf)
 ```
 make viz-tex APP=dfa-mso CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_sat.lp
 ```
-![](img/img_dfa.pdf)
+![](./img/img_dfa.png)
 
 ## Workflow
-![](img/workflow.pdf)
+![](./img/workflow.png)

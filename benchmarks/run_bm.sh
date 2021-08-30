@@ -23,7 +23,9 @@ NAME=${PREFIX}${APPROACH}__h-${HORIZON}__n-${MODELS}
 
 MACHINE=komputer # Value in <machine name="komputer"
 # set this
-BT_PATH=$HOME/temporal-automata/atlingo/benchmarks/benchmark-tool
+ATLINGO_PATH=$HOME/temporal-automata
+ATLINGO_PATH=$HOME/Education/Phd/potassco
+BT_PATH=$ATLINGO_PATH/atlingo/benchmarks/benchmark-tool
 
 # this has to be the same as project name in run-benchmark.xml
 PROJECT=temporal-automata
@@ -139,11 +141,6 @@ echo "$B    $RES_DIR/$NAME.beval$NC"
 ################ Clean beval output an generate ods file
 sed -i 's/partition="short" partition="short"/partition="short"/g' $RES_DIR/$NAME.beval
 
-
-# echo "$Y bconv..."
-# cat $RES_DIR/$NAME.beval | ./bconv -m time,ctime,csolve,ground0,groundN,models,timeout,restarts,conflicts,choices,domain,vars,cons,mem,error,memout,status,atoms,rules,roriginal,bodies,equiv,rchoices,ptime > $RES_DIR/$NAME.ods 2>> $RES_DIR/$NAME.error
-# echo "$G Conversion results saved in "
-# echo "$B    $RES_DIR/$NAME.ods$NC"
 
 echo "$G Done $NAME$NC"
 
