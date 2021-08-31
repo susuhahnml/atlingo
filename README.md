@@ -2,7 +2,7 @@
 
 This framework implements temporal constraints expressed in an extension of Answer Set Programming (ASP) with language constructs from dynamic logic.
 It transforms dynamic constraints into an automaton expressed in terms of a logic program that enforces the satisfaction of the original constraint.
-## Dependencies 
+## Setup 
 
 - Install dependencies using [conda](https://anaconda.org) with the [environment.yml](environment.yml) file
 
@@ -23,10 +23,12 @@ git submodule update --init --recursive
 make tests -B
 ```
 
+-------
 ## Benchmarks
 
 More [information](./benchmarks/README.md) on how to run benchmarks
 
+-------
 
 ## Domain Specific Knowledge
 
@@ -40,6 +42,8 @@ Each these folders has the following elements:
 
 To integrate the a new domain with the make file add parameter `RUN_DOM_FILES_$DOM` with the paths to the encodings of the problem. We recommend storing those encodings inside the domain folder. 
 
+-------
+
 ## Dynamic Constraints
 
 The accepted dynamic constraints have the form:
@@ -49,6 +53,8 @@ The accepted dynamic constraints have the form:
 **Example** [dom/test/temporal_constraints/example.lp](./dom/test/temporal_constraints/example.lp) 
 
   The syntax for the LDLf formulas is defined in [encodings/translations/grammar.lp](./encodings/translations/grammar.lp)
+
+-------
 
 ##  Translate
 
@@ -89,6 +95,8 @@ clingo ./outputs/test/afw/delex/delex_sat/reified.lp ./encodings/translations/ld
 Translation to afw  successfull.
 Output saved in ./outputs/test/afw/delex/delex_sat/afw_automata.lp
 ```
+
+-------
 
 ## Filter traces
 
@@ -183,6 +191,7 @@ Calls        : 1
 Time         : 0.003s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
 CPU Time     : 0.003s
 ```
+-------
 
 ## Visualize
 
@@ -206,6 +215,8 @@ make viz-png APP=afw CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex
 make viz-tex APP=dfa-mso CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_sat.lp
 ```
 ![](./img/img_dfa.png)
+
+-------
 
 ## Workflow
 ![](./img/workflow.png)
