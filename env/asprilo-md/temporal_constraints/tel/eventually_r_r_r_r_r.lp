@@ -1,1 +1,0 @@
-:- not &tel{ >? (move(robot(N),R) & > move(robot(N),R) & > > move(robot(N),R) & > > > move(robot(N),R) & > > > > move(robot(N),R) & > > > > > move(robot(N),R) )}, robot(N), right(R).

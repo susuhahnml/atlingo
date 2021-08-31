@@ -33,24 +33,24 @@ asprilo-md-clean-instances:
 	rm -rf ./instances/asprilo/md/gridworld/*
 asprilo-md-small-instances:
 	mkdir -p ./instances/asprilo/md/structured
-	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x7_y6_r4 ./instances/asprilo/md/structured
+	cp -r ../dom/asprilo/asprilo-abstraction-encodings/instances/md/structured/x7_y6_r4 ./instances/asprilo/md/structured
 asprilo-md-medium-instances:
 	mkdir -p ./instances/asprilo/md/structured
-	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y6_r10 ./instances/asprilo/md/structured
+	cp -r ../dom/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y6_r10 ./instances/asprilo/md/structured
 asprilo-md-large-instances:
-	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y9_r20 ./instances/asprilo/md/structured
-	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y10_r20 ./instances/asprilo/md/structured
-	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y12_r20 ./instances/asprilo/md/structured
+	cp -r ../dom/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y9_r20 ./instances/asprilo/md/structured
+	cp -r ../dom/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y10_r20 ./instances/asprilo/md/structured
+	cp -r ../dom/asprilo/asprilo-abstraction-encodings/instances/md/structured/x10_y12_r20 ./instances/asprilo/md/structured
 asprilo-md-all-instances:
 	make medium-instances
 	make small-instances
 	make large-instances
 asprilo-md-all-grid:
 	mkdir -p ./instances/asprilo/md/gridworld
-	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x4_y4_n12_r4 ./instances/asprilo/md/gridworld
-	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x4_y4_n16_r4 ./instances/asprilo/md/gridworld
-	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x5_y5_n20_r5 ./instances/asprilo/md/gridworld
-	cp -r ../env/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x5_y5_n25_r5 ./instances/asprilo/md/gridworld
+	cp -r ../dom/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x4_y4_n12_r4 ./instances/asprilo/md/gridworld
+	cp -r ../dom/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x4_y4_n16_r4 ./instances/asprilo/md/gridworld
+	cp -r ../dom/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x5_y5_n20_r5 ./instances/asprilo/md/gridworld
+	cp -r ../dom/asprilo/asprilo-abstraction-encodings/instances/md/gridworld/x5_y5_n25_r5 ./instances/asprilo/md/gridworld
 
 
 
@@ -58,16 +58,13 @@ asprilo-clean-instances:
 	rm -rf ./instances/asprilo/*
 asprilo-abc-small-instance:
 	mkdir -p ./instances/asprilo/abc/small
-	cp -r ../env/asprilo-abc/instances/small/* ./instances/asprilo/abc/small/
-asprilo-abc-small-robots-instance:
-	mkdir -p ./instances/asprilo/abc/robots
-	cp -r ../env/asprilo-abc/instances/robots/x7_y7_n49_r2_s4_ps2_pr4_u4_o4_l4_N001.lp ./instances/asprilo/abc/robots/
+	cp -r ../dom/asprilo-abc/instances/small/* ./instances/asprilo/abc/small/
 asprilo-abc-robots-instance:
 	mkdir -p ./instances/asprilo/abc/robots
-	cp -r ../env/asprilo-abc/instances/robots/* ./instances/asprilo/abc/robots/
+	cp -r ../dom/asprilo-abc/instances/robots/* ./instances/asprilo/abc/robots/
 asprilo-abc-all-instance:
 	mkdir -p ./instances/asprilo/abc
-	cp -r ../env/asprilo-abc/instances/* ./instances/asprilo/abc/
+	cp -r ../dom/asprilo-abc/instances/* ./instances/asprilo/abc/
 
 
 # HANOI
@@ -76,10 +73,10 @@ hanoi-clean-instances:
 	rm -rf ./instances/hanoi/*
 hanoi-small-instance:
 	mkdir -p ./instances/hanoi
-	cp -r ../env/hanoi/instances/4_disks.lp ./instances/hanoi
+	cp -r ../dom/hanoi/instances/4_disks.lp ./instances/hanoi
 hanoi-medium-instance:
 	mkdir -p ./instances/hanoi
-	cp -r ../env/hanoi/instances/5_disks.lp ./instances/hanoi
+	cp -r ../dom/hanoi/instances/5_disks.lp ./instances/hanoi
 hanoi-big-instance:
 	mkdir -p ./instances/hanoi
-	cp -r ../env/hanoi/instances/6_disks.lp ./instances/hanoi
+	cp -r ../dom/hanoi/instances/6_disks.lp ./instances/hanoi

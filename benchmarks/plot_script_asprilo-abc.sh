@@ -1,38 +1,36 @@
-# HORIZON_R2='--horizon 24 --horizon 25 --horizon 26 --horizon 27 --horizon 28'
-HORIZON_R2='--horizon 26 --horizon 27 --horizon 28 --horizon 29 --horizon 30'
+HORIZON_R2='--horizon 24 --horizon 25 --horizon 26 --horizon 27 --horizon 28'
+# HORIZON_R2='--horizon 26 --horizon 27 --horizon 28 --horizon 29 --horizon 30'
 HORIZON_R3='--horizon 26 --horizon 27 --horizon 28 --horizon 29 --horizon 30'
 HORIZON_ALL='--horizon 24 --horizon 25 --horizon 26 --horizon 27 --horizon 28 --horizon 29 --horizon 30'
 CLINGO_APP='--approach telingo --approach afw'
-AUTOMATA_APP='--approach nfa --approach telingo --approach afw --approach dfa-stm --approach dfa-mso'
+AUTOMATA_APP='--approach telingo --approach afw --approach dfa-stm --approach dfa-mso'
 ALL_APP='--approach nc '${AUTOMATA_APP}
-BASE='--models 1 --x #horizon --env asprilo-abc '
+BASE='--x #horizon --dom asprilo-abc '
 R2='--instance _r2_'
 R3='--instance _r3_'
-############ Models (Just for test)
-# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat models --prefix="models-" --y 'models'
-# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat models --prefix="models-" --y 'models'
 
-############ Processing Time
-# python plot.py  ${BASE} ${ALL_APP} ${R2} --horizon 24 --type bar --stat ptime --prefix="ptime-" --y 'Processing time (sec)'
-# python plot.py  ${BASE} ${ALL_APP} ${R3} --horizon 24 --type bar --stat ptime --prefix="ptime-" --y 'Processing time (sec)'
+############ Full tables with horizon windows
+python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_ALL} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --models 1 --use-lambda
+python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_ALL} --type table --stat cons --stat ptime --stat ctime --stat choices --stat conflicts --stat rules --prefix="one-" --models 1 --use-lambda
 
-############ Clingo Times
-# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat ctime --prefix="time-" --y 'Clingo time (sec)'
-# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat ctime --prefix="time-" --y 'Clingo time (sec)'
+############ Ptime table
+python plot.py  ${BASE} ${ALL_APP} ${HORIZON_ALL} --type table --stat ptime --prefix="ptime-" --models 1 --use-lambda
+
+############ Tables with mean to join
+python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_ALL} --type table --stat cons  --stat ctime --stat choices --stat conflicts --stat rules --prefix="for-join" --models 1 --use-lambda --use-gmean --csv
+python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_ALL} --type table --stat cons  --stat ctime --stat choices --stat conflicts --stat rules --prefix="for-join" --models 1 --use-lambda --use-gmean --csv
+python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_ALL} --type table --stat cons  --stat ctime --stat choices --stat conflicts --stat rules --prefix="for-join" --models 1 --use-lambda --use-gmean --csv
+############ Join means
+python join_csv.py --dom=asprilo-abc --constraint=d1 --constraint=d2 --constraint=d3 --instance=r2 --instance=r3 --prefix-in="for-join" --prefix="all"
 
 
-# ############ Choices
-# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat choices --prefix="choices-" --y '#choices'
-# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat choices --prefix="choices-" --y '#choices'
 
-# ############ Constraints
-# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat cons --prefix="cons-" --y '#cons'
-# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat cons --prefix="cons-" --y '#cons'
 
-# ############ Rules
-# python plot.py  ${BASE} ${ALL_APP} ${R2} ${HORIZON_R2} --type bar --stat rules --prefix="rules-" --y '#rules'
-# python plot.py  ${BASE} ${ALL_APP} ${R3} ${HORIZON_R3} --type bar --stat rules --prefix="rules-" --y '#rules'
 
-############ Clingo Times
-python plot.py  --models 0 --x horizon --env asprilo-abc ${CLINGO_APP} ${R2} --horizon 26 --horizon 27 --horizon 28 --horizon 29 --type bar --stat models --prefix="all-models-models-" --y 'Num models'
-python plot.py  --models 0 --x horizon --env asprilo-abc ${CLINGO_APP} ${R2} --horizon 26 --horizon 27 --horizon 28 --horizon 29 --type bar --stat ctime --prefix="all-models-time-" --y 'Clingo time'
+for f in $(find ./plots/tables  -type f -name "*.tex");
+do
+sed -i '' 's/\\midrule//g' $f
+sed -i '' 's/\\bottomrule/\\hline/g' $f
+sed -i '' 's/\\toprule/\\hline/g' $f
+sed -i '' 's/,/\\,/g' $f
+done

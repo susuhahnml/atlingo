@@ -1,270 +1,211 @@
-# Translating temporal/dynamic formulas into Alternating Automata using ASP
+# Automata for dynamic answer set solving (*atlingo*)
 
-This project contains the ASP encodings to transform temporal logic formulas into alternating automata which allow validation and generation of traces.
-
+This framework implements temporal constraints expressed in an extension of Answer Set Programming (ASP) with language constructs from dynamic logic.
+It transforms dynamic constraints into an automaton expressed in terms of a logic program that enforces the satisfaction of the original constraint.
 ## Dependencies 
 
-Install dependencies using [conda](https://anaconda.org) with the [environment.yml](environment.yml) file.
+- Install dependencies using [conda](https://anaconda.org) with the [environment.yml](environment.yml) file
 
 ```shell
 conda env create -f environment.yml
 ```
 
-Install manually `ltlf2dfa` from a github fork.
+- Install manually `MONA` from [this](https://www.brics.dk/mona/download.html) instructions
 
-```
-python -m pip install -e git+https://github.com/insmdl00/LTLf2DFA.git@master#egg=ltlf2dfa
-```
-
-Update git-submodules. We use `https` instead of `sh` to facilitate the installation in the cluster.
-
+- Update git-submodules. 
 ```shell
-$ git submodule update --init --recursive
+git submodule update --init --recursive
 ```
 
-The installation can be checked my running the tests.
+- Check the installation by running the tests
 
 ```
-$ make tests -B
-```
-
-The successfully output will look like:
-****
-```
-Running 'del' tests.......
-----------------------------------------------------------------------
-Ran 4 tests in 8.119s
-
-OK
-Running 'tel' tests........
-----------------------------------------------------------------------
-Ran 5 tests in 6.402s
-
-OK
-```
-
-
-## Workflow 
-
-We work with two different types of formulas:
-- **TEL** (Linear Temporal Logic over finite traces) LTLf
--  **DEL** (Linear Dynamic Logic over finite traces) LDLf
-
-We will use in this document `del` as an example but it can be substituted by `tel`.
-
-We think of this approach in two steps:
-1.  Generation of a declarative representation of an automaton from a theory formula representing a temporal formula. All files for this step are found in the directory [formula_to_automaton](./formula_to_automaton).
-2.  Using a declarative representation of an automaton, we check if a trace is valid in the automaton by generating all accepted runs. All files for this step are found in the directory  [automata_run](./automata_run). This process has two options.
-    1. The trace is explicitly provided via facts, or an external encoding (such as asprilo). 
-    2. Traces are generated using a choice rule, thus computing all valid traces for a given horizon.
-
-![](img/workflow.png)
-
-We now explain the encodings used and provide examples. The presented commands used the following share arguments:
-
-- `$LOGIC` is either 'tel' or 'del'.
-- `$APP` the application domain name. A directory with this name must exist inside the folder `\env`.
-- `$CONSTRAINT` the name of the file for the temporal constraint without extension. Multiple constraints for the same type of logic can be provided.
-- `$INSTANCE` the full path to the encoding of the instance for the planning problem. An empty file can also be provided.
-- `$PATH_OUT`  directory to store output files are stored in which should be constructed as `./outputs/$APP/$LOGIC/$CONSTRAINT/$NAME_INSTANCE` where `$NAME_INSTANCE` is the name of the instance file. This directory will save: Reified format, Automaton, Plans found, and image visualizations. This parameter is not required in when using the make file.
-
-## 1. Formula to automaton
-
-### Step 1.1: Reification of theory atom
-
-#### Used Files:
-
-- **Temporal formula in an integrity constraint** such as [env/test/temporal_constraints/del/example.lp](./env/test/temporal_constraints/del/example.lp) with format:
-```
-:- not &del{<formula here>}, <additional atoms>.
-```
-
-- **Theory definition** defining the syntax for the formulas [formula_to_automaton/del/theory.lp](./formula_to_automaton/del/theory.lp).
-
-Temporal constraints are passed trough `gringo` along with the theory definition to unfold their structure. They are saved in its reified format to represent the syntax tree that will by the automaton construction. 
-
-The process can be done with the following command:
-
-```shell
-$ gringo formula_to_automaton/$LOGIC/theory.lp env/$APP/temporal_constraints/$LOGIC/$CONSTRAINT.lp $INSTANCE $TRANSLATE_FILES --output=reify > $PATH_OUT/reified.lp
-```
-
-Where:
-
-- `$TRANSLATE_FILES` are additional domain specific files required for the translation. Containing information used in the temporal constraints.
-
-
-### Step 1.2: Translation of reified formula to automaton representation
-
-We transform the reified formula to an automaton with the file [formula_to_automaton/automata_del.lp](./formula_to_automaton/automata_del.lp).
-
-#### Used files:
-
-- **Last propostion** We define the proposition for the last step using [last_prop.lp](./formula_to_automaton/last_prop.lp)
-- **Atomic propositions** Gather all atomic propositions used in the formula from the reified output with [propositional_atoms.lp](./formula_to_automaton/propositional_atoms.lp)
-- **States** Compute the states of the automaton. This process depends on the type of logic we use. [del/states.lp](./formula_to_automaton/del/states.lp).
-- **Delta** Compute the transition function. This process depends on the type of logic we use. [del/delta.lp](./formula_to_automaton/del/delta.lp).
-- **Map** Create a mapping from ids used in the reification with [id_map.lp](./formula_to_automaton/id_map.lp). This is used in the traces and for visualization.
-
-
-The process can be done with the following command:
-
-Example:
-```shell
-$ clingo $(PATH_OUT)/reified.lp ./formula_to_automaton/automata_$(LOGIC).lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > $(PATH_OUT)/automaton.lp
-```
-
-#### *Using make file*
-
-The full translation process can be made using the make file:
-
-```shell
-$ make translate LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE 
-```
-
-
-## 2. Runs of the automaton
-
-Given an automaton representation, to compute the runs we require a trace defining which atomic propositions hold in what instant. Given the trace, all accepted runs for the automaton are computed using [run.lp](./automata_run/run.lp). 
-
-#### Used files:
-
-- **Automata instance** the previously generated instance inside the output folder with extension .automaton 
-
-- **Automata run** encoding to run the automaton with the given trace, it will generate the accepted runs. [automata_run/run](./automata_run/run.lp)
-  
-
-The trace can be obtain in two ways:
-
-
-### Validation of trace randomly generated
-
-The trace is randomly generated using a choice rule [automata_run/trace_generator.lp](./automata_run/trace_generator.lp)
-
-
-The process is done with the command:
-
-```shell
-$ clingo $PATH_OUT/automaton.lp automata_run/run.lp  automata_run/trace_generator.lp -c horizon=$HORIZON
-```
-
-Where:
-
-- `$HORIZON` the fixed horizon. The last time step will be set to this point.
-
-*Note: This process obtains one stable model per accepted run. When multiple traces are given, each will generate the corresponding runs.* 
-
-
-#### *Using make file*
-
-```shell
-$ make generate-traces LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
-```
-
-### Validation of trace from planning encoding
-
-The trace is defined by a planning problem. Instead of the files for the planning encoding a trace can be provided as a set of facts to validate it.
-
-#### Used files: 
- 
-- **Glue file** file defining the relationship between the automaton mapping and the planning problem [glue](./env/test/glue.lp). Must describe all predicates used in the temporal constraint.
-
-
-The process is done with the command:
-
-```shell
-$ clingo $PATH_OUT/automaton.lp automata_run/run.lp env/$APP/glue.lp $INSTANCE $RUN_FILES -c horizon=$HORIZON --stats | tee $OUT_PATH/plan.txt
-```
-
-Where:
-
-- `$RUN_FILES` are additional domain specific files with the explicit trace of the planning encoding. 
-- `$HORIZON` the fixed horizon. The last time step will be set to this point.
-
-*Note: This process obtains one stable model per accepted run. When multiple traces are given, each will generate the corresponding runs.* 
-
-
-#### *Using make file*
-
-```shell
-$ make run LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE RUN_FILES=$RUN_FILES HORIZON=$HORIZON
-```
-
-------------
-
-## Visalization of Automata
-
-The representation of the automata, corresponding to the transition diagram, can be visualized on an image by running:
-
-```shell
-$ make viz-automaton LOGIC=$LOGIC ENV_APP=$ENV_APP CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
-```
-
-Example:
-
-![](img/del/formula_test.png)
-
-------------
-
-
-## Tests
-
-The tests are ran using the command:
-
-```shell
-$ make tests -B
-```
-
-------------
-
-## Asprilo integration
-
-To make the integration with asprilo simpler, the following commands are provided:
-
-Translate temporal constraint from asprilo.
-
-```shell
-$ make translate-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
-```
-
-Run automaton from asprilo using MD domain.
-
-```shell
-$ make run-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
-```
-
-Translate and run automaton from asprilo using MD domain.
-
-```shell
-$ make translate-run-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE HORIZON=$HORIZON
-```
-
-Visualize the plan found using asprilo visualizer
-
-```shell
-$ make viz-asprilo LOGIC=$LOGIC CONSTRAINT=$CONSTRAINT INSTANCE=$INSTANCE
+make tests -B
 ```
 
 ## Benchmarks
 
-For detailed information on how the benchmarking works check the [benchmarks-readme](./benchmarks/README.md).
+More [information](./benchmarks/README.md) on how to run benchmarks
 
 
-## Other options
+## Domain Specific Knowledge
 
-**LDL_LP** ->
-    1. **(atlingo)** AFW_LP + AUTOMATA_CLINGO
-    2. **(telingo)** LTL_TELINGO **➜** LP  (PROP & TELINGO TSEITEN) + CLINGO
-    3. **(afw2nfa)** AFW_LP **➜** AFW_PY **➜** NFA_PY (Vardi Pseudo) **➜** NFA_LP + AUTOMATA_CLINGO  
-    3.1. **(afw2nfa)** AFW_LP **➜** (Clingo) **➜** NFA_LP + AUTOMATA_CLINGO 
-    4. **(ltl2dfa)** LDL_PY (Thoery(API)) **➜** LTL_PY (ltl2dfa) **➜** DFA_MONA (LTL2DFA & MONA) **➜** NFA_PY (pydot) **➜** NFA_LP + AUTOMATA_CLINGO
-      
- AWF   
+All domain specific knowledge can be found in the directory [./dom](./dom). Each sub-directory has the name of the domain `$DOM`
 
-![](/afw.png)
+Each these folders has the following elements:
+- `instances\` folder with all instances
+- `temporal_constraints\` folder with all temporal constraints
+- `glue.lp` File mapping all predicates used in the constraint to predicate `trace/2`. Used in automata approaches and must be  handcrafted.
+- `telingo_choices.lp` Adds a choice for every predicate used in the constraint. Used by the telingo approach.
 
-DFA
-![](dfa.png)
+To integrate the a new domain with the make file add parameter `RUN_DOM_FILES_$DOM` with the paths to the encodings of the problem. We recommend storing those encodings inside the domain folder. 
 
-NFA
-![](nfa.png)
+## Dynamic Constraints
+
+The accepted dynamic constraints have the form:
+```
+:- not &del{<formula here>}, <additional predicates>.
+```
+**Example** [dom/test/temporal_constraints/example.lp](./dom/test/temporal_constraints/example.lp) 
+
+  The syntax for the LDLf formulas is defined in [encodings/translations/grammar.lp](./encodings/translations/grammar.lp)
+
+##  Translate
+
+#### `make translate`
+
+```
+make translate DOM=$DOM APP=$APP CONSTRAINT=$CNAME INSTANCE=$INSTANCEPATH HORIZON=$H
+```
+
+- `$DOM` Name of the domain (folder inside `./dom`)
+- `$APP` Approach name 
+  - `awf` Translates to an alternating automata using meta-programming
+  - `dfa-mso` Translates to a deterministic automata using MONA and the mso translation from ldlf
+  - `dfa-stm` Translates to a deterministic automata using MONA and the stm translation from ldlf
+  - `nfa` Translates to a non-deterministic by first computing the afw and then calling python 
+  - `nfa-awf` Translates to a non-deterministic by first computing the afw and then using an asp encoding
+  - `telingo` Translates to a logic program using adaptation of telingo
+  - `nc` The constraint is not considered
+- `$CNAME` Constraint name  `./dom/$DOM/temporal_constraints/$CNAME.lp`
+- `$INSTANCEPATH` Path to the instance
+- `$H` Horizon (Number of time steps) only needed for `telingo` approach
+- `$H` Horizon (Number of time steps) only needed for `telingo` approach
+
+All output files can be found in the `outputs` directory
+
+##### Example 
+```
+make translate DOM=test APP=afw CONSTRAINT=delex INSTANCE=dom/test/instances/delex_sat.lp
+```
+```
+Translating APP=afw DOM=test CONSTRAINT=delex INSTANCE=delex_sat
+
+Reifying constraint...
+gringo encodings/translations/grammar.lp dom/test/temporal_constraints/delex.lp dom/test/instances/delex_sat.lp  --output=reify > ./outputs/test/afw/delex/delex_sat/reified.lp
+Reification successfull
+Translating....
+clingo ./outputs/test/afw/delex/delex_sat/reified.lp ./encodings/translations/ldlf2afw.lp -n 0 --outf=0 -V0 --out-atomf=%s. --warn=none | head -n1 | tr ". " ".\n"  > ./outputs/test/afw/delex/delex_sat/afw_automata.lp
+Translation to afw  successfull.
+Output saved in ./outputs/test/afw/delex/delex_sat/afw_automata.lp
+```
+
+## Filter traces
+
+#### `make run`
+
+A translation has to be performed before using this command. By running the command `make translate-run` instead, the translation will be made before only if the isn't one already saved. 
+
+
+```
+make run DOM=$DOM APP=$APP CONSTRAINT=$CNAME INSTANCE=$INSTANCEPATH HORIZON=$H MODELS=$M RUN_FILES=$RUN_FILES
+```
+- `$H` Horizon (Number of time steps)
+- `$M` Number of models (`0` for all, `1` for the first model)
+- `$RUN_FILES` Any additional files or parameters that will be passed to clingo as a string
+
+##### Example (SAT)
+```
+make run APP=afw CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_sat.lp HORIZON=3 RUN_FILES="--warn=none"
+```
+
+```
+Running APP=afw DOM=test CONSTRAINT=delexINSTANCE=delex_sat HORIZON=3
+clingo ./outputs/test/afw/delex/delex_sat/afw_automata.lp dom/test/instances/delex_sat.lp encodings/automata_run/run.lp dom/test/glue.lp --warn=none  -c horizon=3 -n 1  | tee ./outputs/test/afw/delex/delex_sat/plan_h-3_n-1.txt
+clingo version 5.4.0
+Reading from ...st/afw/delex/delex_sat/afw_automata.lp ...
+Solving...
+Answer: 1
+a(1) b(0) b(1) b(2) b(3)
+SATISFIABLE
+
+Models       : 1
+Calls        : 1
+Time         : 0.005s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.005s
+```
+
+##### Example (UNSAT)
+```
+make run APP=afw CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_unsat.lp HORIZON=3 RUN_FILES="--warn=none"
+```
+
+```
+Running APP=afw DOM=test CONSTRAINT=delexINSTANCE=delex_unsat HORIZON=3
+clingo ./outputs/test/afw/delex/delex_unsat/afw_automata.lp dom/test/instances/delex_unsat.lp encodings/automata_run/run.lp dom/test/glue.lp --warn=none  -c horizon=3 -n 1 | tee ./outputs/test/afw/delex/delex_unsat/plan_h-3_n-1.txt
+clingo version 5.4.0
+Reading from .../afw/delex/delex_unsat/afw_automata.lp ...
+Solving...
+UNSATISFIABLE
+
+Models       : 0
+Calls        : 1
+Time         : 0.004s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.004s
+```
+
+
+
+#### Generate traces
+
+To compute all possible traces for an automata-based approach it is enough to include file [trace_generator.lp](./encodings/automata_run/trace_generator.lp).
+
+##### Example
+```
+make run APP=dfa-mso CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_unsat.lp HORIZON=3 RUN_FILES="--warn=none ./encodings/automata_run/trace_generator.lp" MODELS=0
+```
+```
+Running APP=dfa-mso DOM=test CONSTRAINT=delexINSTANCE=delex_unsat HORIZON=3
+clingo ./outputs/test/dfa-mso/delex/delex_unsat/dfa-mso_automata.lp dom/test/instances/delex_unsat.lp encodings/automata_run/run.lp --warn=none ./encodings/automata_run/trace_generator.lp  -c horizon=3 -n 0 | tee ./outputs/test/dfa-mso/delex/delex_unsat/plan_h-3_n-0.txt
+clingo version 5.4.0
+Reading from .../delex/delex_unsat/dfa-mso_automata.lp ...
+Solving...
+Answer: 1
+a(1) b(0) b(2) b(3)
+Answer: 2
+a(1) b(0) b(2) b(3)
+Answer: 3
+a(1) b(0) b(2) b(3)
+Answer: 4
+a(1) b(0) b(2) b(3)
+Answer: 5
+a(1) b(0) b(2) b(3)
+Answer: 6
+a(1) b(0) b(2) b(3)
+Answer: 7
+a(1) b(0) b(2) b(3)
+Answer: 8
+a(1) b(0) b(2) b(3)
+SATISFIABLE
+
+Models       : 8
+Calls        : 1
+Time         : 0.003s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.003s
+```
+
+## Visualize
+
+Visualize an automata 
+
+##### `make viz-png` and `make viz-tex`
+
+```
+APP=afw CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_unsat.lp
+
+```
+
+##### Example (afw in png)
+```
+make viz-png APP=afw CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_sat.lp
+```
+![](./img/img_afw.png)
+
+##### Example (dfa-mso in pdf)
+```
+make viz-tex APP=dfa-mso CONSTRAINT=delex DOM=test INSTANCE=dom/test/instances/delex_sat.lp
+```
+![](./img/img_dfa.png)
+
+## Workflow
+![](./img/workflow.png)

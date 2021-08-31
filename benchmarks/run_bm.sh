@@ -9,7 +9,7 @@ NC=`tput sgr0`
 set -e
 #export PATH="$HOME/temporal-automata/stage_asp_gitlab/tools/MONA/Front:$PATH"
 
-ENV=$1
+DOM=$1
 APPROACH=$2
 HORIZON=$3
 MODELS=$4
@@ -23,7 +23,9 @@ NAME=${PREFIX}${APPROACH}__h-${HORIZON}__n-${MODELS}
 
 MACHINE=komputer # Value in <machine name="komputer"
 # set this
-BT_PATH=$HOME/temporal-automata/atlingo/benchmarks/benchmark-tool
+ATLINGO_PATH=$HOME/temporal-automata
+ATLINGO_PATH=$HOME/Education/Phd/potassco
+BT_PATH=$ATLINGO_PATH/atlingo/benchmarks/benchmark-tool
 
 # this has to be the same as project name in run-benchmark.xml
 PROJECT=temporal-automata
@@ -46,16 +48,16 @@ echo "$C ---------------------------$NC"
 
 
 # Create the runscript for the arguments
-RUNSCRIPT_PATH=$PWD/runscripts/runscript_${ENV}_$NAME.xml
+RUNSCRIPT_PATH=$PWD/runscripts/runscript_${DOM}_$NAME.xml
 echo "$Y Creating runscript in "
 echo "$B    $RUNSCRIPT_PATH $NC"
-sed "s/{H}/"$HORIZON"/g; s/{N}/"$MODELS"/g; s/{CLINGO_ARGS}/'"$CLINGO_ARGS"'/g; s/{APP}/"$APPROACH"/g" ./runscripts/runscript_${ENV}.xml >  $RUNSCRIPT_PATH
+sed "s/{H}/"$HORIZON"/g; s/{N}/"$MODELS"/g; s/{CLINGO_ARGS}/'"$CLINGO_ARGS"'/g; s/{APP}/"$APPROACH"/g" ./runscripts/runscript_${DOM}.xml >  $RUNSCRIPT_PATH
 
 
 # Results directory
 echo "$Y Removing old result directory $NC"
-mkdir -p $dir/results/$ENV
-RES_DIR=$dir/results/$ENV/$NAME
+mkdir -p $dir/results/$DOM
+RES_DIR=$dir/results/$DOM/$NAME
 rm -rf $RES_DIR
 mkdir -p $RES_DIR
 
@@ -66,7 +68,7 @@ cd $BT_PATH
 
 
 #Output directory inside benchmark-tool is the value in <runscript output="">
-OUTPUT_DIR=output/$ENV/${APPROACH}__h-${HORIZON}__n-${MODELS}/$PROJECT 
+OUTPUT_DIR=output/$DOM/${APPROACH}__h-${HORIZON}__n-${MODELS}/$PROJECT 
 echo "$Y Calling ./bgen$NC"
 ./bgen $RUNSCRIPT_PATH
 
@@ -93,7 +95,7 @@ echo "$G Slurm queue is now empty $NC"
 
 
 # Clean outputs in runsuolver.solver and check errors
-for f in $(find ./$OUTPUT_DIR/$MACHINE/results/$ENV-benchmark  -type f -name "*runsolver.solver");
+for f in $(find ./$OUTPUT_DIR/$MACHINE/results/$DOM-benchmark  -type f -name "*runsolver.solver");
 do
 	if grep -q 'fail' $f; then
 		if grep -q 'INTERRUPTED' $f; then
@@ -139,11 +141,6 @@ echo "$B    $RES_DIR/$NAME.beval$NC"
 ################ Clean beval output an generate ods file
 sed -i 's/partition="short" partition="short"/partition="short"/g' $RES_DIR/$NAME.beval
 
-
-echo "$Y bconv..."
-cat $RES_DIR/$NAME.beval | ./bconv -m time,ctime,csolve,ground0,groundN,models,timeout,restarts,conflicts,choices,domain,vars,cons,mem,error,memout,status,atoms,rules,roriginal,bodies,equiv,rchoices,ptime > $RES_DIR/$NAME.ods 2>> $RES_DIR/$NAME.error
-echo "$G Conversion results saved in "
-echo "$B    $RES_DIR/$NAME.ods$NC"
 
 echo "$G Done $NAME$NC"
 

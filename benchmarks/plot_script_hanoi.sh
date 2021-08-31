@@ -4,7 +4,7 @@ HORIZON_D6='--horizon 62 --horizon 63 --horizon 64 --horizon 65 --horizon 66'
 
 AUTOMATA_APP='--approach nfa --approach nfa-afw --approach afw --approach dfa-stm --approach dfa-mso'
 ALL_APP='--approach nc '${AUTOMATA_APP}
-BASE='--models 0 --x #horizon --env hanoi '
+BASE='--models 0 --x #horizon --dom hanoi '
 D4='--instance 4_'
 D5='--instance 5_'
 D6='--instance 6_'

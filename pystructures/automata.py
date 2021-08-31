@@ -5,16 +5,6 @@ import clingo as _clingo
 import itertools
 import dot2tex
 
-def reduce_and(a,keep_true=True):
-    if len(a)>0 and type(a[0])==list:
-        return [reduce_and(e) for e in a]
-    a = set(a)
-    a.discard('true')
-    a = list(a)
-    if keep_true and len(a)==0:
-        a.append('true')
-    return a
-
 def de_tuple_str_symbol(term):
     if (term.type ==  _clingo.SymbolType.String):
         return str(term)
@@ -39,8 +29,8 @@ class State():
 
 class Condition():
     def __init__(self, included, not_included):
-        self._included = reduce_and(included,False)
-        self._not_included = reduce_and(not_included,False)
+        self._included = included
+        self._not_included = not_included
 
     @classmethod
     def from_str(cls, s, prop2id):
@@ -126,23 +116,31 @@ class Automata():
         for sa in ctl.symbolic_atoms:
             s = sa.symbol
             i = s.arguments[0].number
+            n_args = len(s.arguments)
             if s.name == 'initial_state':
-                initial_states.append(s.arguments[0].number)
+                initial_states.append(i)
             elif s.name == 'prop':
                 id2prop[i] = de_tuple_str_symbol(s.arguments[1]).replace('"','')
             elif s.name == 'state':
                 formula = LDLfFormula.from_symbol(s.arguments[1],id2prop)
                 states[i] = State(i,str(formula))
             elif s.name == 'delta':
-                n_to = "true"  if s.arguments[2].number is None  else s.arguments[2].number
-                case = str(s.arguments[1].arguments[0])
+                case = str(s.arguments[1])
+                trans.setdefault(i,{}).setdefault(case,[])
                 cases.setdefault(i,{}).setdefault(case,([],[]))
-                pos = 0 if s.arguments[1].arguments[1].name == "in" else 1
-                prop = s.arguments[1].arguments[2].number if s.arguments[1].arguments[2].number else "true"
-                cases[i][case][pos].append(prop)
-                trans.setdefault(i,{}).setdefault(case,[]).append(n_to)
+                # if n_args==2:
+                if n_args==3:
+                    n_to = s.arguments[2].number
+                    trans[i][case].append(n_to)
+                elif n_args==4:
+                    pos = 0 if s.arguments[2].name == "in" else 1
+                    prop = s.arguments[3].number
+                    cases[i][case][pos].append(prop)
+                elif n_args!=2:
+                    raise RuntimeError("Invalid format in predicate " + str(s))
+                
             elif s.name == "final_state":
-                final_states.append(s.arguments[0].number)
+                final_states.append(i)
 
         cases_classes = {}
         for s_from, dic_c in cases.items():
@@ -155,10 +153,11 @@ class Automata():
             transitions[s_from]={}
             for c_id,s2 in dic_c.items():
                 con = cases_classes[s_from][c_id]
-                transitions[s_from].setdefault(con,[]).append(reduce_and(s2,True))
+                transitions[s_from].setdefault(con,[]).append(s2)
 
         return cls(id2prop,states,transitions,initial_states,set(final_states),"")
         
+
     def dot(self, latex = False, labels =True):
         dot = 'digraph ATLINGO {\n'
         dot += 'rankdir = LR;\n'
@@ -172,7 +171,7 @@ class Automata():
             label = s._label if labels else s._id
             if labels and latex:
                 label = label.replace("<","\\deventually{").replace("[","\\dalways{")
-                label = label.replace("&skip","\\top")
+                label = label.replace("&t","\\stp")
                 label = label.replace("&true","\\top")
                 label = label.replace("&false","\\bot")
                 label = label.replace("~","\\neg")
@@ -190,7 +189,6 @@ class Automata():
         if isinstance(self,AFW):
             if latex:
                 branch_format = 'color=white shape = circle width = .3 height = .3 label="\\forall"'
-            dot += 'true [{}];\n'.format(branch_format)
         # Initial Node
         for init_i in self._initial_states_ids:
             dot += f'init -> {init_i};\n'
@@ -223,13 +221,13 @@ class Automata():
             macros = """
             \\newcommand{\\dalways}[1]{\\ensuremath{[#1]\\,}}                    
             \\newcommand{\\deventually}[1]{\\ensuremath{\\langle#1\\rangle\\,}} 
+            \\newcommand{\\stp}{\\ensuremath{\\tau}}
             """
             f.write(macros)
             f.write(texcode.replace("wedge","\\wedge").replace("join=bevel,","join=bevel,scale=0.4"))
 
     def save_png(self, file="outputs/automata_viz",labels =True, latex=False):
         dot = self.dot(labels=labels,latex=latex)
-        # print(dot)
         s = Source(dot)
         s.render(file, format="png")
 
@@ -300,7 +298,6 @@ class NFA(Automata):
             transitions.setdefault(n_from._id,{})[c]=[n_to._id]
 
         initial_states_ids = [n_old_states+1]
-        # (id2prop)
         return cls(id2prop,states,transitions,initial_states_ids,set(final),"")
 
     def to_lp(self, state_prefix = ""):
@@ -319,26 +316,27 @@ class NFA(Automata):
         for s_from, v in self._transitions.items():
             c_id = 0
             for c, s_tos in v.items():
+                p+=('delta({},{}).\n').format(tos(s_from),c_id)
                 for s_to in s_tos:
-                    for prop_in in c._included:
-                        p+=('delta({},({},in,{}),{}).\n').format(tos(s_from),c_id,prop_in,tos(s_to))
-                    for prop_in in c._not_included:
-                        p+=('delta({},({},out,{}),{}).\n').format(tos(s_from),c_id,prop_in,tos(s_to))
-                    if c.is_taut():
-                        p+=('delta({},({},in,true),{}).\n').format(tos(s_from),c_id,tos(s_to))
-                    c_id=c_id+1
+                    p+=('delta({},{},{}).\n').format(tos(s_from),c_id,tos(s_to))
+                for prop_in in c._included:
+                    p+=('delta({},{},in,{}).\n').format(tos(s_from),c_id,prop_in)
+                for prop_in in c._not_included:
+                    p+=('delta({},{},out,{}).\n').format(tos(s_from),c_id,prop_in)
+
+                c_id=c_id+1
         for s in self._final_states_ids:
             p+=('final_state({}).\n').format(tos(s))
     
         p+=('%------- Definition of trace --------.\n')
         for i, prop in self._props.items():
-            if prop == "true":
+            if prop == "null":
                 continue
             if prop[-1]==")":
                 p_with_t = prop[:-1]+",T)"
             else:
                 p_with_t = prop+"(T)"
-            p+=('in_trace_at({},T):- {}.\n').format(i,p_with_t)
+            p+=('trace({},T):- {}.\n').format(i,p_with_t)
 
         return p
 
@@ -355,7 +353,6 @@ class AFW(Automata):
         new_states = set([])
         
         def get_state(l):
-            l = reduce_and(l,False)
             l.sort()
             t = tuple(l)
             if not t in tuple2state:
@@ -373,7 +370,7 @@ class AFW(Automata):
 
             options_per_state = [[] for i in s._label]
             for i, s_afw in enumerate(s._label):
-                if s_afw == "true" or not s_afw in self._transitions:
+                if s_afw == "null" or not s_afw in self._transitions:
                     continue
                 options_per_state[i]=[]
                 for c,s_nexts in  self._transitions[s_afw].items():

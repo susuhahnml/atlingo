@@ -1,1 +1,0 @@
-:-not &del{ ?q .>? &true .>* &false}.

@@ -1,1 +1,0 @@
-#include "../vertical_horizontal.lp".
